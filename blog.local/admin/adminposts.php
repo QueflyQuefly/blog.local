@@ -8,9 +8,17 @@ $error = ''; $posts = [];
 /* Удаление комментариев реализую в будущем */
 
 if(isset($_GET['deletePostById'])){
-    $deleteId = clearInt($_GET['deletePostById']);
-    if($deleteId != false){
+    $deletePostId = clearInt($_GET['deletePostById']);
+    if($deletePostId != ''){
         deletePostById($deleteId);
+        header("Location: adminposts.php");
+    } 
+}
+if(isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])){
+    $deleteCommentId = clearInt($_GET['deleteCommentById']);
+    $postId = clearInt($_GET['byPostId']);
+    if($deleteCommentId != '' && $postId != ''){
+        deleteCommentByIdAndPostId($deleteCommentId, $postId);
         header("Location: adminposts.php");
     } 
 }
@@ -53,6 +61,9 @@ if(isset($_GET['deletePostById'])){
                     echo "<ul class='list'>";
                     for($i= getLastPostId(); $i>=1; $i--){
                         $posts = getPostsForIndexById($i);
+                        $comments = getCommentsByPostId($i);
+                        $countComments = count($comments);
+
             ?>
 
             
@@ -61,6 +72,25 @@ if(isset($_GET['deletePostById'])){
 
             <p class='list'>ID:<?=$i?> ::: Название: <?=$posts['Name']?> <br> Автор: <?=$posts['Author']?> </p>
             <a class='list' href='adminposts.php?deletePostById=<?=$i?>'> Удалить <?=$i?>-й пост</a>
+            <p class='list'> Комментариев к посту: <?=$countComments?> </p>
+            <?php 
+                if ($countComments){
+                    echo "<ul class='list'>";
+                    for($j = 0; $j <= $countComments -1; $j++){
+            ?>
+
+            <li class='list'>
+            <p class='list'>ID:<?=$comments[$j]['Id']?> ::: Автор: <?=$comments[$j]['Author']?>  Содержание: <?=$comments[$j]['Content']?><br>  </p>
+            <a class='list' href='adminposts.php?deleteCommentById=<?=$comments[$j]['Id']?>&byPostId=<?=$i?>'> Удалить <?=$comments[$j]['Id']?>-й комментарий</a>
+            </li>
+
+                    <?php
+
+                            }
+                        echo "</ul>";
+                        }
+                    ?>
+
             <hr>
 
             </li>
