@@ -9,47 +9,47 @@ try {
 
     /* Здесь может ввести в заблуждение dbname=mysql, 
     но этот скрипт запускается лишь в том случае, если нет dbname=myblog,
-    точнее нет с ней соединения(что указывает на предыдущий аргумент) */
+    точнее нет с ней соединения (что указывает на предыдущий аргумент) */
 
     $db = new PDO("mysql:host=$host;dbname=mysql", $username, $password); 
 
     $sql = "CREATE DATABASE $dbname;
 
-        USE myblog;
+        USE $dbname;
 
         CREATE TABLE Users
         (
-        Id INT AUTO_INCREMENT,
-        Login VARCHAR(20),
-        Fio VARCHAR(20),
-        Password VARCHAR(20),
-        Rights VARCHAR(20),
+        id INT AUTO_INCREMENT,
+        login VARCHAR(20),
+        fio VARCHAR(20),
+        password VARCHAR(20),
+        rights VARCHAR(20),
         PRIMARY KEY (id)
         );
 
         CREATE TABLE Comments
         (
-        Id INT AUTO_INCREMENT,
-        Postid INT,
-        Author VARCHAR(20),
-        Date INT,
-        Content TEXT,
+        id INT AUTO_INCREMENT,
+        post_id INT,
+        author VARCHAR(20),
+        date INT,
+        content TEXT,
         PRIMARY KEY (id)
         );
 
 
         CREATE TABLE Posts
         (
-        Id INT AUTO_INCREMENT,
-        Name TEXT,
-        Author VARCHAR(20),
-        Date INT,
-        Content TEXT,
+        id INT AUTO_INCREMENT,
+        name TEXT,
+        author VARCHAR(20),
+        date INT,
+        content TEXT,
         PRIMARY KEY (id)
         );
         
         INSERT INTO Users
-        (Login, Fio, Password, Rights) 
+        (login, fio, password, rights) 
         VALUES ('12345', 'Администратор', '12345', 'superuser')
         ;";
 

@@ -1,10 +1,10 @@
 <?php
 require_once "functions/functions.php";
 
-if (isset($_POST['Login']) && isset($_POST['Fio']) && isset($_POST['Password'])) {
-    $login = clearStr($_POST['Login']);
-    $fio = clearStr($_POST['Fio']);
-    $password = clearStr($_POST['Password']);    
+if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password'])) {
+    $login = clearStr($_POST['login']);
+    $fio = clearStr($_POST['fio']);
+    $password = clearStr($_POST['password']);    
     if ($login && $fio && $password) {
         if (!createUser($login, $fio, $password)) {
             $error = "Пользователь с таким логином уже зарегистрирован";
@@ -38,10 +38,10 @@ if (isset($_GET['msg'])) {
         <div class='form'>
             <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
             <p class='label'>Регистрация</p>
-            <form action='<?=$_SERVER['PHP_SELF']?>' method='post'>
-                <input type='login' name='Login' required autofocus minlength="4" maxlength='20' placeholder='Введите уникальный логин' class='text'><br>
-                <input type='login' name='Fio' required minlength="3" maxlength='20' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
-                <input type='password' name='Password' required minlength="5" maxlength='20' placeholder='Введите пароль' class='text'><br>
+            <form action='reg.php' method='post'>
+                <input type='login' name='Login' required autofocus minlength="1" maxlength='20' placeholder='Введите уникальный логин' class='text'><br>
+                <input type='login' name='Fio' required minlength="1" maxlength='20' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
+                <input type='password' name='Password' required minlength="1" maxlength='20' placeholder='Введите пароль' class='text'><br>
 
                 <div class='msg'>
                     <p class='error'><?=$error?></p>

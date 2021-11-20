@@ -1,6 +1,6 @@
 <?php
 session_start(); 
-$_SESSION['Referrer'] = 'addpost.php';
+$_SESSION['referrer'] = 'addpost.php';
 
 require_once "functions/functions.php";
 
@@ -87,7 +87,7 @@ if (isset($_GET['msg'])) {
             <p class='ok'><?=$ok?></p>
             <p class='error'>
                 <?php
-                    if (!$_SESSION['Log_in']) {
+                    if (!$_SESSION['log_in']) {
                         echo "<a class='link' href='login.php'>Войдите, прежде чем продолжить</a>";
                         exit;
                     }
@@ -99,12 +99,16 @@ if (isset($_GET['msg'])) {
         <p class='label'>Форма добавления поста:</p>
         
         <div class='form'>
-            <form action='<?=$_SERVER['PHP_SELF']?>' method='post' enctype="multipart/form-data" id='addpost'>
-                <label id='input' for='file_img' class='addpost'>Название: </label><input type='text' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostName' placeholder="Добавьте название. Количество символов: от 20 до 140"><br>
-                <label id='input' for='file_img' class='addpost'>Автор: </label><input type='text' class='addpostauthor' required minlength="1" maxlength='40' name='addPostAuthor' placeholder="Имя автора или его псевдоним. Количество символов: от 3 до 40" value='<?=$_SESSION['Fio']?>'> 
+            <form action='addpost.php' method='post' enctype="multipart/form-data" id='addpost'>
+                <label id='input' for='file_img' class='addpost'>Название: </label>
+                <input type='text' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostName' placeholder="Добавьте название. Количество символов: от 20 до 140"><br>
+                
+                <label id='input' for='file_img' class='addpost'>Автор: </label>
+                <input type='text' class='addpostauthor' required minlength="1" maxlength='40' name='addPostAuthor' placeholder="Имя автора или его псевдоним. Количество символов: от 3 до 40" value='<?=$_SESSION['fio']?>'> 
 
-                <br><input type="hidden" name="MAX_FILE_SIZE" value="<?=$size?>"> <br>
-                <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$size?> байт</label><input class='addpostimg' type='file' name='addPostImg' id='file_img' > <!-- required -->
+                <br> <input type="hidden" name="MAX_FILE_SIZE" value="<?=$size?>"> <br>
+                <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$size?> байт</label>
+                <input class='addpostimg' type='file' name='addPostImg' id='file_img' > <!-- required -->
                 
                 <br><textarea class='text' required minlength="1" maxlength='4000' spellcheck="true" name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='content'></textarea><br>
                 

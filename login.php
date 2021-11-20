@@ -1,28 +1,28 @@
 <?php
 session_start();
 
-$_SESSION['Log_in'] = false;
+$_SESSION['log_in'] = false;
 $error = '';
 
 require_once "functions/functions.php";
 
-if (isset($_POST['Login']) && isset($_POST['Password'])) {
-    $login = clearStr($_POST['Login']);
-    $password = clearStr($_POST['Password']);
+if (isset($_POST['login']) && isset($_POST['password'])) {
+    $login = clearStr($_POST['login']);
+    $password = clearStr($_POST['password']);
 
     if (isUser($login, $password)) {
-        $_SESSION['Log_in'] = true;
-        $_SESSION['Fio'] = $fio;
-        $_SESSION['Rights'] = getRightsByLogin($login);
+        $_SESSION['log_in'] = true;
+        $_SESSION['fio'] = $fio;
+        $_SESSION['rights'] = getRightsByLogin($login);
     } else {
         $error = "Неверный логин или пароль";
         header("Location: login.php?msg=$error");
     }
 }
 
-if ($_SESSION['Log_in'] === true) {
-    if (isset($_SESSION['Referrer'])) {
-        $ref = $_SESSION['Referrer'];
+if ($_SESSION['log_in'] === true) {
+    if (isset($_SESSION['referrer'])) {
+        $ref = $_SESSION['referrer'];
         if (strpos($ref, "&exit")) {
             $ref = explode("&", $ref);
             header("Location: {$ref[0]}");
@@ -59,9 +59,9 @@ if (isset($_GET['msg'])) {
             <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
             <p class='label'>Вход</p>
 
-            <form action='<?=$_SERVER['PHP_SELF']?>' method='post'>
-                <input type='login' name='Login' required minlength="4" maxlength='20' autofocus autocomplete="true" placeholder='Ваш логин' class='text'><br>
-                <input type='password' name='Password' required minlength="5" maxlength='20' placeholder='Ваш пароль' class='text'><br>
+            <form action='login.php' method='post'>
+                <input type='login' name='Login' required minlength="1" maxlength='20' autofocus autocomplete="true" placeholder='Ваш логин' class='text'><br>
+                <input type='password' name='Password' required minlength="1" maxlength='20' placeholder='Ваш пароль' class='text'><br>
 
                 <div class='msg'>
                     <p class='error'><?=$error?></p>

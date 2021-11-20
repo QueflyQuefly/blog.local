@@ -2,8 +2,8 @@
 require_once $file_functions;
 
 session_start();
-unset($_SESSION['Referrer']);
-$_SESSION['Referrer'] = $_SERVER['REQUEST_URI'];
+unset($_SESSION['referrer']);
+$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 $_SESSION['entrance'] = false;
 
@@ -32,7 +32,7 @@ if (isset($_POST['view'])) {
             <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
             <p class='label'>Администрирование</p>
 
-            <?php if ($_SESSION['Rights'] != "superuser") { ?>
+            <?php if ($_SESSION['rights'] != "superuser") { ?>
 
             <div class='msg'>
                 <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>
@@ -43,8 +43,11 @@ if (isset($_POST['view'])) {
             <form action='admin.php'  method='post'>
 
                 <div class='radio'>
-                    <input type='radio' id='radio1' name='view' value='viewusers' class='radio'><label for='radio1'>К управлению пользователями</label>
-                    <br><input type='radio' id='radio2' name='view' value='viewposts' class='radio'><label for='radio2'>К управлению постами</label>
+                    <input type='radio' id='radio1' name='view' value='viewusers' class='radio'>
+                    <label for='radio1'>К управлению пользователями</label>
+
+                    <br><input type='radio' id='radio2' name='view' value='viewposts' class='radio'>
+                    <label for='radio2'>К управлению постами</label>
                 </div>
 
                 <br><div id='right'><input type='submit' value='Перейти' class='submit'></div>

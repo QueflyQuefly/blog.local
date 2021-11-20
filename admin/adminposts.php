@@ -39,7 +39,7 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
         <div class='msg'>
             <p class='error'>
                 <?php
-                    if ($_SESSION['Rights'] != "superuser") {
+                    if ($_SESSION['rights'] != "superuser") {
                         echo "<p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>";
                         exit;
                     }
@@ -67,7 +67,7 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
 
             <li class='list'>
 
-            <p class='list'>ID:<?= $i ?> ::: Название: <?= $posts['Name'] ?> <br> Автор: <?= $posts['Author'] ?> </p>
+            <p class='list'>ID:<?= $i ?> ::: Название: <?= $posts['name'] ?> <br> Автор: <?= $posts['author'] ?> </p>
             <a class='list' href='adminposts.php?deletePostById=<?= $i ?>'> Удалить <?= $i ?>-й пост</a>
             <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
             
@@ -78,8 +78,8 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
             ?>
 
             <li class='list'>
-            <p class='list'>ID:<?= $comments[$j]['Id'] ?> ::: Автор: <?= $comments[$j]['Author'] ?>  Содержание: <?= $comments[$j]['Content'] ?><br>  </p>
-            <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['Id'] ?>&byPostId=<?= $i ?>'> Удалить <?= $comments[$j]['Id'] ?>-й комментарий</a>
+            <p class='list'>ID:<?= $comments[$j]['id'] ?> ::: Автор: <?= $comments[$j]['author'] ?>  Содержание: <?= $comments[$j]['content'] ?><br>  </p>
+            <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $i ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>
             </li>
 
                     <?php

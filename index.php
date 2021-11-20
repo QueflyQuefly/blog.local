@@ -3,22 +3,22 @@ session_start();
 require_once "functions/functions.php";
 
 
-if ($_SESSION['Log_in'] == false) {
+if ($_SESSION['log_in'] == false) {
     session_destroy();
 }
     
 if (isset($_GET['exit'])) {
-    $_SESSION['Log_in'] = false;
+    $_SESSION['log_in'] = false;
     session_destroy();
     header("Location: /");
 } 
 
-if ($_SESSION['Log_in']) {
+if ($_SESSION['log_in']) {
     $link = "<a class='menu' href='?exit'>Выйти</a>";
-    if ($_SESSION['Rights'] == 'superuser') {
+    if ($_SESSION['rights'] == 'superuser') {
         $label = 'Вы вошли как администратор';
     } else {
-        $label = ucfirst($_SESSION['Fio']) . ", вы вошли как пользователь";
+        $label = ucfirst($_SESSION['fio']) . ", вы вошли как пользователь";
     }
 } else {
     $link = "<a class='menu' href='login.php'>Войти</a>";
@@ -78,9 +78,9 @@ $year = date("Y", time());
         <div class='viewonepost'>
             
             <div class='oneposttext'>
-                <p class='onepostzagolovok'><?=$post['Name']?></p>
-                <p class='onepostcontent'><?=$post['Content']?></p>
-                <p class='postdate'><?=$post['Date']. " " . $post['Author']?></p>
+                <p class='onepostzagolovok'><?=$post['name']?></p>
+                <p class='onepostcontent'><?=$post['content']?></p>
+                <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
             </div>
             <div class='onepostimage'>
                 <img src='images/PostImgId<?=$num?>.jpg' alt='Картинка' class='onepostimage'>
@@ -106,9 +106,9 @@ $year = date("Y", time());
             <div class='smallpost'>
 
                  <div class='smallposttext'>
-                    <p class='smallpostzagolovok'><?=$post['Namesmall']?></p>
-                    <p class='smallpostcontent'><?=$post['Contentsmall']?></p>
-                    <p class='postdate'><?=$post['Date']. " " . $post['Author']?></p>
+                    <p class='smallpostzagolovok'><?=$post['name_small']?></p>
+                    <p class='smallpostcontent'><?=$post['content_small']?></p>
+                    <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
                 </div>
 
                 <div class='smallpostimage'>

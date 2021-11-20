@@ -2,11 +2,11 @@
 require_once "functions/functions.php";
 
 session_start();
-unset($_SESSION['Referrer']);
-$_SESSION['Referrer'] = $_SERVER['REQUEST_URI'];
+unset($_SESSION['referrer']);
+$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (isset($_GET['exit'])) {
-    $_SESSION['Log_in'] = false;
+    $_SESSION['log_in'] = false;
 } 
 
 if (isset($_GET['viewPostById'])) {
@@ -32,15 +32,15 @@ if (is_null($id)) {
 }
 
 if (isset($_GET['exit'])) {
-    $_SESSION['Log_in'] = false;
+    $_SESSION['log_in'] = false;
 } 
 
-if ($_SESSION['Log_in']) {
+if ($_SESSION['log_in']) {
     $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-    if ($_SESSION['Rights'] == 'superuser') {
+    if ($_SESSION['rights'] == 'superuser') {
         $label = 'Вы вошли как администратор';
     } else {
-        $label = ucfirst($_SESSION['Fio']) . ", вы вошли как пользователь";
+        $label = ucfirst($_SESSION['fio']) . ", вы вошли как пользователь";
     }
 } else {
     $link = "<a class='menu' href='login.php'>Войти</a>";
@@ -81,11 +81,11 @@ $year = date("Y", time());
 <div class='allsinglepost'>
     <div class='contentsinglepost'>
 
-        <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?=$post['Name']?></p></div>
+        <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?=$post['name']?></p></div>
 
         <div id='singlepostauthor'>
-            <p class='singlepostauthor'><?=$post['Author']?></p>
-            <p class='singlepostdate'><?=$post['Date']?></p>
+            <p class='singlepostauthor'><?=$post['author']?></p>
+            <p class='singlepostdate'><?=$post['date']?></p>
         </div>
 
         <div class='singlepostimage'>
@@ -94,13 +94,13 @@ $year = date("Y", time());
 
         <div class='singleposttext'>
             
-            <p class='singlepostcontent'><?=$post['Content']?></p>
+            <p class='singlepostcontent'><?=$post['content']?></p>
             
         </div>
         <div class='addcomments'  id='comment'>
 
             <?php
-                if (!$_SESSION['Log_in']) {
+                if (!$_SESSION['log_in']) {
                     echo "<p class='center'>Добавление комментариев доступно только для авторизованных пользователей</p>";
                 } else {
                     echo $error;
@@ -111,7 +111,7 @@ $year = date("Y", time());
             <div class='addcomment'>
 
                 <form action='<?=$_SERVER['REQUEST_URI']?>#comment' method='post'>
-                    <input type='hidden' name='addCommentAuthor' value='<?=$_SESSION['Fio']?>'> 
+                    <input type='hidden' name='addCommentAuthor' value='<?=$_SESSION['fio']?>'> 
                    
                     <br><textarea name='addCommentContent' required  minlength="1" maxlength='500' wrap='hard' placeholder="Опишите ваши эмоции :-) (до 500 символов)" id='textcomment'></textarea><br>
                     
@@ -132,12 +132,12 @@ $year = date("Y", time());
             <?php
                 if (!empty($comments) && $comments != false) {
                 for ($i = count($comments)-1; $i >= 0; $i--) {
-                    $content = nl2br($comments[$i]['Content']);
-                    $date = date("d.m.Y",$comments[$i]['Date']) ." в ". date("H:i", $comments[$i]['Date']);
+                    $content = nl2br($comments[$i]['content']);
+                    $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);
             ?>
 
             <div class='viewcomment'>
-                <p class='commentauthor'><?=$comments[$i]['Author']?><div class='commentdate'><?=$date?></div></p>
+                <p class='commentauthor'><?=$comments[$i]['author']?><div class='commentdate'><?=$date?></div></p>
                 
                 <p class='commentcontent'><?=$content?></p>
                 <hr>

@@ -17,13 +17,13 @@ function clearStr($str) {
 function getLastPostId() {
     global $db, $error;
     try {
-        $sql = "SELECT Id FROM Posts;";
+        $sql = "SELECT id FROM Posts;";
         $stmt = $db->query($sql);
         if (!$stmt) {
             return false;
         }
         while ($row = $stmt->fetch()) {
-            $id = $row['Id'];
+            $id = $row['id'];
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
@@ -38,7 +38,7 @@ function addAdmin($login, $fio, $password){
         $password = $db->quote($password);
         echo $password;
 
-        $sql = "INSERT INTO Users(Login, Fio, Password, Rights) 
+        $sql = "INSERT INTO Users(login, fio, password, rights) 
                 VALUES ($login, $fio, $password, 'superuser');";
         $db->exec($sql);
     } catch (PDOException $e) {
@@ -48,7 +48,7 @@ function addAdmin($login, $fio, $password){
 function getCommentsByPostId($postid) {
     global $db, $error;
     try {
-        $sql = "SELECT Id, Author, Date, Content FROM Comments WHERE Postid = $postid;";
+        $sql = "SELECT id, author, date, content FROM Comments WHERE post_id = $postid;";
         $stmt = $db->query($sql);
         if(!$stmt) {
             return false;
@@ -68,31 +68,31 @@ function getCommentsByPostId($postid) {
 function getPostsForIndexById($id){
     global $db, $error;
     try {
-        $sql = "SELECT Name, Author, Date, Content FROM Posts WHERE Id = $id;";
+        $sql = "SELECT name, author, date, content FROM Posts WHERE id = $id;";
         $stmt = $db->query($sql);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
-        $post['Name'] = mb_substr($post['Name'], 0, 140);
-        if (mb_strlen($post['Name'], 'utf-8') > 100) {
-            $post['Name'] = $post['Name'] . "&hellip;";
+        $post['name'] = mb_substr($post['name'], 0, 140);
+        if (mb_strlen($post['name'], 'utf-8') > 100) {
+            $post['name'] = $post['name'] . "&hellip;";
         }
 
-        $post['Contentsmall'] = mb_substr($post['Content'], 0, 140);
-        if (mb_strlen($post['Contentsmall'], 'utf-8') > 120) {
-            $post['Contentsmall'] = $post['Contentsmall'] . "&hellip;";
+        $post['content_small'] = mb_substr($post['content'], 0, 140);
+        if (mb_strlen($post['content_small'], 'utf-8') > 120) {
+            $post['content_small'] = $post['content_small'] . "&hellip;";
         }
 
-        $post['Content'] = mb_substr(nl2br($post['Content']), 0, 320);
-        if (mb_strlen($post['Content'], 'utf-8') > 270) {
-            $post['Content'] = $post['Content'] . "&hellip;";
+        $post['content'] = mb_substr(nl2br($post['content']), 0, 320);
+        if (mb_strlen($post['content'], 'utf-8') > 270) {
+            $post['content'] = $post['content'] . "&hellip;";
         }
 
-        $post['Namesmall'] = mb_substr($post['Name'], 0, 45);
-        if (mb_strlen($post['Namesmall'], 'utf-8') > 40) {
-            $post['Namesmall'] = $post['Namesmall'] . "&hellip;";
+        $post['name_small'] = mb_substr($post['name'], 0, 45);
+        if (mb_strlen($post['name_small'], 'utf-8') > 40) {
+            $post['name_small'] = $post['name_small'] . "&hellip;";
         }
 
-        $post['Author'] = " &copy; " . $post['Author'];
-        $post['Date'] = date("d.m.Y",$post['Date']) ." в ". date("H:i", $post['Date']);
+        $post['author'] = " &copy; " . $post['author'];
+        $post['date'] = date("d.m.Y",$post['date']) ." в ". date("H:i", $post['date']);
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
@@ -108,7 +108,7 @@ function isUser($login, $password) {
 
     $users = []; 
     try {
-        $sql = "SELECT Login, Fio, Password FROM Users";
+        $sql = "SELECT login, fio, password FROM Users";
         $stmt = $db->query($sql);
 
         while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -119,8 +119,8 @@ function isUser($login, $password) {
         $error = $e->getMessage();
     }
     foreach ($users as $user) {
-        if ($login == $user['Login'] && $password == $user['Password']) {
-            $fio = $user['Fio'];
+        if ($login == $user['login'] && $password == $user['password']) {
+            $fio = $user['fio'];
             return true;
         }
     }
@@ -132,7 +132,7 @@ function getRightsByLogin($login) {
     $users = []; 
     try {
         $login = $db->quote($login);
-        $sql = "SELECT Rights FROM Users WHERE Login = $login;";
+        $sql = "SELECT rights FROM Users WHERE login = $login;";
 
         $stmt = $db->query($sql);
         if (!$stmt) {
@@ -142,7 +142,7 @@ function getRightsByLogin($login) {
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $rights['Rights'];
+    return $rights['rights'];
 }
 function createUser($login, $fio, $password) {
     global $db, $error;
@@ -157,7 +157,7 @@ function createUser($login, $fio, $password) {
         $fio = $db->quote($fio);
         $password = $db->quote($password);
 
-        $sql = "INSERT INTO Users (Login, Fio, Password, Rights) 
+        $sql = "INSERT INTO Users (login, fio, password, rights) 
         VALUES($login, $fio, $password, 'user');";
         $db->exec($sql);
 
@@ -172,7 +172,7 @@ function isLoginUnique($login) {
     global $db, $error;
     $logins = [];
     try {
-        $sql = "SELECT Login FROM Users;";
+        $sql = "SELECT login FROM Users;";
         $stmt = $db->query($sql);
         if (!$stmt) {
             return true;
@@ -184,7 +184,7 @@ function isLoginUnique($login) {
         $error = $e->getMessage();
     }
     foreach ($logins as $value) {
-        if ($login == $value['Login']) {
+        if ($login == $value['login']) {
             return false; //если есть совпадения, то логин не является уникальным
         }
     }
@@ -197,14 +197,14 @@ function isLoginUnique($login) {
 function getPostForViewById($id) {
     global $db, $error;
     try {
-        $sql = "SELECT Name, Author, Date, Content FROM Posts WHERE Id = $id;";
+        $sql = "SELECT name, author, date, content FROM Posts WHERE id = $id;";
         $stmt = $db->query($sql);
         if (!$stmt) {
             return false;
         }
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
-        $post['Content'] = str_replace("<br />", "<p>", nl2br($post['Content']));
-        $post['Date'] = date("d.m.Y",$post['Date']) ." в ". date("H:i", $post['Date']);
+        $post['content'] = str_replace("<br />", "<p>", nl2br($post['content']));
+        $post['date'] = date("d.m.Y",$post['date']) ." в ". date("H:i", $post['date']);
     } catch(PDOException $e) {
         $error = $e->getMessage();
     }
@@ -221,7 +221,7 @@ function insertComments($id, $commentAuthor, $commentDate, $commentContent) {
         $content = $db->quote($commentContent);
         $content = trim(strip_tags($content));
 
-        $sql = "INSERT INTO Comments (Postid, Author, Date, Content) 
+        $sql = "INSERT INTO Comments (post_id, author, date, content) 
         VALUES($id, $author, $date, $content)";
         $db->exec($sql);
 
@@ -245,7 +245,7 @@ function insertToPosts($name, $author, $content) {
         $author = $db->quote($author);
         $content = $db->quote($content);
 
-        $sql = "INSERT INTO Posts (Name, Author, Date, Content) 
+        $sql = "INSERT INTO Posts (name, author, date, content) 
         VALUES($name, $author, $date, $content);";
 
         $db->query($sql);
@@ -264,16 +264,15 @@ function deletePostById($id) {
     try {  
         $id = clearInt($id);
 
-        $lastId = getLastPostId();
-
         /* Удаляю пост */
-        $sql = "DELETE FROM Posts WHERE Id = $id;";
+        $sql = "DELETE FROM Posts WHERE id = $id;";
         $db->exec($sql);
+
         /* Удаляю его картинку */
-        unlink("..\images\PostImgId$id.jpg");
+        //unlink("..\images\PostImgId$id.jpg");
 
         /* Удаляю все комментарии, связанные с постом */
-        $sql = "DELETE FROM Comments WHERE Postid = $id;";
+        $sql = "DELETE FROM Comments WHERE post_id = $id;";
         $db->exec($sql);
     } catch (PDOException $e) {
         $error = $e->getMessage();
@@ -282,7 +281,7 @@ function deletePostById($id) {
 function connectToUsers() {
     global $db, $error;
     try {
-        $sql = "SELECT Id, Login, Fio, Password, Rights FROM Users;";
+        $sql = "SELECT id, login, fio, password, rights FROM Users;";
         $stmt = $db->query($sql);
         while ($arr = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $users[] = $arr;
@@ -297,7 +296,7 @@ function deleteUserById($id) {
     global $db, $error;
     $id = clearInt($id);
     try {
-        $sql = "DELETE FROM Users WHERE Id = $id;";
+        $sql = "DELETE FROM Users WHERE id = $id;";
         $db->exec($sql);
     } catch (PDOException $e) {
         $error = $e->getMessage();
@@ -308,7 +307,7 @@ function deleteCommentByIdAndPostId($deleteCommentId, $postId) {
     $deleteCommentId = clearInt($deleteCommentId);
     $postId = clearInt($postId);
     try {
-        $sql = "DELETE FROM Comments WHERE Id = $deleteCommentId AND Postid = $postId;";
+        $sql = "DELETE FROM Comments WHERE id = $deleteCommentId AND post_id = $postId;";
         $db->exec($sql);
     } catch (PDOException $e) {
         $error = $e->getMessage();

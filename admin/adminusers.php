@@ -32,7 +32,7 @@ if (isset($_GET['deleteUserById'])) {
         <div class='msg'>
             <p class='error'>
                 <?php
-                    if($_SESSION['Rights'] != "superuser"){
+                    if($_SESSION['rights'] != "superuser"){
                         echo "<p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>";
                         exit;
                     }
@@ -58,9 +58,9 @@ if (isset($_GET['deleteUserById'])) {
 
             <li class='list'>
 
-                <p class='list'>ID:<?= $user['Id'] ?> ::: ФИО(псевдоним): <?= $user['Fio'] ?>   ::: Категория: <?= $user['Rights'] ?>
-                <br>Логин: <?= $user['Login'] ?> ::: Пароль: <?= $user['Password'] ?></p>
-                <a class='list' href='adminusers.php?deleteUserById=<?= $user['Id'] ?> '> Удалить <?= $user['Rights'] ?> -а</a>
+                <p class='list'>ID:<?= $user['id'] ?> ::: ФИО(псевдоним): <?= $user['fio'] ?>   ::: Категория: <?= $user['rights'] ?>
+                <br>Логин: <?= $user['login'] ?> ::: Пароль: <?= $user['password'] ?></p>
+                <a class='list' href='adminusers.php?deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?> -а</a>
                 <hr>
 
             </li>
