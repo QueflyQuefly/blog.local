@@ -1,6 +1,4 @@
 <?php
-/* please add more whitaspaces.... Here i'm stopped */
-
 session_start();
 $file_functions = dirname(__DIR__) . "/functions/functions.php";
 require_once $file_functions;
@@ -8,9 +6,9 @@ $error = []; $users = [];
 
 /* Удаление комментариев реализую в будущем */
 
-if(isset($_GET['deleteUserById'])){
+if (isset($_GET['deleteUserById'])) {
     $deleteId = clearInt($_GET['deleteUserById']);
-    if($deleteId != false){
+    if ($deleteId != false) {
         connectToUsers();
         deleteUserById($deleteId);
         header("Location: adminusers.php");
@@ -47,11 +45,12 @@ if(isset($_GET['deleteUserById'])){
         <div class='list'>
             <?php 
                 $users = connectToUsers();
-                if(empty($users) or $users == false) echo "<p class='error'>Нет пользователей</p>"; 
-                else{
+                if (empty($users) or $users == false) {
+                    echo "<p class='error'>Нет пользователей</p>"; 
+                } else {
                     echo "<ul class='list'>";
                     
-                    for($i= 0; $i <= count($users)-1; $i++){ //здесь не foreach, чтобы в случае чего вывести в обратном порядке
+                    for ($i= 0; $i <= count($users)-1; $i++) { //здесь не foreach, чтобы в случае чего вывести в обратном порядке
                         $user = $users[$i];
             ?>
 
@@ -59,9 +58,9 @@ if(isset($_GET['deleteUserById'])){
 
             <li class='list'>
 
-                <p class='list'>ID:<?=$user['Id']?> ::: ФИО(псевдоним): <?=$user['Fio']?>   ::: Категория: <?=$user['Rights']?>
-                <br>Логин: <?=$user['Login']?> ::: Пароль: <?=$user['Password']?></p>
-                <a class='list' href='adminusers.php?deleteUserById=<?=$user['Id']?> '> Удалить <?=$user['Rights']?> -а</a>
+                <p class='list'>ID:<?= $user['Id'] ?> ::: ФИО(псевдоним): <?= $user['Fio'] ?>   ::: Категория: <?= $user['Rights'] ?>
+                <br>Логин: <?= $user['Login'] ?> ::: Пароль: <?= $user['Password'] ?></p>
+                <a class='list' href='adminusers.php?deleteUserById=<?= $user['Id'] ?> '> Удалить <?= $user['Rights'] ?> -а</a>
                 <hr>
 
             </li>

@@ -126,29 +126,32 @@ function isUser($login, $password) {
     }
     return false;
 }
-/* please add more whitaspaces.... Here i'm stopped */
-function getRightsByLogin($login){
+function getRightsByLogin($login) {
     global $db, $error;
 
     $users = []; 
-    try{
+    try {
         $login = $db->quote($login);
         $sql = "SELECT Rights FROM Users WHERE Login = $login;";
 
         $stmt = $db->query($sql);
-        if(!$stmt) return false;
+        if (!$stmt) {
+            return false;
+        }
         $rights = $stmt->fetch(PDO::FETCH_ASSOC);
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
     return $rights['Rights'];
 }
-function createUser($login, $fio, $password){
+function createUser($login, $fio, $password) {
     global $db, $error;
-    try{
+    try {
         $db->beginTransaction();
 
-        if(!isLoginUnique($login)) return false;
+        if (!isLoginUnique($login)) {
+            return false;
+        }
 
         $login = $db->quote($login);
         $fio = $db->quote($fio);
@@ -159,26 +162,29 @@ function createUser($login, $fio, $password){
         $db->exec($sql);
 
         $db->commit();
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $db->rollBack();
         $error = $e->getMessage();
     }
     return true;
 }
-function isLoginUnique($login){
+function isLoginUnique($login) {
     global $db, $error;
     $logins = [];
-    try{
+    try {
         $sql = "SELECT Login FROM Users;";
         $stmt = $db->query($sql);
-        if(!$stmt) return true;
-        while($data = $stmt->fetch(PDO::FETCH_ASSOC))
+        if (!$stmt) {
+            return true;
+        }
+        while($data = $stmt->fetch(PDO::FETCH_ASSOC)){
             $logins[] = $data;
-    }catch(PDOException $e){
+        }
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    foreach ($logins as $value){
-        if ($login == $value['Login']){
+    foreach ($logins as $value) {
+        if ($login == $value['Login']) {
             return false; //если есть совпадения, то логин не является уникальным
         }
     }
@@ -188,24 +194,26 @@ function isLoginUnique($login){
 
 
 /* functions for viewsinglepost.php */
-function getPostForViewById($id){
+function getPostForViewById($id) {
     global $db, $error;
-    try{
+    try {
         $sql = "SELECT Name, Author, Date, Content FROM Posts WHERE Id = $id;";
         $stmt = $db->query($sql);
-        if(!$stmt) return false;
+        if (!$stmt) {
+            return false;
+        }
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
         $post['Content'] = str_replace("<br />", "<p>", nl2br($post['Content']));
         $post['Date'] = date("d.m.Y",$post['Date']) ." в ". date("H:i", $post['Date']);
-    }catch(PDOException $e){
+    } catch(PDOException $e) {
         $error = $e->getMessage();
     }
     return $post;
 }
 
-function insertComments($id, $commentAuthor, $commentDate, $commentContent){
+function insertComments($id, $commentAuthor, $commentDate, $commentContent) {
     global $db, $error;
-    try{
+    try {
         $db->beginTransaction();
 
         $author = $db->quote($commentAuthor);
@@ -218,7 +226,7 @@ function insertComments($id, $commentAuthor, $commentDate, $commentContent){
         $db->exec($sql);
 
         $db->commit();
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $db->rollBack();
         $error = $e->getMessage();
     }
@@ -227,11 +235,11 @@ function insertComments($id, $commentAuthor, $commentDate, $commentContent){
 
 
 /* functions for addpost.php */
-function insertToPosts($name, $author, $content){
+function insertToPosts($name, $author, $content) {
     global $db, $error;
     $date = time();
 
-    try{
+    try {
 
         $name = $db->quote($name);
         $author = $db->quote($author);
@@ -241,7 +249,7 @@ function insertToPosts($name, $author, $content){
         VALUES($name, $author, $date, $content);";
 
         $db->query($sql);
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $db->rollBack();
         $error = $e->getMessage();
     }
@@ -250,10 +258,10 @@ function insertToPosts($name, $author, $content){
 
 
 /* functions for admin/ */
-function deletePostById($id){
+function deletePostById($id) {
     global $db, $error;
     
-    try{  
+    try {  
         $id = clearInt($id);
 
         $lastId = getLastPostId();
@@ -267,71 +275,42 @@ function deletePostById($id){
         /* Удаляю все комментарии, связанные с постом */
         $sql = "DELETE FROM Comments WHERE Postid = $id;";
         $db->exec($sql);
-        
-        /* Переписываю все Id в Comments */
-        $sql = "SET @num := 0; UPDATE Comments SET Id = @num := (@num+1); 
-        ALTER TABLE Comments AUTO_INCREMENT = 1;";
-        $db->exec($sql);
-
-        if($id != $lastId){
-
-            /* Переписываю все Id в Posts */
-            $sql = "SET @num := 0; UPDATE Posts SET Id = @num := (@num+1); 
-            ALTER TABLE Posts AUTO_INCREMENT = 1;";
-            $db->exec($sql);
-
-            /* Переписываю все Postid в Comments, если был удалён не последний пост */
-            $sql = "UPDATE Comments SET Postid=Postid-1 WHERE Postid >= $id;";
-            $db->exec($sql);
-            
-            /* здесь изменяю Id у картинок */
-            for($i=$id+1; $i <= $lastId; $i++){
-                $j = $i - 1;
-                rename("..\images\PostImgId$i.jpg", "..\images\PostImgId$j.jpg");
-            }
-        }
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
 }
-function connectToUsers(){
+function connectToUsers() {
     global $db, $error;
-    try{
+    try {
         $sql = "SELECT Id, Login, Fio, Password, Rights FROM Users;";
         $stmt = $db->query($sql);
-        while($arr = $stmt->fetch(PDO::FETCH_ASSOC)){
+        while ($arr = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $users[] = $arr;
         }
         return $users;
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();
         return false;
     }
 }
-function deleteUserById($id){
+function deleteUserById($id) {
     global $db, $error;
     $id = clearInt($id);
-    try{
+    try {
         $sql = "DELETE FROM Users WHERE Id = $id;";
         $db->exec($sql);
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
 }
-function deleteCommentByIdAndPostId($deleteCommentId, $postId){
+function deleteCommentByIdAndPostId($deleteCommentId, $postId) {
     global $db, $error;
     $deleteCommentId = clearInt($deleteCommentId);
     $postId = clearInt($postId);
-    try{
+    try {
         $sql = "DELETE FROM Comments WHERE Id = $deleteCommentId AND Postid = $postId;";
         $db->exec($sql);
-
-        /* Переписываю все Id в Comments */
-        $sql = "SET @num := 0; UPDATE Comments SET Id = @num := (@num+1); 
-        ALTER TABLE Comments AUTO_INCREMENT = 1;";
-        $db->exec($sql);
-        
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
 }

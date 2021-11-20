@@ -1,9 +1,5 @@
 <?php
-/* please add more whitaspaces.... Here i'm stopped */
-
-function clearStr($str){
-    return trim(strip_tags($str));
-}
+require_once $file_functions;
 
 session_start();
 unset($_SESSION['Referrer']);
@@ -11,13 +7,11 @@ $_SESSION['Referrer'] = $_SERVER['REQUEST_URI'];
 
 $_SESSION['entrance'] = false;
 
-if(isset($_POST['view'])){
-    if($_POST['view'] == 'viewposts'){
-        //$_SESSION['entrance'] = true;
+if (isset($_POST['view'])) {
+    if ($_POST['view'] == 'viewposts') {
         header("Location: adminposts.php");
     }
-    if($_POST['view'] == 'viewusers'){
-        //$_SESSION['entrance'] = true;
+    if ($_POST['view'] == 'viewusers') {
         header("Location: adminusers.php");
     }
 }
@@ -38,13 +32,13 @@ if(isset($_POST['view'])){
             <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
             <p class='label'>Администрирование</p>
 
-            <?php if($_SESSION['Rights'] != "superuser"){ ?>
+            <?php if ($_SESSION['Rights'] != "superuser") { ?>
 
             <div class='msg'>
                 <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>
             </div>
 
-            <?php }else{ ?>
+            <?php } else { ?>
 
             <form action='admin.php'  method='post'>
 
