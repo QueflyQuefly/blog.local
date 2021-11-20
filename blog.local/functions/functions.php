@@ -45,6 +45,20 @@ function addAdmin($login, $fio, $password){
         $error = $e->getMessage();  
     }
 }
+function getCommentsByPostId($postid){
+    global $db, $error;
+    try{
+        $sql = "SELECT Id, Author, Date, Content FROM Comments WHERE Postid = $postid;";
+        $stmt = $db->query($sql);
+        if(!$stmt) return false;
+        while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
+            $comments[] = $result;
+        }
+    }catch(PDOException $e){
+        $error = $e->getMessage();
+    }
+    return $comments;
+}
 /* general functions */
 
 
@@ -179,20 +193,6 @@ function getPostForViewById($id){
     }
     return $post;
 }
-function getCommentsByPostId($postid){
-    global $db, $error;
-    try{
-        $sql = "SELECT Author, Date, Content FROM Comments WHERE Postid = $postid;";
-        $stmt = $db->query($sql);
-        if(!$stmt) return false;
-        while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
-            $comments[] = $result;
-        }
-    }catch(PDOException $e){
-        $error = $e->getMessage();
-    }
-    return $comments;
-}
 
 function insertComments($id, $commentAuthor, $commentDate, $commentContent){
     global $db, $error;
@@ -305,6 +305,23 @@ function deleteUserById($id){
     try{
         $sql = "DELETE FROM Users WHERE Id = $id;";
         $db->exec($sql);
+    }catch(PDOException $e){
+        $error = $e->getMessage();
+    }
+}
+function deleteCommentByIdAndPostId($deleteCommentId, $postId){
+    global $db, $error;
+    $deleteCommentId = clearInt($deleteCommentId);
+    $postId = clearInt($postId);
+    try{
+        $sql = "DELETE FROM Comments WHERE Id = $deleteCommentId AND Postid = $postId;";
+        $db->exec($sql);
+
+        /* Переписываю все Id в Comments */
+        $sql = "SET @num := 0; UPDATE Comments SET Id = @num := (@num+1); 
+        ALTER TABLE Comments AUTO_INCREMENT = 1;";
+        $db->exec($sql);
+        
     }catch(PDOException $e){
         $error = $e->getMessage();
     }
