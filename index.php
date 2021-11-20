@@ -3,23 +3,24 @@ session_start();
 require_once "functions/functions.php";
 
 
-if($_SESSION['Log_in'] == false)
+if ($_SESSION['Log_in'] == false) {
     session_destroy();
+}
     
-if(isset($_GET['exit'])){
+if (isset($_GET['exit'])) {
     $_SESSION['Log_in'] = false;
     session_destroy();
     header("Location: /");
 } 
 
-if($_SESSION['Log_in']){
+if ($_SESSION['Log_in']) {
     $link = "<a class='menu' href='?exit'>Выйти</a>";
-    if($_SESSION['Rights'] == 'superuser'){
+    if ($_SESSION['Rights'] == 'superuser') {
         $label = 'Вы вошли как администратор';
-    }else{
+    } else {
         $label = ucfirst($_SESSION['Fio']) . ", вы вошли как пользователь";
     }
-}else{
+} else {
     $link = "<a class='menu' href='login.php'>Войти</a>";
     $label = 'Вы не авторизованы';
 } 
@@ -66,8 +67,9 @@ $year = date("Y", time());
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
 
         <?php 
-            if(!$numPosts) die("<p>Нет постов для отображения</p>");
-            else{
+            if (!$numPosts) { 
+                die("<p>Нет постов для отображения</p>");    
+            } else {
             $num = $numPosts;
             $post = getPostsForIndexById($num);
         ?>
@@ -90,7 +92,9 @@ $year = date("Y", time());
             $num--;
             $minId = 1;
 
-            if($num > 9) $minId = $num - 8;  //Благодаря minId вывожу всего в общем и целом 10 постов
+            if ($num > 9) {
+                $minId = $num - 8;  //Благодаря minId вывожу всего в общем и целом 10 постов
+            }
 
             for ($id = $num; $id >= $minId; $id--) { 
                 $post = getPostsForIndexById($id);
@@ -118,7 +122,8 @@ $year = date("Y", time());
 
         <?php
 
-            }}
+            }
+        }
 
         ?>
 

@@ -1,37 +1,38 @@
 <?php
 /* if not connection to  dbname=myblog, run init_db.php */
-try{
+try {
     $db = new PDO("mysql:host=127.0.0.1;dbname=myblog", 'root', '');
-}catch(PDOException $e){
+} catch (PDOException $e) {
     require_once '../init_db.php';
 }
 
 
 /* general functions */
-function clearInt($int){
+function clearInt($int) {
     return abs((int) $int);
 }
-function clearStr($str){
+function clearStr($str) {
     return trim(strip_tags($str));
 }
-function getLastPostId(){
+function getLastPostId() {
     global $db, $error;
-    try{
+    try {
         $sql = "SELECT Id FROM Posts;";
         $stmt = $db->query($sql);
-        if(!$stmt) return false;
-        while($row = $stmt->fetch()){
+        if (!$stmt) {
+            return false;
+        }
+        while ($row = $stmt->fetch()) {
             $id = $row['Id'];
         }
-    } catch (PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
     return $id;
 }
 function addAdmin($login, $fio, $password){
     global $db, $error;
-    try{
-
+    try {
         $login = $db->quote($login);
         $fio = $db->quote($fio);
         $password = $db->quote($password);
@@ -40,21 +41,22 @@ function addAdmin($login, $fio, $password){
         $sql = "INSERT INTO Users(Login, Fio, Password, Rights) 
                 VALUES ($login, $fio, $password, 'superuser');";
         $db->exec($sql);
-
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();  
     }
 }
-function getCommentsByPostId($postid){
+function getCommentsByPostId($postid) {
     global $db, $error;
-    try{
+    try {
         $sql = "SELECT Id, Author, Date, Content FROM Comments WHERE Postid = $postid;";
         $stmt = $db->query($sql);
-        if(!$stmt) return false;
-        while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
+        if(!$stmt) {
+            return false;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $comments[] = $result;
         }
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
     return $comments;
@@ -65,29 +67,33 @@ function getCommentsByPostId($postid){
 /* functions for index.php */
 function getPostsForIndexById($id){
     global $db, $error;
-    try{
+    try {
         $sql = "SELECT Name, Author, Date, Content FROM Posts WHERE Id = $id;";
         $stmt = $db->query($sql);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
         $post['Name'] = mb_substr($post['Name'], 0, 140);
-        if(mb_strlen($post['Name'], 'utf-8') > 100) 
+        if (mb_strlen($post['Name'], 'utf-8') > 100) {
             $post['Name'] = $post['Name'] . "&hellip;";
+        }
 
         $post['Contentsmall'] = mb_substr($post['Content'], 0, 140);
-        if(mb_strlen($post['Contentsmall'], 'utf-8') > 120) 
+        if (mb_strlen($post['Contentsmall'], 'utf-8') > 120) {
             $post['Contentsmall'] = $post['Contentsmall'] . "&hellip;";
+        }
 
         $post['Content'] = mb_substr(nl2br($post['Content']), 0, 320);
-        if(mb_strlen($post['Content'], 'utf-8') > 270) 
+        if (mb_strlen($post['Content'], 'utf-8') > 270) {
             $post['Content'] = $post['Content'] . "&hellip;";
+        }
 
         $post['Namesmall'] = mb_substr($post['Name'], 0, 45);
-        if(mb_strlen($post['Namesmall'], 'utf-8') > 40) 
+        if (mb_strlen($post['Namesmall'], 'utf-8') > 40) {
             $post['Namesmall'] = $post['Namesmall'] . "&hellip;";
+        }
 
         $post['Author'] = " &copy; " . $post['Author'];
         $post['Date'] = date("d.m.Y",$post['Date']) ." в ". date("H:i", $post['Date']);
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
     return $post;
@@ -96,28 +102,31 @@ function getPostsForIndexById($id){
 
 
 /* functions for reg.php and login.php */
-function isUser($login, $password){
+function isUser($login, $password) {
     global $db, $error;
     global $fio;
 
     $users = []; 
-    try{
+    try {
         $sql = "SELECT Login, Fio, Password FROM Users";
         $stmt = $db->query($sql);
-        while($user = $stmt->fetch(PDO::FETCH_ASSOC))
-            $users[] = $user;
 
-    }catch(PDOException $e){
+        while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $users[] = $user;
+        }
+
+    } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    foreach ($users as $user){
-        if ($login == $user['Login'] && $password == $user['Password']){
+    foreach ($users as $user) {
+        if ($login == $user['Login'] && $password == $user['Password']) {
             $fio = $user['Fio'];
             return true;
         }
     }
     return false;
 }
+/* please add more whitaspaces.... Here i'm stopped */
 function getRightsByLogin($login){
     global $db, $error;
 

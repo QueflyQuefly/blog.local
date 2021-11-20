@@ -1,4 +1,6 @@
 <?php
+/* please add more whitaspaces.... Here i'm stopped */
+
 session_start();
 $file_functions = dirname(__DIR__) . "/functions/functions.php";
 require_once $file_functions;

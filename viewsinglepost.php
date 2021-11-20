@@ -5,41 +5,44 @@ session_start();
 unset($_SESSION['Referrer']);
 $_SESSION['Referrer'] = $_SERVER['REQUEST_URI'];
 
-if(isset($_GET['exit'])){
+if (isset($_GET['exit'])) {
     $_SESSION['Log_in'] = false;
 } 
 
-if(isset($_GET['viewPostById'])){
+if (isset($_GET['viewPostById'])) {
     $id = clearInt($_GET['viewPostById']);
     $post = getPostForViewById($id);
 }
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    if(isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent']))
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent'])) {
         $commentAuthor = $_POST['addCommentAuthor'];
         $commentContent = $_POST['addCommentContent'];
-        if($commentAuthor && $commentContent){
+        if ($commentAuthor && $commentContent) {
             insertComments($id, $commentAuthor, time(), $commentContent);
             header("Location: viewsinglepost.php?viewPostById=$id");
-        }else $error = 'Комментарий не может быть пустым';
+        } else {
+            $error = 'Комментарий не может быть пустым';
+        }
+    }
 }
 
-if(is_null($id)){
+if (is_null($id)) {
     header("Location: /");
     exit;
 }
 
-if(isset($_GET['exit'])){
+if (isset($_GET['exit'])) {
     $_SESSION['Log_in'] = false;
 } 
 
-if($_SESSION['Log_in']){
+if ($_SESSION['Log_in']) {
     $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-    if($_SESSION['Rights'] == 'superuser'){
+    if ($_SESSION['Rights'] == 'superuser') {
         $label = 'Вы вошли как администратор';
-    }else{
+    } else {
         $label = ucfirst($_SESSION['Fio']) . ", вы вошли как пользователь";
     }
-}else{
+} else {
     $link = "<a class='menu' href='login.php'>Войти</a>";
     $label = 'Вы не авторизованы';
 } 
@@ -97,9 +100,9 @@ $year = date("Y", time());
         <div class='addcomments'  id='comment'>
 
             <?php
-                if(!$_SESSION['Log_in']){
+                if (!$_SESSION['Log_in']) {
                     echo "<p class='center'>Добавление комментариев доступно только для авторизованных пользователей</p>";
-                }else{
+                } else {
                     echo $error;
             ?>
 
@@ -127,8 +130,8 @@ $year = date("Y", time());
             
             <p class='center'>Комментарии к посту:</p>
             <?php
-                if(!empty($comments) && $comments != false){
-                for($i = count($comments)-1; $i >= 0; $i--){
+                if (!empty($comments) && $comments != false) {
+                for ($i = count($comments)-1; $i >= 0; $i--) {
                     $content = nl2br($comments[$i]['Content']);
                     $date = date("d.m.Y",$comments[$i]['Date']) ." в ". date("H:i", $comments[$i]['Date']);
             ?>
@@ -141,7 +144,8 @@ $year = date("Y", time());
             </div>
 
             <?php
-                }}else {
+                }
+            } else {
             ?>
 
             <div class='viewnotcomment'>   

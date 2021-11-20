@@ -1,25 +1,24 @@
 <?php
 require_once "functions/functions.php";
 
-if(isset($_POST['Login']) && isset($_POST['Fio']) && isset($_POST['Password'])){
+if (isset($_POST['Login']) && isset($_POST['Fio']) && isset($_POST['Password'])) {
     $login = clearStr($_POST['Login']);
     $fio = clearStr($_POST['Fio']);
     $password = clearStr($_POST['Password']);    
-    if ($login && $fio && $password){
-        if(!createUser($login, $fio, $password)){
+    if ($login && $fio && $password) {
+        if (!createUser($login, $fio, $password)) {
             $error = "Пользователь с таким логином уже зарегистрирован";
-            header("Location: reg.php?msg=$error");
-            
-        }else{
+            header("Location: reg.php?msg=$error"); 
+        } else {
             $ok = "Аккаунт добавлен";
             header("Location: login.php?msg=$ok");
         } 
-    }else{ 
+    } else { 
         $error = "Заполните все поля";
         header("Location: reg.php?msg=$error");
     }
 }
-if(isset($_GET['msg'])){
+if (isset($_GET['msg'])) {
     $msg = clearStr($_GET['msg']);
     $error = $msg;
 }

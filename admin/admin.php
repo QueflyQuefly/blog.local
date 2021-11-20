@@ -1,4 +1,6 @@
 <?php
+/* please add more whitaspaces.... Here i'm stopped */
+
 function clearStr($str){
     return trim(strip_tags($str));
 }

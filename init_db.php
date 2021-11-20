@@ -5,7 +5,7 @@ $dbname = 'myblog';
 $username = 'root';
 $password = '';
 
-try{
+try {
 
     /* Здесь может ввести в заблуждение dbname=mysql, 
     но этот скрипт запускается лишь в том случае, если нет dbname=myblog,
@@ -54,7 +54,6 @@ try{
         ;";
 
     $db->exec($sql);
-}catch(PDOException $e){
-    $error = $e->getMessage();
+} catch(PDOException $e) {
+    echo $error = $e->getMessage();
 }
-echo $error; 

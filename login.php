@@ -6,34 +6,40 @@ $error = '';
 
 require_once "functions/functions.php";
 
-if(isset($_POST['Login']) && isset($_POST['Password'])){
+if (isset($_POST['Login']) && isset($_POST['Password'])) {
     $login = clearStr($_POST['Login']);
-    $password = clearStr($_POST['Password']);    
-    if (isUser($login, $password)){
+    $password = clearStr($_POST['Password']);
+
+    if (isUser($login, $password)) {
         $_SESSION['Log_in'] = true;
         $_SESSION['Fio'] = $fio;
         $_SESSION['Rights'] = getRightsByLogin($login);
-    }else{
+    } else {
         $error = "Неверный логин или пароль";
         header("Location: login.php?msg=$error");
     }
 }
 
-if($_SESSION['Log_in'] === true){
-    if(isset($_SESSION['Referrer'])){
+if ($_SESSION['Log_in'] === true) {
+    if (isset($_SESSION['Referrer'])) {
         $ref = $_SESSION['Referrer'];
-        if(strpos($ref, "&exit")){
+        if (strpos($ref, "&exit")) {
             $ref = explode("&", $ref);
             header("Location: {$ref[0]}");
-        }else header("Location: $ref");
-
-    }else header("Location: /");
+        } else {
+            header("Location: $ref");
+        }
+    } else {
+        header("Location: /");
+    }
 } 
-if(isset($_GET['msg'])){
+if (isset($_GET['msg'])) {
     $msg = clearStr($_GET['msg']);
-    if ($msg == "Аккаунт добавлен"){
+    if ($msg == "Аккаунт добавлен") {
         $ok = $msg;
-    }else $error = $msg;
+    }else {
+        $error = $msg;
+    }
 }
 
 ?>
