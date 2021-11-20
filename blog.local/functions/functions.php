@@ -3,7 +3,7 @@
 try{
     $db = new PDO("mysql:host=127.0.0.1;dbname=myblog", 'root', '');
 }catch(PDOException $e){
-    require_once 'init_db.php';
+    require_once '../init_db.php';
 }
 
 
