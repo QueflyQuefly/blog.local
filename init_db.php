@@ -1,10 +1,5 @@
 <?php
-
-$host = '127.0.0.1';
-$dbname = 'myblog';
-$username = 'root';
-$password = '';
-
+require_once 'dbconfig.php';
 try {
 
     /* Здесь может ввести в заблуждение dbname=mysql, 
@@ -13,21 +8,24 @@ try {
 
     $db = new PDO("mysql:host=$host;dbname=mysql", $username, $password); 
 
+    $password = password_hash('12345', PASSWORD_BCRYPT);
+    $password = $db->quote($password);
+
     $sql = "CREATE DATABASE $dbname;
 
         USE $dbname;
 
-        CREATE TABLE Users
+        CREATE TABLE users
         (
         id INT AUTO_INCREMENT,
         login VARCHAR(20),
         fio VARCHAR(20),
-        password VARCHAR(20),
+        password CHAR(60),
         rights VARCHAR(20),
         PRIMARY KEY (id)
         );
 
-        CREATE TABLE Comments
+        CREATE TABLE comments
         (
         id INT AUTO_INCREMENT,
         post_id INT,
@@ -38,7 +36,7 @@ try {
         );
 
 
-        CREATE TABLE Posts
+        CREATE TABLE posts
         (
         id INT AUTO_INCREMENT,
         name TEXT,
@@ -48,9 +46,9 @@ try {
         PRIMARY KEY (id)
         );
         
-        INSERT INTO Users
+        INSERT INTO users
         (login, fio, password, rights) 
-        VALUES ('12345', 'Администратор', '12345', 'superuser')
+        VALUES ('12345', 'Администратор', $password, 'superuser')
         ;";
 
     $db->exec($sql);

@@ -1,4 +1,5 @@
 <?php
+$file_functions = dirname(__DIR__) . "/functions/functions.php";
 require_once $file_functions;
 
 session_start();

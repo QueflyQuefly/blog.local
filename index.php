@@ -2,7 +2,6 @@
 session_start();
 require_once "functions/functions.php";
 
-
 if ($_SESSION['log_in'] == false) {
     session_destroy();
 }
@@ -25,8 +24,8 @@ if ($_SESSION['log_in']) {
     $label = 'Вы не авторизованы';
 } 
 
-$numPosts = getLastPostId();
 $year = date("Y", time());
+$posts = getPostsForIndex();
 ?>
 
 
@@ -67,14 +66,14 @@ $year = date("Y", time());
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
 
         <?php 
-            if (!$numPosts) { 
+            if (empty($posts) or $posts == false) {
                 die("<p>Нет постов для отображения</p>");    
             } else {
-            $num = $numPosts;
-            $post = getPostsForIndexById($num);
+                $num = count($posts) - 1;
+                $post = $posts[$num];
         ?>
 
-        <a class='onepost' href="viewsinglepost.php?viewPostById=<?=$num?>">
+        <a class='onepost' href="viewsinglepost.php?viewPostById=<?=$post['id']?>">
         <div class='viewonepost'>
             
             <div class='oneposttext'>
@@ -83,26 +82,26 @@ $year = date("Y", time());
                 <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
             </div>
             <div class='onepostimage'>
-                <img src='images/PostImgId<?=$num?>.jpg' alt='Картинка' class='onepostimage'>
+                <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='onepostimage'>
             </div>
         </div>
         </a>
 
         <?php
             $num--;
-            $minId = 1;
+            $minId = 0;
 
             if ($num > 9) {
                 $minId = $num - 8;  //Благодаря minId вывожу всего в общем и целом 10 постов
             }
 
             for ($id = $num; $id >= $minId; $id--) { 
-                $post = getPostsForIndexById($id);
+                $post = $posts[$id];
         ?>
 
         <div class='viewsmallposts'>
 
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$id?>'>
+            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['id']?>'>
             <div class='smallpost'>
 
                  <div class='smallposttext'>
@@ -112,7 +111,7 @@ $year = date("Y", time());
                 </div>
 
                 <div class='smallpostimage'>
-                    <img src='images/PostImgId<?=$id?>.jpg' alt='Картинка' class='smallpostimage'>
+                    <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
                 </div>
                
             </div>

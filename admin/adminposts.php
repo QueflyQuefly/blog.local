@@ -8,7 +8,7 @@ $error = ''; $posts = [];
 if (isset($_GET['deletePostById'])) {
     $deletePostId = clearInt($_GET['deletePostById']);
     if ($deletePostId != '') {
-        deletePostById($deleteId);
+        deletePostById($deletePostId);
         header("Location: adminposts.php");
     } 
 }
@@ -54,21 +54,23 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
 
         <div class='list'>
             <?php 
-                if (!getLastPostId()) {
+                $posts = getPostsForIndex();
+                if (empty($posts) or $posts == false) {
                     echo "<p class='error'>Нет постов для отображения</p>"; 
                 } else {
                     echo "<ul class='list'>";
-                    for ($i= getLastPostId(); $i>=1; $i--) {
-                        $posts = getPostsForIndexById($i);
-                        $comments = getCommentsByPostId($i);
+                    $num = count($posts) - 1;
+                    for ($i= $num; $i>=0; $i--) {
+                        $post = $posts[$i];
+                        $comments = getCommentsByPostId($post['id']);
                         $countComments = count($comments);
 
             ?>
 
             <li class='list'>
 
-            <p class='list'>ID:<?= $i ?> ::: Название: <?= $posts['name'] ?> <br> Автор: <?= $posts['author'] ?> </p>
-            <a class='list' href='adminposts.php?deletePostById=<?= $i ?>'> Удалить <?= $i ?>-й пост</a>
+            <p class='list'>ID:<?= $post['id'] ?> ::: Название: <?= $post['name'] ?> <br> Автор: <?= $post['author'] ?> </p>
+            <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?>-й</a>
             <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
             
             <?php 
@@ -78,8 +80,9 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
             ?>
 
             <li class='list'>
-            <p class='list'>ID:<?= $comments[$j]['id'] ?> ::: Автор: <?= $comments[$j]['author'] ?>  Содержание: <?= $comments[$j]['content'] ?><br>  </p>
-            <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $i ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>
+            <p class='list'>ID:<?= $comments[$j]['id'] ?> ::: Автор: <?= $comments[$j]['author'] ?></p>  
+            <p class='list'>Содержание: <?= $comments[$j]['content'] ?></p>
+            <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>
             </li>
 
                     <?php

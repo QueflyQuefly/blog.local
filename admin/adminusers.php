@@ -25,8 +25,8 @@ if (isset($_GET['deleteUserById'])) {
     <link rel='stylesheet' href='css/admincss.css'>
 </head>
 <body>
-<div class='container'>
-    <div class='content'>
+<div class='view'>
+    <div class='viewlist'>
         <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
         
         <div class='msg'>
@@ -59,7 +59,7 @@ if (isset($_GET['deleteUserById'])) {
             <li class='list'>
 
                 <p class='list'>ID:<?= $user['id'] ?> ::: ФИО(псевдоним): <?= $user['fio'] ?>   ::: Категория: <?= $user['rights'] ?>
-                <br>Логин: <?= $user['login'] ?> ::: Пароль: <?= $user['password'] ?></p>
+                <br>Логин: <?= $user['login'] ?></p>
                 <a class='list' href='adminusers.php?deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?> -а</a>
                 <hr>
 
