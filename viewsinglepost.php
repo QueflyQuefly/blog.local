@@ -5,14 +5,21 @@ session_start();
 unset($_SESSION['referrer']);
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
-if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
-} 
-
 if (isset($_GET['viewPostById'])) {
     $id = clearInt($_GET['viewPostById']);
+    if (is_null($id)) {
+        header("Location: /");
+    }
     $post = getPostForViewById($id);
+    $comments = getCommentsByPostId($id);
+    $year = date("Y", time());
+} else{
+    header("Location: /");
 }
+if (isset($_GET['exit'])) {
+    $_SESSION['log_in'] = false;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent'])) {
         $commentAuthor = $_POST['addCommentAuthor'];
@@ -26,29 +33,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-if (is_null($id)) {
-    header("Location: /");
-    exit;
-}
-
-if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
-} 
-
 if ($_SESSION['log_in']) {
+    $fio = $_SESSION['fio'];
+    $login = $_SESSION['login'];
     $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
+    
     if ($_SESSION['rights'] == 'superuser') {
         $label = 'Вы вошли как администратор';
     } else {
-        $label = ucfirst($_SESSION['fio']) . ", вы вошли как пользователь";
+        $label = ucfirst($fio) . ", вы вошли как пользователь";
+    }
+    if (!isUserChangesRating($login, $id)) {
+        $postRating = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&rating=down'>&#8595;</a> 
+                    {$post['rating']}
+                    <a class='menu' href='{$_SERVER['REQUEST_URI']}&rating=up'>&#8593;</a> ";
+        if (isset($_GET['rating'])) {
+            $rating = clearStr($_GET['rating']);
+            if ($rating == 'down' or $rating == 'up'){
+                changePostRating($rating, $id, $login);
+                header("Location: viewsinglepost.php?viewPostById=$id");
+            }
+        }
+    } else {
+        $postRating = $post['rating'];
     }
 } else {
     $link = "<a class='menu' href='login.php'>Войти</a>";
     $label = 'Вы не авторизованы';
+    $postRating = $post['rating'];
 } 
-
-$comments = getCommentsByPostId($id);
-$year = date("Y", time());
 ?>
 
 
@@ -82,6 +95,11 @@ $year = date("Y", time());
     <div class='contentsinglepost'>
 
         <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?=$post['name']?></p></div>
+
+        <div id='singlepostauthor'>
+            <p class='singlepostdate'>Рейтинг поста: <?=$postRating?></p>
+        </div>
+
 
         <div id='singlepostauthor'>
             <p class='singlepostauthor'><?=$post['author']?></p>

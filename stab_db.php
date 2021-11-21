@@ -21,8 +21,8 @@ try {
 
         $date = time();
 
-        $sql = "INSERT INTO posts (id, name, author, date, content) 
-        VALUES($i, $i, $i, $date, $i);";
+        $sql = "INSERT INTO posts (id, name, author, date, content, rating) 
+        VALUES($i, $i, $i, $date, $i, $i);";
 
         $db->exec($sql);
 

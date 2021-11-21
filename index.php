@@ -80,6 +80,8 @@ $posts = getPostsForIndex();
                 <p class='onepostzagolovok'><?=$post['name']?></p>
                 <p class='onepostcontent'><?=$post['content']?></p>
                 <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
+
+                <p class='postdate'>Рейтинг поста: <?=$post['rating']?> </p>
             </div>
             <div class='onepostimage'>
                 <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='onepostimage'>
@@ -108,6 +110,8 @@ $posts = getPostsForIndex();
                     <p class='smallpostzagolovok'><?=$post['name_small']?></p>
                     <p class='smallpostcontent'><?=$post['content_small']?></p>
                     <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
+
+                    <p class='postdate'>Рейтинг поста: <?=$post['rating']?> </p>
                 </div>
 
                 <div class='smallpostimage'>

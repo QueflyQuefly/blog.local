@@ -12,7 +12,8 @@ if (isset($_POST['login']) && isset($_POST['password'])) {
 
     if (isUser($login, $password)) {
         $_SESSION['log_in'] = true;
-        $_SESSION['fio'] = $fio;
+        $_SESSION['login'] = $login;
+        $_SESSION['fio'] = $fio; //it is global var from function isUser
         $_SESSION['rights'] = getRightsByLogin($login);
     } else {
         $error = "Неверный логин или пароль";

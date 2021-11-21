@@ -43,6 +43,17 @@ try {
         author VARCHAR(20),
         date INT,
         content TEXT,
+        rating INT,
+        PRIMARY KEY (id)
+        );
+
+
+        CREATE TABLE rating_posts
+        (
+        id INT AUTO_INCREMENT,
+        login VARCHAR(20),
+        post_id INT,
+        rating VARCHAR(10),
         PRIMARY KEY (id)
         );
         

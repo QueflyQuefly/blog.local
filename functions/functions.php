@@ -57,7 +57,7 @@ function getCommentsByPostId($postid) {
 function getPostsForIndex(){
     global $db, $error;
     try {
-        $sql = "SELECT id, name, author, date, content FROM posts;";
+        $sql = "SELECT id, name, author, date, content, rating FROM posts;";
         $stmt = $db->query($sql);
 
         if ($stmt == false) {
@@ -194,7 +194,7 @@ function isLoginUnique($login) {
 function getPostForViewById($id) {
     global $db, $error;
     try {
-        $sql = "SELECT name, author, date, content FROM posts WHERE id = $id;";
+        $sql = "SELECT name, author, date, content, rating FROM posts WHERE id = $id;";
         $stmt = $db->query($sql);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
         $post['content'] = str_replace("<br />", "<p>", nl2br($post['content']));
@@ -204,7 +204,6 @@ function getPostForViewById($id) {
     }
     return $post;
 }
-
 function insertComments($id, $commentAuthor, $commentDate, $commentContent) {
     global $db, $error;
     try {
@@ -225,11 +224,52 @@ function insertComments($id, $commentAuthor, $commentDate, $commentContent) {
         $error = $e->getMessage();
     }
 }
+function changePostRating($rating, $postId, $login){
+    global $db, $error;
+    try {
+        
+        $login = $db->quote($login);
+        if ($rating == 'up') {
+            $sql = "UPDATE posts SET rating=rating+1 WHERE id=$postId";
+            $db->exec($sql); 
+        }
+        if ($rating == 'down') {
+            $sql = "UPDATE posts SET rating=rating-1 WHERE id=$postId";
+            $db->exec($sql); 
+        }
+        $rating = $db->quote($rating);
+
+        $sql = "INSERT INTO rating_posts (login, post_id, rating) 
+        VALUES($login, $postId, $rating)";
+        $db->exec($sql);
+
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function isUserChangesRating($login, $postId){
+    global $db, $error;
+    try {
+        $login = $db->quote($login);
+
+        $sql = "SELECT rating FROM rating_posts WHERE login=$login AND post_id=$postId";
+        $stmt = $db->query($sql);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$result) {
+            return false;
+        } else {
+            return $result['rating'];
+        }
+
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
 /* functions for viewsinglepost.php */
 
 
 /* functions for addpost.php */
-function insertToPosts($name, $author, $content) {
+function insertToPosts($name, $author, $content, $rating) {
     global $db, $error;
     $date = time();
 
@@ -238,9 +278,10 @@ function insertToPosts($name, $author, $content) {
         $name = $db->quote($name);
         $author = $db->quote($author);
         $content = $db->quote($content);
+        $rating = clearInt($rating);
 
-        $sql = "INSERT INTO posts (name, author, date, content) 
-        VALUES($name, $author, $date, $content);";
+        $sql = "INSERT INTO posts (name, author, date, content, rating) 
+        VALUES($name, $author, $date, $content, $rating);";
 
         $db->exec($sql);
     } catch (PDOException $e) {

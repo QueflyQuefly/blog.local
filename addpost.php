@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         header("Location: addpost.php?msg=$error");
                 }
             } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-                insertToPosts($name, $author, $content);
+                insertToPosts($name, $author, $content, 0);
 
                 /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . getLastPostId() . ".jpg"); */
                 
