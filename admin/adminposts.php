@@ -1,6 +1,6 @@
 <?php
 session_start();
-$file_functions = dirname(__DIR__) . "/functions/functions.php";
+$file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions', 'functions.php'));
 require_once $file_functions;
 
 $error = ''; $posts = [];
@@ -63,7 +63,11 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
                     for ($i= $num; $i>=0; $i--) {
                         $post = $posts[$i];
                         $comments = getCommentsByPostId($post['id']);
+                        if (empty($posts) or $posts == false) {
+                            $countComments = 0;
+                        } else {
                         $countComments = count($comments);
+                        }
 
             ?>
 

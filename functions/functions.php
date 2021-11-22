@@ -1,12 +1,12 @@
 <?php
-$root = dirname(__DIR__);
-require_once $root . "\dbconfig.php";
+$dbconfig = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'dbconfig.php'));
+require_once $dbconfig;
 
 /* if not connection to  dbname=myblog, run init_db.php */
 try {
     $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
 } catch (PDOException $e) {
-    $init = $root . "\init_db.php";
+    $init = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'init_db.php'));
     require_once $init;
 }
 
@@ -68,7 +68,7 @@ function getPostsForIndex(){
             $rows[] = $row;
         }
 
-        if (count($rows) == 0 or $rows === false) {
+        if (empty($rows) or $rows === false) {
             return false;
         }
         foreach ($rows as $post) {
