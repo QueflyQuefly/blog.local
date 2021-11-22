@@ -4,7 +4,9 @@ $file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions',
 require_once $file_functions;
 $error = []; $users = [];
 
-/* Удаление комментариев реализую в будущем */
+if (!isset($_SESSION['rights'])) {
+    $_SESSION['rights'] = '';
+}
 
 if (isset($_GET['deleteUserById'])) {
     $deleteId = clearInt($_GET['deleteUserById']);

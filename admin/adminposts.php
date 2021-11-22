@@ -5,6 +5,10 @@ require_once $file_functions;
 
 $error = ''; $posts = [];
 
+if (!isset($_SESSION['rights'])) {
+    $_SESSION['rights'] = '';
+}
+
 if (isset($_GET['deletePostById'])) {
     $deletePostId = clearInt($_GET['deletePostById']);
     if ($deletePostId != '') {
@@ -45,7 +49,7 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
                     }
                 ?>
 
-                <?=$php_errormsg , $error?>
+                <?=$error?>
             </p>
         </div>
 

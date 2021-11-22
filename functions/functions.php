@@ -36,6 +36,7 @@ function addAdmin($login, $fio, $password){
 }
 function getCommentsByPostId($postid) {
     global $db, $error;
+    $comments = [];
     try {
         $sql = "SELECT id, author, date, content FROM comments WHERE post_id = $postid;";
         $stmt = $db->query($sql);
@@ -227,22 +228,29 @@ function insertComments($id, $commentAuthor, $commentDate, $commentContent) {
 function changePostRating($rating, $postId, $login){
     global $db, $error;
     try {
-        
+        $rating = clearInt($rating);
         $login = $db->quote($login);
-        if ($rating == 'up') {
-            $sql = "UPDATE posts SET rating=rating+1 WHERE id=$postId";
+
+        if ($rating) {
+            $rate = $db->quote($rating);
+            $sql = "INSERT INTO rating_posts (login, post_id, rating) 
+            VALUES($login, $postId, $rate)";
+            $db->exec($sql);
+
+            $sql = "SELECT rating FROM rating_posts WHERE post_id=$postId";
+            $stmt = $db->query($sql);
+            $summ = 0;
+            while ($postRate = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $postRates[] = $postRate['rating'];
+            }
+            for ($i = 0; $i <= count($postRates); $i++) {
+                $summ += $postRates[$i];
+                $postRating = $summ / count($postRates);
+                $postRating = round($postRating, 1, PHP_ROUND_HALF_UP);
+            }
+            $sql = "UPDATE posts SET rating=$postRating WHERE id=$postId";
             $db->exec($sql); 
         }
-        if ($rating == 'down') {
-            $sql = "UPDATE posts SET rating=rating-1 WHERE id=$postId";
-            $db->exec($sql); 
-        }
-        $rating = $db->quote($rating);
-
-        $sql = "INSERT INTO rating_posts (login, post_id, rating) 
-        VALUES($login, $postId, $rating)";
-        $db->exec($sql);
-
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
@@ -260,7 +268,6 @@ function isUserChangesRating($login, $postId){
         } else {
             return $result['rating'];
         }
-
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }

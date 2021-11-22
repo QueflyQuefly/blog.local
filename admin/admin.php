@@ -3,7 +3,9 @@ $file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions',
 require_once $file_functions;
 
 session_start();
-unset($_SESSION['referrer']);
+if (!isset($_SESSION['rights'])) {
+    $_SESSION['rights'] = '';
+}
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 $_SESSION['entrance'] = false;

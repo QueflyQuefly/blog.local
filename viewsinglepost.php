@@ -1,8 +1,10 @@
 <?php
-require_once "functions/functions.php";
+$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+require_once $functions;
+$link = '';
+$label = '';
 
 session_start();
-unset($_SESSION['referrer']);
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (isset($_GET['viewPostById'])) {
@@ -20,6 +22,22 @@ if (isset($_GET['exit'])) {
     $_SESSION['log_in'] = false;
 }
 
+
+if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+    $fio = $_SESSION['fio'];
+    $login = $_SESSION['login'];
+    $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
+    
+    if ($_SESSION['rights'] == 'superuser') {
+        $label = 'Вы вошли как администратор';
+    } else {
+        $label = ucfirst($fio) . ", вы вошли как пользователь";
+    }
+} else {
+    $link = "<a class='menu' href='login.php'>Войти</a>";
+    $label = 'Вы не авторизованы';
+    
+} 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent'])) {
         $commentAuthor = $_POST['addCommentAuthor'];
@@ -31,37 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $error = 'Комментарий не может быть пустым';
         }
     }
+    if (!isUserChangesRating($login, $id)) {
+        if (isset($_POST['star'])) {
+            $star = clearInt($_POST['star']);
+            changePostRating($star, $id, $login);
+            header("Location: viewsinglepost.php?viewPostById=$id");
+        }
+    }
 }
 
-if ($_SESSION['log_in']) {
-    $fio = $_SESSION['fio'];
-    $login = $_SESSION['login'];
-    $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-    
-    if ($_SESSION['rights'] == 'superuser') {
-        $label = 'Вы вошли как администратор';
-    } else {
-        $label = ucfirst($fio) . ", вы вошли как пользователь";
-    }
-    if (!isUserChangesRating($login, $id)) {
-        $postRating = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&rating=down'>&#8595;</a> 
-                    {$post['rating']}
-                    <a class='menu' href='{$_SERVER['REQUEST_URI']}&rating=up'>&#8593;</a> ";
-        if (isset($_GET['rating'])) {
-            $rating = clearStr($_GET['rating']);
-            if ($rating == 'down' or $rating == 'up'){
-                changePostRating($rating, $id, $login);
-                header("Location: viewsinglepost.php?viewPostById=$id");
-            }
-        }
-    } else {
-        $postRating = $post['rating'];
-    }
-} else {
-    $link = "<a class='menu' href='login.php'>Войти</a>";
-    $label = 'Вы не авторизованы';
-    $postRating = $post['rating'];
-} 
+$postRating = $post['rating'];
 ?>
 
 
@@ -97,7 +94,36 @@ if ($_SESSION['log_in']) {
         <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?=$post['name']?></p></div>
 
         <div id='singlepostauthor'>
-            <p class='singlepostdate'>Рейтинг поста: <?=$postRating?></p>
+            <p class='singlepostdate'>Рейтинг поста: <?=$postRating?> из 5.</p>
+            <?php
+            
+            if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+                if (!isUserChangesRating($login, $id)) {
+                    if ($_SESSION['log_in'] == true) {
+            ?>
+            <div class="rating-area">
+                <form action='<?=$_SERVER['REQUEST_URI']?>' method='post'>
+                    <label class='star' for='star-1'>&#9734;</label>
+                    <input type="submit" title="Оценка «1»" id="star-1" name="star" value="1">
+
+                    <label class='star' for='star-2'>&#9734;</label>
+                    <input type="submit" title="Оценка «2»" id="star-2" name="star" value="2">
+
+                    <label class='star' for='star-3'>&#9734;</label>
+                    <input type="submit" title="Оценка «3»" id="star-3" name="star" value="3">
+
+                    <label class='star' for='star-4'>&#9734;</label>
+                    <input type="submit" title="Оценка «4»" id="star-4" name="star" value="4">
+
+                    <label class='star' for='star-5'>&#9734;</label>
+                    <input type="submit" title="Оценка «5»" id="star-5" name="star"  value="5">
+                </form>
+            </div>
+            <?php 
+                    }
+                }
+            }
+            ?>
         </div>
 
 
@@ -118,10 +144,12 @@ if ($_SESSION['log_in']) {
         <div class='addcomments'  id='comment'>
 
             <?php
-                if (!$_SESSION['log_in']) {
+                if (isset($_SESSION['log_in'])) {
+                    if ($_SESSION['log_in'] == false) {
                     echo "<p class='center'>Добавление комментариев доступно только для авторизованных пользователей</p>";
-                } else {
+                    } else {
                     echo $error;
+                
             ?>
 
             <p class='center'>Добавьте комментарий:</p>
@@ -140,6 +168,7 @@ if ($_SESSION['log_in']) {
 
             <?php 
                 }
+            }
             ?>
         </div>
 

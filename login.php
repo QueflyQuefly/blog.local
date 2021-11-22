@@ -3,8 +3,10 @@ session_start();
 
 $_SESSION['log_in'] = false;
 $error = '';
+$ok = '';
 
-require_once "functions/functions.php";
+$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+require_once $functions;
 
 if (isset($_POST['login']) && isset($_POST['password'])) {
     $login = clearStr($_POST['login']);

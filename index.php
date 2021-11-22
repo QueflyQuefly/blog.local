@@ -1,9 +1,14 @@
 <?php
 session_start();
-require_once "functions/functions.php";
+$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+require_once $functions;
+$link = '';
+$label = '';
 
-if ($_SESSION['log_in'] == false) {
-    session_destroy();
+if (isset($_SESSION['log_in'])) {
+    if ($_SESSION['log_in'] == false){
+        session_destroy();
+    }
 }
     
 if (isset($_GET['exit'])) {
@@ -12,12 +17,14 @@ if (isset($_GET['exit'])) {
     header("Location: /");
 } 
 
-if ($_SESSION['log_in']) {
-    $link = "<a class='menu' href='?exit'>Выйти</a>";
-    if ($_SESSION['rights'] == 'superuser') {
-        $label = 'Вы вошли как администратор';
-    } else {
-        $label = ucfirst($_SESSION['fio']) . ", вы вошли как пользователь";
+if (isset($_SESSION['log_in'])) {
+    if ($_SESSION['log_in'] == true) {
+        $link = "<a class='menu' href='?exit'>Выйти</a>";
+        if ($_SESSION['rights'] == 'superuser') {
+            $label = 'Вы вошли как администратор';
+        } else {
+            $label = ucfirst($_SESSION['fio']) . ", вы вошли как пользователь";
+        }
     }
 } else {
     $link = "<a class='menu' href='login.php'>Войти</a>";

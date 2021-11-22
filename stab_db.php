@@ -2,11 +2,15 @@
 session_start();
 require_once 'dbconfig.php';
 
-if ($_SESSION['bool']) {
+$j = 1; $_SESSION['j'] = 1;
+
+
+
+if (isset($_SESSION['bool']) && $_SESSION['bool'] == true) {
     $_SESSION['j'] += 10; 
     $j = $_SESSION['j'];
 } else {
-    $j = 1;
+    $_SESSION['j'] = 0;
 }
 
 
@@ -20,9 +24,8 @@ try {
     for ($i = $j; $i <= $j + 9; $i++) {
 
         $date = time();
-
         $sql = "INSERT INTO posts (id, name, author, date, content, rating) 
-        VALUES($i, $i, $i, $date, $i, $i);";
+        VALUES($i, $i, $i, $date, $i, 0);";
 
         $db->exec($sql);
 
@@ -39,7 +42,7 @@ try {
         $db->exec($sql);
         $_SESSION['bool'] = true;
     }
-    echo "Подключение к БД: успешно<br>Создано 10 новых постов, 10 новых комментариев и 10 новых пользователей";
+    echo "Подключение к БД: успешно<br>Создано 10 новых постов, 10 новых комментариев и 10 новых пользователей. <a href='/'>На главную</a>";
 } catch (PDOException $e) {
     echo $error = $e->getMessage();
 }

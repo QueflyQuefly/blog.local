@@ -5,9 +5,18 @@
 }
 html,
 body{
+    padding-top: 8vh;
     margin: 0 0;
     width:100%;
     height:100%;
+}
+nav{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:8vh;
+    background-color: white;
 }
 div.top{
     border: 0.5px solid lightgray;
@@ -142,6 +151,7 @@ a.onepost:hover{
 a.onepost:active{
     color:black;
 }
+
 /*  */
 /* small posts */
 div.smallpost{
@@ -215,7 +225,7 @@ div.allsinglepost{
     display: table;
 }
 div.contentsinglepost{
-    margin: 5% 17% 2% 17%;
+    margin: 2% 17% 2% 17%;
 }
 div#singlepostzagolovok{
     text-overflow: ellipsis;
@@ -231,6 +241,29 @@ div#singlepostzagolovok{
     font-size: 30pt;
     font-family: Georgia, 'Times New Roman', Times, serif;
 } */
+
+/* rating area */
+.rating-area {
+	overflow: hidden;
+	width: 30vh;
+	margin: -5.2vh 0 2vh 25vh;
+}
+.rating-area input{
+    display:none;
+}
+.rating-area label{
+    background-color:transparent;
+    border: none;
+    font-size: 15pt;
+    padding:0;
+    cursor: pointer;
+}
+.rating-area label:hover {
+    color: rgb(168, 143, 0);
+}
+
+/* rating area */
+
 div#singlepostauthor{
     max-width: 70%;
     text-align: left;

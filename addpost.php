@@ -1,10 +1,16 @@
 <?php
 session_start(); 
 $_SESSION['referrer'] = 'addpost.php';
+$ok = '';
 
-require_once "functions/functions.php";
+$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+require_once $functions;
 
 $size = 4096000; //max size of upload image
+
+if (!isset($_SESSION['fio'])) {
+    $_SESSION['fio'] = '';
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
@@ -87,11 +93,13 @@ if (isset($_GET['msg'])) {
             <p class='ok'><?=$ok?></p>
             <p class='error'>
                 <?php
-                    if (!$_SESSION['log_in']) {
+                if (isset($_SESSION['log_in'])) {
+                    if ($_SESSION['log_in'] == false) {
                         echo "<a class='link' href='login.php'>Войдите, прежде чем продолжить</a>";
                         exit;
                     }
                     echo $error;
+                }
                 ?>
             </p>
         </div>

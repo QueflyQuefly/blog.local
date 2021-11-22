@@ -43,7 +43,7 @@ try {
         author VARCHAR(20),
         date INT,
         content TEXT,
-        rating INT,
+        rating DOUBLE,
         PRIMARY KEY (id)
         );
 
@@ -53,7 +53,7 @@ try {
         id INT AUTO_INCREMENT,
         login VARCHAR(20),
         post_id INT,
-        rating VARCHAR(10),
+        rating TINYINT,
         PRIMARY KEY (id)
         );
         
