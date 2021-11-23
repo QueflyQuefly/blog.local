@@ -243,9 +243,10 @@ function changePostRating($rating, $postId, $login){
             while ($postRate = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $postRates[] = $postRate['rating'];
             }
-            for ($i = 0; $i <= count($postRates); $i++) {
+            $countRatings =  count($postRates);
+            for ($i = 0; $i <= $countRatings; $i++) {
                 $summ += $postRates[$i];
-                $postRating = $summ / count($postRates);
+                $postRating = $summ / $countRatings;
                 $postRating = round($postRating, 1, PHP_ROUND_HALF_UP);
             }
             $sql = "UPDATE posts SET rating=$postRating WHERE id=$postId";
@@ -268,6 +269,17 @@ function isUserChangesRating($login, $postId){
         } else {
             return $result['rating'];
         }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function countRatingsByPostId($id) {
+    global $db, $error;
+    try {
+        $sql = "SELECT COUNT(*) as count FROM rating_posts WHERE post_id=$id";
+        $stmt = $db->query($sql);
+        $countRatings = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $countRatings['count'];
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }

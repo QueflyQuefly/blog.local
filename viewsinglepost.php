@@ -57,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+$countRatings = countRatingsByPostId($id);
 
 $postRating = $post['rating'];
 ?>
@@ -94,8 +95,13 @@ $postRating = $post['rating'];
         <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?=$post['name']?></p></div>
 
         <div id='singlepostauthor'>
-            <p class='singlepostdate'>Рейтинг поста: <?=$postRating?> из 5.</p>
+            
             <?php
+            if ($countRatings) {
+                echo "<p class='singlepostdate'>Рейтинг поста: $postRating из 5. Оценок: $countRatings</p>";
+            } else {
+                echo "<p class='singlepostdate'>Оценок 0. Будьте первым!</p>";
+            }
             
             if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
                 if (!isUserChangesRating($login, $id)) {
@@ -120,8 +126,14 @@ $postRating = $post['rating'];
                 </form>
             </div>
             <?php 
+                    } else {
+                        echo "<p class='singlepostdate'>Необходимо войти, чтобы оценить</p>";
                     }
+                } else {
+                    echo "<p class='singlepostdate'>Оценка принята</p>";
                 }
+            } else {
+                echo "<p class='singlepostdate'>Необходимо войти, чтобы оценить</p>";
             }
             ?>
         </div>
