@@ -15,7 +15,7 @@ if (isset($_GET['exit'])) {
 
 if (isset($_GET['viewPostById'])) {
     $id = clearInt($_GET['viewPostById']);
-    if (is_null($id)) {
+    if ($id  === '') {
         header("Location: /");
     }
     $post = getPostForViewById($id);

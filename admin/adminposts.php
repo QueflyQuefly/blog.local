@@ -78,7 +78,7 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
             <li class='list'>
 
             <p class='list'>ID:<?= $post['id'] ?> ::: Название: <?= $post['name'] ?> <br> Автор: <?= $post['author'] ?> </p>
-            <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?>-й</a>
+            <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
             <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
             
             <?php 

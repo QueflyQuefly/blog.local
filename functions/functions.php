@@ -364,19 +364,23 @@ function insertToPosts($name, $author, $content, $rating) {
 function getPostsByFio($fio) {
     global $db, $error;
     try {
+        $posts = [];
         $sql = "SELECT id, name, date, content, rating FROM posts WHERE author = $fio;";
         $stmt = $db->query($sql);
         if(!$stmt) {
             return false;
         }
         while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $post['date'] = date("d.m.Y",$post['date']) ." в ". date("H:i", $post['date']);
             $posts[] = $post;
+        }
+        if(!$posts) {
+            return false;
+        } else {
+            return $posts;
         }
     } catch(PDOException $e) {
         $error = $e->getMessage();
     }
-    return $posts;
 }
 function getCommentsByFio($fio) {
     global $db, $error;
@@ -394,6 +398,40 @@ function getCommentsByFio($fio) {
         $error = $e->getMessage();
     }
     return $comments;
+}
+function getLikedPostsByLogin($login) {
+    global $db, $error;
+    $posts = [];
+    try {
+        $sql = "SELECT id, post_id, rating FROM rating_posts WHERE login = $login;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return false;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $posts[] = $result;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $posts;   
+}
+function getLikedCommentsByLogin($login) {
+    global $db, $error;
+    $posts = [];
+    try {
+        $sql = "SELECT id, post_id, com_id FROM rating_comments WHERE login = $login;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return false;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $posts[] = $result;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $posts;   
 }
 /* functions for cabinet.php */
 

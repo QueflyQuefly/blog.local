@@ -406,6 +406,36 @@ div.viewnotcomment{
     padding-left: 2vh;
 }
 
+ul.list{
+    margin:0 auto;
+    font-size: 14pt;
+}
+li.list{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-decoration:none;
+    list-style: none;
+    padding:1.5vh;
+    padding-bottom:0.5vh;
+}
+li.list:hover{
+    border: 0.3vh solid lightgray;
+    padding: 1.2vh;
+    padding-bottom:0.2vh;
+}
+p.list{
+    margin:0 0;
+}
+a.list{
+    text-decoration: none;
+    font-style: italic;
+    color: darkslateblue;
+    float:right;
+    margin-right: 3%;
+}
+hr{
+    width:90%;
+}
 
 
 
