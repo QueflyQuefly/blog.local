@@ -38,7 +38,7 @@ function getCommentsByPostId($postid) {
     global $db, $error;
     $comments = [];
     try {
-        $sql = "SELECT id, author, date, content FROM comments WHERE post_id = $postid;";
+        $sql = "SELECT id, author, date, content, rating FROM comments WHERE post_id = $postid;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
             return false;
@@ -58,7 +58,7 @@ function getCommentsByPostId($postid) {
 function getPostsForIndex(){
     global $db, $error;
     try {
-        $sql = "SELECT id, name, author, date, content, rating FROM posts;";
+        $sql = "SELECT id, name, author, date, content, rating FROM posts;"; // LIMIT 10
         $stmt = $db->query($sql);
 
         if ($stmt == false) {
@@ -215,8 +215,8 @@ function insertComments($id, $commentAuthor, $commentDate, $commentContent) {
         $content = $db->quote($commentContent);
         $content = trim(strip_tags($content));
 
-        $sql = "INSERT INTO comments (post_id, author, date, content) 
-        VALUES($id, $author, $date, $content)";
+        $sql = "INSERT INTO comments (post_id, author, date, content, rating) 
+        VALUES($id, $author, $date, $content, 0)";
         $db->exec($sql);
 
         $db->commit();
@@ -256,18 +256,21 @@ function changePostRating($rating, $postId, $login){
         $error = $e->getMessage();
     }
 }
-function isUserChangesRating($login, $postId){
+function isUserChangesPostRating($login, $postId){
     global $db, $error;
     try {
         $login = $db->quote($login);
 
         $sql = "SELECT rating FROM rating_posts WHERE login=$login AND post_id=$postId";
         $stmt = $db->query($sql);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$result) {
+        if (!$stmt) {
             return false;
+        }
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            return true;
         } else {
-            return $result['rating'];
+            return false;
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
@@ -278,8 +281,54 @@ function countRatingsByPostId($id) {
     try {
         $sql = "SELECT COUNT(*) as count FROM rating_posts WHERE post_id=$id";
         $stmt = $db->query($sql);
+        if(!$stmt) {
+            return 0;
+        }
         $countRatings = $stmt->fetch(PDO::FETCH_ASSOC);
         return $countRatings['count'];
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function changeComRating($rating, $comId, $postId, $login){
+    global $db, $error;
+    try {
+        $comId = clearInt($comId);
+        $postId = clearInt($postId);
+        $login = $db->quote($login);
+
+        if ($rating === 'like') {
+            $sql = "INSERT INTO rating_comments (login, com_id, post_id) 
+            VALUES($login, $comId, $postId)";
+            $db->exec($sql);
+
+            $sql = "UPDATE comments SET rating=rating+1 WHERE id=$comId";
+            $db->exec($sql); 
+        }
+        if ($rating === 'unlike') {
+            $sql = "DELETE FROM rating_comments WHERE com_id=$comId";
+            $db->exec($sql);
+
+            $sql = "UPDATE comments SET rating=rating-1 WHERE id=$comId";
+            $db->exec($sql); 
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function isUserChangesComRating($login, $comId){
+    global $db, $error;
+    try {
+        $login = $db->quote($login);
+
+        $sql = "SELECT id FROM rating_comments WHERE login=$login AND com_id=$comId";
+        $stmt = $db->query($sql);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }

@@ -3,6 +3,8 @@ $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
 $link = '';
 $label = '';
+$fio = '';
+$login = '';
 
 session_start();
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
@@ -40,20 +42,45 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
 } 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent'])) {
-        $commentAuthor = $_POST['addCommentAuthor'];
-        $commentContent = $_POST['addCommentContent'];
-        if ($commentAuthor && $commentContent) {
-            insertComments($id, $commentAuthor, time(), $commentContent);
-            header("Location: viewsinglepost.php?viewPostById=$id");
+        if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+            $commentAuthor = $_POST['addCommentAuthor'];
+            $commentContent = $_POST['addCommentContent'];
+            if ($commentAuthor && $commentContent) {
+                insertComments($id, $commentAuthor, time(), $commentContent);
+                header("Location: viewsinglepost.php?viewPostById=$id");
+            } else {
+                $error = 'Комментарий не может быть пустым';
+            }
         } else {
-            $error = 'Комментарий не может быть пустым';
+            header("Location: login.php");
         }
     }
-    if (!isUserChangesRating($login, $id)) {
-        if (isset($_POST['star'])) {
+    if (!isUserChangesPostRating($login, $id)) {
+        if (isset($_POST['star']) && isset($_SESSION['log_in']) && $_SESSION['log_in']) {
             $star = clearInt($_POST['star']);
             changePostRating($star, $id, $login);
             header("Location: viewsinglepost.php?viewPostById=$id");
+        } else {
+            header("Location: login.php");
+        }
+    }
+    
+    if (isset($_POST['like'])) {
+        if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+        $like = clearInt($_POST['like']);
+        changeComRating('like', $like, $id, $login);
+        header("Location: viewsinglepost.php?viewPostById=$id#comment$like");
+        } else {
+            header("Location: login.php");
+        }
+    } 
+    if (isset($_POST['unlike'])) {
+        if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+            $unlike = clearInt($_POST['unlike']);
+            changeComRating('unlike', $unlike, $id, $login);
+            header("Location: viewsinglepost.php?viewPostById=$id#comment$unlike");
+        } else {
+            header("Location: login.php");
         }
     }
 }
@@ -97,44 +124,36 @@ $postRating = $post['rating'];
         <div id='singlepostauthor'>
             
             <?php
-            if ($countRatings) {
-                echo "<p class='singlepostdate'>Рейтинг поста: $postRating из 5. Оценок: $countRatings</p>";
-            } else {
-                echo "<p class='singlepostdate'>Оценок 0. Будьте первым!</p>";
-            }
-            
-            if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
-                if (!isUserChangesRating($login, $id)) {
-                    if ($_SESSION['log_in'] == true) {
+                if ($countRatings) {
+                    echo "<p class='singlepostdate'>Рейтинг поста: $postRating из 5. Оценок: $countRatings</p>";
+                } else {
+                    echo "<p class='singlepostdate'>Оценок 0. Будьте первым!</p>";
+                }
+                
+                if (!isUserChangesPostRating($login, $id)) {
             ?>
             <div class="rating-area">
                 <form action='<?=$_SERVER['REQUEST_URI']?>' method='post'>
-                    <label class='star' for='star-1'>&#9734;</label>
-                    <input type="submit" title="Оценка «1»" id="star-1" name="star" value="1">
+                    <label class='star' title="Оценка «1»" for='star-1'>&#9734;</label>
+                    <input type="submit" id="star-1" name="star" value="1">
 
-                    <label class='star' for='star-2'>&#9734;</label>
-                    <input type="submit" title="Оценка «2»" id="star-2" name="star" value="2">
+                    <label class='star' title="Оценка «2»" for='star-2'>&#9734;</label>
+                    <input type="submit" id="star-2" name="star" value="2">
 
-                    <label class='star' for='star-3'>&#9734;</label>
-                    <input type="submit" title="Оценка «3»" id="star-3" name="star" value="3">
+                    <label class='star' title="Оценка «3»" for='star-3'>&#9734;</label>
+                    <input type="submit" id="star-3" name="star" value="3">
 
-                    <label class='star' for='star-4'>&#9734;</label>
-                    <input type="submit" title="Оценка «4»" id="star-4" name="star" value="4">
+                    <label class='star' title="Оценка «4»" for='star-4'>&#9734;</label>
+                    <input type="submit" id="star-4" name="star" value="4">
 
-                    <label class='star' for='star-5'>&#9734;</label>
-                    <input type="submit" title="Оценка «5»" id="star-5" name="star"  value="5">
+                    <label class='star' title="Оценка «5»" for='star-5'>&#9734;</label>
+                    <input type="submit" id="star-5" name="star"  value="5">
                 </form>
             </div>
             <?php 
-                    } else {
-                        echo "<p class='singlepostdate'>Необходимо войти, чтобы оценить</p>";
-                    }
                 } else {
                     echo "<p class='singlepostdate'>Оценка принята</p>";
                 }
-            } else {
-                echo "<p class='singlepostdate'>Необходимо войти, чтобы оценить</p>";
-            }
             ?>
         </div>
 
@@ -155,33 +174,20 @@ $postRating = $post['rating'];
         </div>
         <div class='addcomments'  id='comment'>
 
-            <?php
-                if (isset($_SESSION['log_in'])) {
-                    if ($_SESSION['log_in'] == false) {
-                    echo "<p class='center'>Добавление комментариев доступно только для авторизованных пользователей</p>";
-                    } else {
-                    echo $error;
-                
-            ?>
+            <?=$error?>
 
             <p class='center'>Добавьте комментарий:</p>
 
             <div class='addcomment'>
 
                 <form action='<?=$_SERVER['REQUEST_URI']?>#comment' method='post'>
-                    <input type='hidden' name='addCommentAuthor' value='<?=$_SESSION['fio']?>'> 
+                    <input type='hidden' name='addCommentAuthor' value='<?=$fio?>'> 
                    
                     <br><textarea name='addCommentContent' required  minlength="1" maxlength='500' wrap='hard' placeholder="Опишите ваши эмоции :-) (до 500 символов)" id='textcomment'></textarea><br>
                     
                     <input type='submit' value='Добавить комментарий' class='submit'>
                 </form>
-
             </div>
-
-            <?php 
-                }
-            }
-            ?>
         </div>
 
         <!-- viewing comments area-->
@@ -195,10 +201,27 @@ $postRating = $post['rating'];
                     $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);
             ?>
 
-            <div class='viewcomment'>
+            <div class='viewcomment' id='comment<?= $comments[$i]['id'] ?>'>
                 <p class='commentauthor'><?=$comments[$i]['author']?><div class='commentdate'><?=$date?></div></p>
-                
-                <p class='commentcontent'><?=$content?></p>
+                <div class='commentcontent'>
+                    <p class='commentcontent'><?=$content?></p> 
+                </div>
+                <div class='like'>
+                    <?php
+                        $countLikes = $comments[$i]['rating'];
+                        if (isset($login) && !isUserChangesComRating($login, $comments[$i]['id'])) {
+                            $name = 'like';
+                        } else {
+                            $name = 'unlike';
+                        }
+                    ?>
+                    
+                    <form action='<?=$_SERVER['REQUEST_URI']?>' method='post'>
+                        <label class='like' title="Нравится" for='like'>&#9825;</label>
+                        <input type="submit" id="like" name="<?= $name ?>" value="<?=$comments[$i]['id']?>"><?=$countLikes?>
+                    </form>
+
+                </div>
                 <hr>
             </div>
 

@@ -29,8 +29,8 @@ try {
 
         $db->exec($sql);
 
-        $sql = "INSERT INTO comments (post_id, author, date, content) 
-        VALUES($i, $i, $date, $i);";
+        $sql = "INSERT INTO comments (post_id, author, date, content, rating) 
+        VALUES($i, $i, $date, $i, 0);";
 
         $db->exec($sql);
 

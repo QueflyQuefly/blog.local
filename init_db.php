@@ -32,6 +32,7 @@ try {
         author VARCHAR(20),
         date INT,
         content TEXT,
+        rating INT,
         PRIMARY KEY (id)
         );
 
@@ -57,6 +58,17 @@ try {
         PRIMARY KEY (id)
         );
         
+
+        CREATE TABLE rating_comments
+        (
+        id INT AUTO_INCREMENT,
+        login VARCHAR(20),
+        com_id INT,
+        post_id INT,
+        PRIMARY KEY (id)
+        );
+
+
         INSERT INTO users
         (login, fio, password, rights) 
         VALUES ('12345', 'Администратор', $password, 'superuser')
