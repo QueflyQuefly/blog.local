@@ -2,14 +2,8 @@
 session_start();
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
-$link = '';
-$label = '';
-
-if (isset($_SESSION['log_in'])) {
-    if ($_SESSION['log_in'] == false){
-        session_destroy();
-    }
-}
+$link = "<a class='menu' href='login.php'>Войти</a>";
+$label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
     
 if (isset($_GET['exit'])) {
     $_SESSION['log_in'] = false;
@@ -17,19 +11,18 @@ if (isset($_GET['exit'])) {
     header("Location: /");
 } 
 
-if (isset($_SESSION['log_in'])) {
-    if ($_SESSION['log_in'] == true) {
-        $link = "<a class='menu' href='?exit'>Выйти</a>";
-        if ($_SESSION['rights'] == 'superuser') {
-            $label = 'Вы вошли как администратор';
-        } else {
-            $label = ucfirst($_SESSION['fio']) . ", вы вошли как пользователь";
-        }
+if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+    $login = $_SESSION['login'];
+
+    $link = "<a class='menu' href='?exit'>Выйти</a>";
+    if ($_SESSION['rights'] == 'superuser') {
+        $label = "<a class='menu' href='admin/admin.php'>Вы вошли как администратор</a>";
+    } else {
+        $label = "<a class='menu' href='cabinet.php?user=$login'>Перейти в личный кабинет</a>";
     }
 } else {
-    $link = "<a class='menu' href='login.php'>Войти</a>";
-    $label = 'Вы не авторизованы';
-} 
+    session_destroy();
+}
 
 $year = date("Y", time());
 $posts = getPostsForIndex();
@@ -61,12 +54,11 @@ $posts = getPostsForIndex();
             <ul class='menu'>
                 <li class='menu'><?=$link?></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
-                <li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>
                 <li class='menu'><?=$label?></li>
             </ul>
         </div>
     </div>
-    </nav>
+</nav>
 <div class='allwithoutmenu'>
     <div class='content'>
 
@@ -117,7 +109,6 @@ $posts = getPostsForIndex();
                     <p class='smallpostzagolovok'><?=$post['name_small']?></p>
                     <p class='smallpostcontent'><?=$post['content_small']?></p>
                     <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
-
                     <p class='postdate'>Рейтинг поста: <?=$post['rating']?> </p>
                 </div>
 

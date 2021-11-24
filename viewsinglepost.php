@@ -1,13 +1,17 @@
 <?php
+session_start();
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
-$link = '';
-$label = '';
+$link = "<a class='menu' href='login.php'>Войти</a>";
+$label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
 $fio = '';
 $login = '';
-
-session_start();
-$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
+    
+if (isset($_GET['exit'])) {
+    $_SESSION['log_in'] = false;
+    session_destroy();
+    header("Location: {$_SERVER['REQUEST_URI']}");
+} 
 
 if (isset($_GET['viewPostById'])) {
     $id = clearInt($_GET['viewPostById']);
@@ -20,26 +24,20 @@ if (isset($_GET['viewPostById'])) {
 } else{
     header("Location: /");
 }
-if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
-}
-
 
 if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
-    $fio = $_SESSION['fio'];
     $login = $_SESSION['login'];
-    $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-    
+    $fio = $_SESSION['fio'];
+
+    $link = "<a class='menu' href='?exit'>Выйти</a>";
     if ($_SESSION['rights'] == 'superuser') {
-        $label = 'Вы вошли как администратор';
+        $label = "<a class='menu' href='admin/admin.php'>Вы вошли как администратор</a>";
     } else {
-        $label = ucfirst($fio) . ", вы вошли как пользователь";
+        $label = "<a class='menu' href='cabinet.php?user=$login'>Перейти в личный кабинет</a>";
     }
 } else {
-    $link = "<a class='menu' href='login.php'>Войти</a>";
-    $label = 'Вы не авторизованы';
-    
-} 
+    session_destroy();
+}
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent'])) {
         if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
@@ -84,9 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
 $countRatings = countRatingsByPostId($id);
 
 $postRating = $post['rating'];
+$year = date("Y", time());
 ?>
 
 
@@ -109,7 +109,6 @@ $postRating = $post['rating'];
             <ul class='menu'>
                 <li class='menu'><?=$link?></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
-                <li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>
                 <li class='menu'><?=$label?></li>
             </ul>
         </div>
@@ -243,7 +242,7 @@ $postRating = $post['rating'];
     </div>
 
     <footer class='bottom'>
-    <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+        <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
     </footer>
 </div>
 </body>

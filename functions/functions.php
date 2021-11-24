@@ -360,6 +360,44 @@ function insertToPosts($name, $author, $content, $rating) {
 /* functions for addpost.php */
 
 
+/* functions for cabinet.php */
+function getPostsByFio($fio) {
+    global $db, $error;
+    try {
+        $sql = "SELECT id, name, date, content, rating FROM posts WHERE author = $fio;";
+        $stmt = $db->query($sql);
+        if(!$stmt) {
+            return false;
+        }
+        while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $post['date'] = date("d.m.Y",$post['date']) ." в ". date("H:i", $post['date']);
+            $posts[] = $post;
+        }
+    } catch(PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $posts;
+}
+function getCommentsByFio($fio) {
+    global $db, $error;
+    $comments = [];
+    try {
+        $sql = "SELECT id, post_id, date, content, rating FROM comments WHERE author = $fio;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return false;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $comments[] = $result;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $comments;
+}
+/* functions for cabinet.php */
+
+
 /* functions for admin/ */
 function deletePostById($id) {
     global $db, $error;
