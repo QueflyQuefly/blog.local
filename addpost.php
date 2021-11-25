@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
                 insertToPosts($name, $author, $content, 0);
                 
-                $regex = "/#\w+/";
+                $regex = "/#\w+/u";
                 preg_match_all($regex, $content, $tags);
                 $tags = $tags[0];
                 $countTags = count($tags);

@@ -364,7 +364,7 @@ function addTagsToPosts($tag) {
     try {
 
         $tag = $db->quote($tag);
-        $sql = "SELECT id FROM posts;";
+        $sql = "SELECT id FROM posts ORDER BY id DESC LIMIT 1;";
         $stmt = $db->query($sql);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $postId = $result['id'];
