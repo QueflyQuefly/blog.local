@@ -82,7 +82,7 @@ div.allwithoutmenu{
     /* border:1px solid; */
     margin: 0vh 0vh;
     width: 100%;
-    min-height: 103%;
+    min-height: 95vh;
     display:table;
 }
 div.content{
