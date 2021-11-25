@@ -357,6 +357,27 @@ function insertToPosts($name, $author, $content, $rating) {
         $error = $e->getMessage();
     }
 }
+function addTagsToPosts($tag) {
+    global $db, $error;
+    $date = time();
+
+    try {
+
+        $tag = $db->quote($tag);
+        $sql = "SELECT id FROM posts;";
+        $stmt = $db->query($sql);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $postId = $result['id'];
+
+        $sql = "INSERT INTO tag_posts (tag, post_id) 
+        VALUES($tag, $postId);";
+
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        $db->rollBack();
+        $error = $e->getMessage();
+    }
+}
 /* functions for addpost.php */
 
 

@@ -69,6 +69,15 @@ try {
         );
 
 
+        CREATE TABLE tag_posts
+        (
+        id INT AUTO_INCREMENT,
+        tag TINYTEXT,
+        post_id INT,
+        PRIMARY KEY (id)
+        );
+
+
         INSERT INTO users
         (login, fio, password, rights) 
         VALUES ('12345', 'Администратор', $password, 'superuser')

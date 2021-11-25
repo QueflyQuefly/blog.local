@@ -1,5 +1,5 @@
 <?php
-
+/* 
 $host = '127.0.0.1';
 $dbname = 'myblog';
 $username = 'root';
@@ -13,4 +13,11 @@ try {
     echo "Connected to $dbname at $host successfully.";
 } catch (PDOException $e) {
     die("Could not connect to the database $dbname :" . $e->getMessage());
-}
+} */
+$content = "najfsnkdflakdnlfk lkfsnfkgnr fensfklesn #1223 #djfjf #f11ff #1ddfs1#gjgjgj";
+
+$regex = "/#\w+/";
+preg_match_all($regex, $content, $post['tags']);
+$post['tags'] = $post['tags'][0];
+
+var_dump($post);

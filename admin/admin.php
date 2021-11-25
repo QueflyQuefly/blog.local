@@ -32,7 +32,7 @@ if (isset($_POST['view'])) {
 <div class='container'>
     <div class='center'>
         <div class='form'>
-            <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
+            <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Администрирование</p>
 
             <?php if ($_SESSION['rights'] != "superuser") { ?>

@@ -29,7 +29,7 @@ if (isset($_GET['deleteUserById'])) {
 <body>
 <div class='view'>
     <div class='viewlist'>
-        <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
+        <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
         
         <div class='msg'>
             <p class='error'>

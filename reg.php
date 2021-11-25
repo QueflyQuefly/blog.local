@@ -39,7 +39,7 @@ if (isset($_GET['msg'])) {
 <div class='container'>
     <div class='center'>
         <div class='form'>
-            <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
+            <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Регистрация</p>
             <form action='reg.php' method='post'>
                 <input type='login' name='login' required autofocus minlength="1" maxlength='20' placeholder='Введите уникальный логин' class='text'><br>

@@ -2,11 +2,16 @@
 session_start(); 
 $_SESSION['referrer'] = 'addpost.php';
 $ok = '';
+$error = '';
 
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
 
 $size = 4096000; //max size of upload image
+
+if (!isset($_SESSION['log_in']) or $_SESSION['log_in'] == false) {
+    header("Location: login.php");
+}
 
 if (!isset($_SESSION['fio'])) {
     $_SESSION['fio'] = '';
@@ -49,6 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
                 insertToPosts($name, $author, $content, 0);
+                
+                $regex = "/#\w+/";
+                preg_match_all($regex, $content, $tags);
+                $tags = $tags[0];
+                $countTags = count($tags);
+                for ($i = 0; $i < $countTags; $i++) {
+                    addTagsToPosts($tags[$i]);
+                }
 
                 /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . getLastPostId() . ".jpg"); */
                 
@@ -87,38 +100,28 @@ if (isset($_GET['msg'])) {
 <body>
 <div class='content'>
     <div class='centerpost'>
-        <p class='logo'><a class="logo" href='/'>Просто Блог</a></p>
+        <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
         
         <div class='msg'>
             <p class='ok'><?=$ok?></p>
-            <p class='error'>
-                <?php
-                if (isset($_SESSION['log_in'])) {
-                    if ($_SESSION['log_in'] == false) {
-                        echo "<a class='link' href='login.php'>Войдите, прежде чем продолжить</a>";
-                        exit;
-                    }
-                    echo $error;
-                }
-                ?>
-            </p>
+            <p class='error'><?=$error?></p>
         </div>
 
         <p class='label'>Форма добавления поста:</p>
         
         <div class='form'>
             <form action='addpost.php' method='post' enctype="multipart/form-data" id='addpost'>
-                <label id='input' for='file_img' class='addpost'>Название: </label>
-                <input type='text' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostName' placeholder="Добавьте название. Количество символов: от 20 до 140"><br>
+                <label id='input' for='file_img' class='addpost'>Заголовок: </label>
+                <input type='text' title='Заголовок' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostName' placeholder="Добавьте заголовок поста. Количество символов: от 20 до 140"><br>
                 
                 <label id='input' for='file_img' class='addpost'>Автор: </label>
-                <input type='text' class='addpostauthor' required minlength="1" maxlength='40' name='addPostAuthor' placeholder="Имя автора или его псевдоним. Количество символов: от 3 до 40" value='<?=$_SESSION['fio']?>'> 
+                <input type='text' title='Автор' class='addpostauthor' required minlength="1" maxlength='40' name='addPostAuthor' placeholder="Имя автора или его псевдоним. Количество символов: от 3 до 40" value='<?=$_SESSION['fio']?>'> 
 
                 <br> <input type="hidden" name="MAX_FILE_SIZE" value="<?=$size?>"> <br>
                 <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$size?> байт</label>
                 <input class='addpostimg' type='file' name='addPostImg' id='file_img' > <!-- required -->
                 
-                <br><textarea class='text' required minlength="1" maxlength='4000' spellcheck="true" name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='content'></textarea><br>
+                <br><textarea class='text' title='Содержание' required minlength="1" maxlength='4000' spellcheck="true" name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='content'></textarea><br>
                 
                 <input type='submit' value='Добавить пост' class='addpostsubmit'>
             </form>
