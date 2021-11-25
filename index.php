@@ -35,7 +35,7 @@ $posts = getPostsForIndex();
 
 <head>
     <meta charset='UTF-8'>
-    <title>Просто блог</title>
+    <title>Главная - Просто блог</title>
     <link rel='stylesheet' href='css/indexcss.css'>
 </head>
 <body>
@@ -53,6 +53,7 @@ $posts = getPostsForIndex();
         <div class="menu">
             <ul class='menu'>
                 <li class='menu'><?=$link?></li>
+                <li class='menu'><a class='menu' href='search.php'>Поиск поста</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
                 <li class='menu'><?=$label?></li>
             </ul>

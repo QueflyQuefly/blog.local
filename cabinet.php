@@ -6,6 +6,8 @@ $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
 $login = '';
 $fio = '';
+$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
+
 
 if (isset($_GET['user'])) {
     $userId = $_GET['user'];
@@ -23,8 +25,6 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $login = $_SESSION['login'];
     $fio = $_SESSION['fio'];
     $link = "<a class='menu' href='?exit'>Выйти</a>";
-} else {
-    session_destroy();
 }
 
 if (isset($_GET['deletePostById'])) {
@@ -52,7 +52,7 @@ $year = date("Y", time());
 
 <head>
     <meta charset='UTF-8'>
-    <title>Пост - Просто блог</title>
+    <title>Кабинет - Просто блог</title>
     <link rel='stylesheet' href='css/indexcss.css'>
 </head>
 <body>
@@ -65,6 +65,7 @@ $year = date("Y", time());
         <div class="menu">
             <ul class='menu'>
                 <li class='menu'><?=$link?></li>
+                <li class='menu'><a class='menu' href='search.php'>Поиск поста</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
                 <li class='menu'><?=$label?></li>
             </ul>
@@ -118,9 +119,9 @@ $year = date("Y", time());
             </li>
         
             <?php 
-                } 
-            echo "</ul>";
-            }
+                    } 
+                echo "</ul>";
+                }
             ?>
             
         </div>

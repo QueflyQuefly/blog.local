@@ -195,7 +195,7 @@ function isLoginUnique($login) {
 function getPostForViewById($id) {
     global $db, $error;
     try {
-        $sql = "SELECT name, author, date, content, rating FROM posts WHERE id = $id;";
+        $sql = "SELECT id, name, author, date, content, rating FROM posts WHERE id = $id;";
         $stmt = $db->query($sql);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
         $post['content'] = str_replace("<br />", "<p>", nl2br($post['content']));
@@ -455,6 +455,56 @@ function getLikedCommentsByLogin($login) {
     return $posts;   
 }
 /* functions for cabinet.php */
+
+
+/* functions for search.php */
+function searchPostsByTag($searchword) {
+    global $db, $error;
+    $results = [];
+    try {
+        $searchword = clearStr($searchword);
+        $sql = "SELECT tag, post_id FROM tag_posts;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return null;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $posts[] = $result;
+        }
+        foreach ($posts as $post) {
+            if (strpos($post['tag'], $searchword) !== false) {
+                $results[] = $post['post_id'];
+            }
+        } 
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $results;
+}
+function searchPostsByName($searchword) {
+    global $db, $error;
+    $posts = [];
+    try {
+        $searchword = clearStr($searchword);
+        $sql = "SELECT id, name FROM posts;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return null;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $posts[] = $result;
+        }
+        foreach ($posts as $post) {
+            if (strpos($post['name'], $searchword) !== false) {
+                $results[] = $post['id'];
+            }
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $results;
+}
+/* functions for search.php */
 
 
 /* functions for admin/ */

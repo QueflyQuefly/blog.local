@@ -6,6 +6,8 @@ $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
 $fio = '';
 $login = '';
+echo $_SESSION['log_in'];
+$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
     
 if (isset($_GET['exit'])) {
     $_SESSION['log_in'] = false;
@@ -35,8 +37,6 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     } else {
         $label = "<a class='menu' href='cabinet.php?user=$login'>Перейти в личный кабинет</a>";
     }
-} else {
-    session_destroy();
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent'])) {
@@ -53,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: login.php");
         }
     }
-    if (!isUserChangesPostRating($login, $id)) {
-        if (isset($_POST['star']) && isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+    if (!isUserChangesPostRating($login, $id) && isset($_POST['star'])) {
+        if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
             $star = clearInt($_POST['star']);
             changePostRating($star, $id, $login);
             header("Location: viewsinglepost.php?viewPostById=$id");
@@ -108,6 +108,7 @@ $year = date("Y", time());
         <div class="menu">
             <ul class='menu'>
                 <li class='menu'><?=$link?></li>
+                <li class='menu'><a class='menu' href='search.php'>Поиск поста</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
                 <li class='menu'><?=$label?></li>
             </ul>
