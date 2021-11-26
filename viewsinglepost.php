@@ -6,7 +6,7 @@ $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
 $fio = '';
 $login = '';
-echo $_SESSION['log_in'];
+
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
     
 if (isset($_GET['exit'])) {
@@ -39,6 +39,7 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    var_dump($_POST);
     if (isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent'])) {
         if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
             $commentAuthor = $_POST['addCommentAuthor'];
@@ -88,7 +89,6 @@ $countRatings = countRatingsByPostId($id);
 $postRating = $post['rating'];
 $year = date("Y", time());
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -180,7 +180,7 @@ $year = date("Y", time());
 
             <div class='addcomment'>
 
-                <form action='<?=$_SERVER['REQUEST_URI']?>#comment' method='post'>
+                <form action='viewsinglepost.php?viewPostById=<?=$id?>#comment' method='post'>
                     <input type='hidden' name='addCommentAuthor' value='<?=$fio?>'> 
                    
                     <br><textarea name='addCommentContent' required  minlength="1" maxlength='500' wrap='hard' placeholder="Опишите ваши эмоции :-) (до 500 символов)" id='textcomment'></textarea><br>
@@ -195,7 +195,7 @@ $year = date("Y", time());
             
             <p class='center'>Комментарии к посту:</p>
             <?php
-                if (!empty($comments) && $comments != false) {
+                if (!empty($comments)) {
                 for ($i = count($comments)-1; $i >= 0; $i--) {
                     $content = nl2br($comments[$i]['content']);
                     $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);
@@ -209,16 +209,16 @@ $year = date("Y", time());
                 <div class='like'>
                     <?php
                         $countLikes = $comments[$i]['rating'];
-                        if (isset($login) && !isUserChangesComRating($login, $comments[$i]['id'])) {
+                        if (!isUserChangesComRating($login, $comments[$i]['id'])) {
                             $name = 'like';
                         } else {
                             $name = 'unlike';
                         }
                     ?>
                     
-                    <form action='<?=$_SERVER['REQUEST_URI']?>' method='post'>
-                        <label class='like' title="Нравится" for='like'>&#9825;</label>
-                        <input type="submit" id="like" name="<?= $name ?>" value="<?=$comments[$i]['id']?>"><?=$countLikes?>
+                    <form action='viewsinglepost.php?viewPostById=<?=$id?>#comment<?=$comments[$i]['id']?>' method='post'>
+                        <label class='like' title="Нравится" for='like<?=$comments[$i]['id']?>'>&#9825;</label>
+                        <input type="submit" class='like' id="like<?=$comments[$i]['id']?>" name="<?= $name ?>" value="<?=$comments[$i]['id']?>"><?=$countLikes?>
                     </form>
 
                 </div>
