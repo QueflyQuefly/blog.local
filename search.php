@@ -53,12 +53,10 @@ if (!empty($_GET['search'])) {
         } else {
             $error = "<p class='error'>Ничего не найдено</p>";
         }
-        //var_dump($posts);
     } else {
         $error = "<p class='error'>Введите хоть что-нибудь</p>";
     }
 } 
-
 $year = date("Y", time());
 ?>
 
@@ -110,11 +108,10 @@ $year = date("Y", time());
                 } else {
                     echo "<p class='center'>Результаты поиска: </p>"; 
                     echo "<ul class='list'>";
-                    $num = count($ids) - 1;
-                    for ($i= $num; $i>=0; $i--) {
-                        $post = getPostForViewById($ids[$i]);
-                        $comments = getCommentsByPostId($ids[$i]);
-                        $tags = getTagsToPostById($ids[$i]);
+                    foreach ($ids as $id) {
+                        $post = getPostForViewById($id);
+                        $comments = getCommentsByPostId($id);
+                        $tags = getTagsToPostById($id);
                         if (empty($posts) or $posts == false) {
                             $countComments = 0;
                         } else {

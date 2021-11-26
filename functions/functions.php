@@ -214,6 +214,7 @@ function isLoginUnique($login) {
 function getPostForViewById($id) {
     global $db, $error;
     try {
+        $id = clearInt($id);
         $sql = "SELECT id, name, author, date, content, rating FROM posts WHERE id = $id;";
         $stmt = $db->query($sql);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -509,7 +510,7 @@ function searchPostsByName($searchword) {
     $posts = [];
     try {
         $searchword = clearStr($searchword);
-        $sql = "SELECT id, name FROM posts;";// LIMIT 30
+        $sql = "SELECT id, name, author FROM posts;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
             return null;
@@ -519,6 +520,9 @@ function searchPostsByName($searchword) {
         }
         foreach ($posts as $post) {
             if (strpos($post['name'], $searchword) !== false) {
+                $results[] = $post['id'];
+            }
+            if (strpos($post['author'], $searchword) !== false) {
                 $results[] = $post['id'];
             }
         }
