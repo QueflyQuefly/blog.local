@@ -51,6 +51,25 @@ function getCommentsByPostId($postid) {
     }
     return $comments;
 }
+function getTagsToPostById($postId) {
+    global $db, $error;
+    try {
+        $postId = clearInt($postId);
+
+        $sql = "SELECT id, tag FROM tag_posts WHERE post_id=$postId";
+        $stmt = $db->query($sql);
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $tags[] = $result;
+        }
+        if ($tags) {
+            return $tags;
+        } else {
+            return null;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
 /* general functions */
 
 

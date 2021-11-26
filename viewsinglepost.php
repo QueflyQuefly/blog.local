@@ -21,7 +21,16 @@ if (isset($_GET['viewPostById'])) {
         header("Location: /");
     }
     $post = getPostForViewById($id);
+    $postRating = $post['rating'];
+    $regex = "/#\w+/u";
+    $post['content'] = preg_replace($regex,' ', $post['content']);
+    $tags = getTagsToPostById($id);
+
     $comments = getCommentsByPostId($id);
+
+    $countRatings = countRatingsByPostId($id);
+    
+    $tags = getTagsToPostById($id);
     $year = date("Y", time());
 } else{
     header("Location: /");
@@ -84,9 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$countRatings = countRatingsByPostId($id);
 
-$postRating = $post['rating'];
+
 $year = date("Y", time());
 ?>
 
@@ -170,6 +178,19 @@ $year = date("Y", time());
         <div class='singleposttext'>
             
             <p class='singlepostcontent'><?=$post['content']?></p>
+            <p class='singlepostcontent'> Тэги: 
+                <?php 
+                    if ($tags) {
+                        foreach ($tags as $tag) {
+                            $tagLink = substr($tag['tag'], 1);
+                            echo "<a href='search.php?search=%23$tagLink'> {$tag['tag']} </a> ";
+                        }
+                    } else {
+                        echo "Нет тэгов";
+                    }
+
+                ?>
+            </p>
             
         </div>
         <div class='addcomments'  id='comment'>

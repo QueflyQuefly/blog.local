@@ -51,11 +51,11 @@ if (!empty($_GET['search'])) {
             }
             $ids = array_unique($idsnotsort);
         } else {
-            echo "<p class='error'>Ничего не найдено</p>";
+            $error = "<p class='error'>Ничего не найдено</p>";
         }
         //var_dump($posts);
     } else {
-        echo "<p class='error'>Введите хоть что-нибудь</p>";
+        $error = "<p class='error'>Введите хоть что-нибудь</p>";
     }
 } 
 
@@ -106,13 +106,15 @@ $year = date("Y", time());
         <div class='singleposttext'>
             <?php 
                 if (empty($ids)) {
-                    echo "<p class='center'>Найдется всё!</p>"; 
+                    echo "<p class='center'>Поиск поста осуществляется по заголовку или по хештэгу</p>"; 
                 } else {
+                    echo "<p class='center'>Результаты поиска: </p>"; 
                     echo "<ul class='list'>";
                     $num = count($ids) - 1;
                     for ($i= $num; $i>=0; $i--) {
                         $post = getPostForViewById($ids[$i]);
                         $comments = getCommentsByPostId($ids[$i]);
+                        $tags = getTagsToPostById($ids[$i]);
                         if (empty($posts) or $posts == false) {
                             $countComments = 0;
                         } else {
@@ -122,17 +124,30 @@ $year = date("Y", time());
             ?>
 
             <li class='list'>
-
-                <p class='list'><a class='menu' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>ID:<?= $post['id'] ?> ::: Название: <?= $post['name'] ?></a></p>
-                <a class='list' href='cabinet.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
-                <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
-                <hr>
+                <a class='onepost' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
+                    <p class='list'>Название: <?= $post['name'] ?></p>
+                    <p class='list'>Тэги: 
+                        <?php
+                            if ($tags) {
+                                foreach ($tags as $tag) {
+                                    $tagLink = substr($tag['tag'], 1);
+                                    echo "<object><a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a></object>  ";
+                                }
+                            } else {
+                                echo "Нет тэгов";
+                            }
+                        ?>
+                     </p>
+                    <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
+                    <hr>
+                </a>
             </li>
         
             <?php 
                     } 
                 echo "</ul>";
                 }
+                echo $error;
             ?>
             
         </div>
