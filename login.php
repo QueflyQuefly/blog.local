@@ -17,25 +17,23 @@ if (isset($_POST['login']) && isset($_POST['password'])) {
         $_SESSION['login'] = $login;
         $_SESSION['fio'] = $fio; //it is global var from function isUser
         $_SESSION['rights'] = getRightsByLogin($login);
+
+        if (isset($_SESSION['referrer'])) {
+            $ref = $_SESSION['referrer'];
+            if (strpos($ref, "&exit") !== false) {
+                $ref = explode("&", $ref);
+                header("Location: {$ref[0]}");
+            } else {
+                header("Location: $ref");
+            }
+        } else {
+            header("Location: /");
+        }
     } else {
         $error = "Неверный логин или пароль";
         header("Location: login.php?msg=$error");
     }
 }
-
-if ($_SESSION['log_in'] === true) {
-    if (isset($_SESSION['referrer'])) {
-        $ref = $_SESSION['referrer'];
-        if (strpos($ref, "&exit")) {
-            $ref = explode("&", $ref);
-            header("Location: {$ref[0]}");
-        } else {
-            header("Location: $ref");
-        }
-    } else {
-        header("Location: /");
-    }
-} 
 if (isset($_GET['msg'])) {
     $msg = clearStr($_GET['msg']);
     if ($msg == "Аккаунт добавлен") {

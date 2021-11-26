@@ -6,20 +6,17 @@ $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
 $login = '';
 $fio = '';
-$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
+$_SESSION['referrer'] = 'search.php';
 
 if (isset($_GET['exit'])) {
     $_SESSION['log_in'] = false;
-    session_destroy();
-    header("Location: /");
+    header("Location: search.php");
 } 
 
 if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $login = $_SESSION['login'];
     $fio = $_SESSION['fio'];
     $link = "<a class='menu' href='?exit'>Выйти</a>";
-} else {
-    session_destroy();
 }
 
 if (!empty($_GET['search'])) {
@@ -123,6 +120,7 @@ $year = date("Y", time());
             <li class='list'>
                 <a class='onepost' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
                     <p class='list'>Название: <?= $post['name'] ?></p>
+                    <p class='list'>Автор: <?= $post['author'] ?></p>
                     <p class='list'>Тэги: 
                         <?php
                             if ($tags) {
