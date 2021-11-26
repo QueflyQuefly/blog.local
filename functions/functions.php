@@ -495,10 +495,14 @@ function searchPostsByTag($searchword) {
                 $results[] = $post['post_id'];
             }
         } 
+        if (!empty($results)) {
+            return $results;
+        } else {
+            return null;
+        }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $results;
 }
 function searchPostsByName($searchword) {
     global $db, $error;
@@ -518,10 +522,14 @@ function searchPostsByName($searchword) {
                 $results[] = $post['id'];
             }
         }
+        if (!empty($results)) {
+            return $results;
+        } else {
+            return null;
+        }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $results;
 }
 /* functions for search.php */
 

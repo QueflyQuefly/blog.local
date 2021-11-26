@@ -98,7 +98,7 @@ $year = date("Y", time());
         </div>
         <div class='search'>
             <form class='search' action='<?=$_SERVER['PHP_SELF']?>' method='get'>
-                <input type='text' id='search' placeholder='Найти...' name='search'>
+                <input class='text' type='text' id='search' required autofocus minlength="1" maxlength="30" placeholder='Найти...' name='search'>
                 <button type="submit">&#x2315</button>
             </form>
         </div> 
@@ -147,7 +147,9 @@ $year = date("Y", time());
                     } 
                 echo "</ul>";
                 }
-                echo $error;
+                if (!empty($error)) {
+                    echo $error;
+                }
             ?>
             
         </div>

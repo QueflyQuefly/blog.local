@@ -447,13 +447,16 @@ hr{
     display: inline-table;
     width:100%;
 }
-form.search input[type=text] {
+input.text {
     padding: 10px;
     font-size: 17pt;
     border: 0.3vh solid lightgray;
     float: left;
     width: 90%;
     background: #f1f1f1;
+}
+input.text:hover {
+    border:0.3vh solid gray;
 }
 /* Style the submit button */
 form.search button {
