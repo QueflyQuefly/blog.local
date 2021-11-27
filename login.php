@@ -19,13 +19,7 @@ if (isset($_POST['login']) && isset($_POST['password'])) {
         $_SESSION['rights'] = getRightsByLogin($login);
 
         if (isset($_SESSION['referrer'])) {
-            $ref = $_SESSION['referrer'];
-            if (strpos($ref, "&exit") !== false) {
-                $ref = explode("&", $ref);
-                header("Location: {$ref[0]}");
-            } else {
-                header("Location: $ref");
-            }
+            header("Location: {$_SESSION['referrer']}");
         } else {
             header("Location: /");
         }

@@ -61,7 +61,7 @@ function getTagsToPostById($postId) {
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $tags[] = $result;
         }
-        if ($tags) {
+        if (!empty($tags)) {
             return $tags;
         } else {
             return null;

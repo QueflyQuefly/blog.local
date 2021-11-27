@@ -8,32 +8,33 @@ $fio = '';
 $login = '';
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
-    
-if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
-    session_destroy();
-    header("Location: {$_SERVER['REQUEST_URI']}");
-} 
 
 if (isset($_GET['viewPostById'])) {
     $id = clearInt($_GET['viewPostById']);
-    if ($id  === '') {
+    if (empty($id)) {
         header("Location: /");
     }
     $post = getPostForViewById($id);
     $postRating = $post['rating'];
     $regex = "/#\w+/u";
     $post['content'] = preg_replace($regex,' ', $post['content']);
+
     $tags = getTagsToPostById($id);
 
     $comments = getCommentsByPostId($id);
 
     $countRatings = countRatingsByPostId($id);
     
-    $tags = getTagsToPostById($id);
     $year = date("Y", time());
 } else{
     header("Location: /");
+}
+
+if (isset($_GET['exit'])) {
+    $_SESSION['log_in'] = false;
+    session_destroy();
+    $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
+    header("Location: $uri");
 }
 
 if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
@@ -183,7 +184,7 @@ $year = date("Y", time());
                     if ($tags) {
                         foreach ($tags as $tag) {
                             $tagLink = substr($tag['tag'], 1);
-                            echo "<a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a> ";
+                            echo "<a class='menu' href='search.php?search=%23$tagLink'>{$tag['tag']}</a> ";
                         }
                     } else {
                         echo "Нет тэгов";
@@ -252,7 +253,7 @@ $year = date("Y", time());
             ?>
 
             <div class='viewnotcomment'>   
-                <p class='commentcontent'>Нет комментариев к этой записи</p>
+                <p class='commentcontent'>Пока ещё никто не оставил комментарий. Будьте первым!</p>
                 <hr>
             </div>
 

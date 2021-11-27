@@ -286,7 +286,6 @@ img.singlepostimg{
     height:100%;
     display:none;
 }
-
 div.singleposttext{
     margin:0 auto;
     text-overflow: ellipsis;
@@ -298,7 +297,6 @@ div.singleposttext{
     font-size: 16pt;
     text-indent: 20px;
 }
-
 /* addcomments */
 div.addcomments{
     padding: 1vh;

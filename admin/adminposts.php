@@ -14,7 +14,7 @@ if (isset($_GET['deletePostById'])) {
     if ($deletePostId != '') {
         deletePostById($deletePostId);
         header("Location: adminposts.php");
-    } 
+    }
 }
 if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
     $deleteCommentId = clearInt($_GET['deleteCommentById']);
@@ -66,6 +66,7 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
                     $num = count($posts) - 1;
                     for ($i= $num; $i>=0; $i--) {
                         $post = $posts[$i];
+                        $tags = getTagsToPostById($posts[$i]['id']);
                         $comments = getCommentsByPostId($post['id']);
                         if (empty($posts) or $posts == false) {
                             $countComments = 0;
@@ -78,6 +79,19 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
             <li class='list'>
 
             <p class='list'>ID:<?= $post['id'] ?> ::: Название: <?= $post['name'] ?> <br> Автор: <?= $post['author'] ?> </p>
+            <p class='list'> Тэги: 
+                <?php 
+                    if ($tags) {
+                        foreach ($tags as $tag) {
+                            $tagLink = substr($tag['tag'], 1);
+                            echo "<a class='menu' href='search.php?search=%23$tagLink'>{$tag['tag']}</a> ";
+                        }
+                    } else {
+                        echo "Нет тэгов";
+                    }
+
+                ?>
+            </p>
             <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
             <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
             
