@@ -6,6 +6,7 @@ $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
 $login = '';
 $fio = '';
+$search = '';
 $_SESSION['referrer'] = 'search.php';
 
 if (isset($_GET['exit'])) {
@@ -93,7 +94,7 @@ $year = date("Y", time());
         </div>
         <div class='search'>
             <form class='search' action='<?=$_SERVER['PHP_SELF']?>' method='get'>
-                <input class='text' type='text' id='search' required autofocus minlength="1" maxlength="30" placeholder='Найти...' name='search'>
+                <input class='text' type='text' id='search' required autofocus minlength="1" maxlength="30" placeholder='Найти...' name='search' value='<?=$search?>'>
                 <button type="submit">&#x2315</button>
             </form>
         </div> 

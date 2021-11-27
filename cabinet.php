@@ -2,29 +2,18 @@
 session_start();
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
-$link = "<a class='menu' href='login.php'>Войти</a>";
-$label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
+$link = '';
 $login = '';
 $fio = '';
-$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
-
-
-if (isset($_GET['user'])) {
-    $userId = $_GET['user'];
-} else {
-    header("Location: /");
-}  
-
-if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
-    session_destroy();
-    header("Location: /");
-} 
+$_SESSION['referrer'] = 'cabinet.php';
 
 if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $login = $_SESSION['login'];
     $fio = $_SESSION['fio'];
-    $link = "<a class='menu' href='?exit'>Выйти</a>";
+    $userId = $login;
+    $link = "<a class='menu' href='index.php?exit'>Выйти</a>";
+} else {
+    header("Location: login.php");
 }
 
 if (isset($_GET['deletePostById'])) {
@@ -67,7 +56,6 @@ $year = date("Y", time());
                 <li class='menu'><?=$link?></li>
                 <li class='menu'><a class='menu' href='search.php'>Поиск поста</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
-                <li class='menu'><?=$label?></li>
             </ul>
         </div>
     </div>

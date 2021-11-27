@@ -18,7 +18,7 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     if ($_SESSION['rights'] == 'superuser') {
         $label = "<a class='menu' href='admin/admin.php'>Вы вошли как администратор</a>";
     } else {
-        $label = "<a class='menu' href='cabinet.php?user=$login'>Перейти в личный кабинет</a>";
+        $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     }
 } else {
     session_destroy();

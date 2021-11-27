@@ -44,7 +44,7 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     if ($_SESSION['rights'] == 'superuser') {
         $label = "<a class='menu' href='admin/admin.php'>Вы вошли как администратор</a>";
     } else {
-        $label = "<a class='menu' href='cabinet.php?user=$login'>Перейти в личный кабинет</a>";
+        $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -183,7 +183,7 @@ $year = date("Y", time());
                     if ($tags) {
                         foreach ($tags as $tag) {
                             $tagLink = substr($tag['tag'], 1);
-                            echo "<a href='search.php?search=%23$tagLink'> {$tag['tag']} </a> ";
+                            echo "<a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a> ";
                         }
                     } else {
                         echo "Нет тэгов";
