@@ -73,7 +73,6 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
                         } else {
                         $countComments = count($comments);
                         }
-
             ?>
 
             <li class='list'>
@@ -89,17 +88,16 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
                     } else {
                         echo "Нет тэгов";
                     }
-
                 ?>
             </p>
             <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
             <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
             
-            <?php 
-                if ($countComments) {
-                    echo "<ul class='list'>";
-                    for ($j = 0; $j <= $countComments -1; $j++) {
-            ?>
+                <?php 
+                    if ($countComments) {
+                        echo "<ul class='list'>";
+                        for ($j = 0; $j <= $countComments -1; $j++) {
+                ?>
 
             <li class='list'>
             <p class='list'>ID:<?= $comments[$j]['id'] ?> ::: Автор: <?= $comments[$j]['author'] ?></p>  

@@ -1,51 +1,50 @@
 <?php
-session_start();
+/* session_start();
 $file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions', 'functions.php'));
 require_once $file_functions;
+*/
 
+/* $ch = curl_init();
 
-/* $host = '127.0.0.1';
-$dbname = 'myblog';
-$username = 'root';
-$password = '';
+// Установка опций
+curl_setopt($ch, CURLOPT_URL, "https://fish-text.ru/get?format=html&number=5");
+curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
 
-try {
-    $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $sql = "INSERT INTO ratingcom (login, com_id, rating) 
-            VALUES(1, 1, 1)";
-    $db->exec($sql);
-    echo "Connected to $dbname at $host successfully.";
-} catch (PDOException $e) {
-    die("Could not connect to the database $dbname :" . $e->getMessage());
-} */
-/* $content = "najfsnkdflakdnlfk lkfsnfkgnr fensfklesn #1223 #djfjf #f11ff #1ddfs1#gjgjgj";
+// Выполнение
+curl_exec($ch);
 
-$regex = "/#\w+/";
-preg_match_all($regex, $content, $post['tags']);
-$post['tags'] = $post['tags'][0];
+// Закрытие
+curl_close($ch);
+var_dump($ch); */
 
-var_dump($post); */
+/* $ch1 = curl_init();
+curl_setopt ($ch1, CURLOPT_URL, 'https://fish-text.ru/get?format=html&number=5' );
+curl_setopt($ch1, CURLOPT_HEADER, 0);
+curl_setopt($ch1,CURLOPT_VERBOSE,1);
+curl_setopt($ch1, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.0.3705; .NET CLR 1.1.4322; Media Center PC 4.0)');
+curl_setopt ($ch1, CURLOPT_REFERER,'http://www.google.com');  //just a fake referer
+curl_setopt($ch1, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch1,CURLOPT_POST,0);
+curl_setopt($ch1, CURLOPT_FOLLOWLOCATION, 20);
 
-$search = '#4';
-if ($search) {
-    if (strpos($search, ' ') !== false) {
-        $searchwords = explode(' ', $search);
+$htmlContent= curl_exec($ch1); */
 
-        foreach ($searchwords as $searchword) {
-            if (strpos($searchword, '#') !== false) {
-                $posts[] = searchPostsByTag($searchword);
-            } else {
-                $posts[] = searchPostsByName($searchword);
-            }
-        }
-    } else {
-        if (strpos($search, '#') !== false) {
-            $posts[] = searchPostsByTag($search);
-        } else {
-            $posts[] = searchPostsByName($search);
-        }
-    }
-} else {
-    echo "<p class='error'>Введите хоть что-нибудь</p>";
-}
-echo $posts[0][0];
+/* $ch = curl_init("https://fish-text.ru/get?format=html&number=5");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$content = curl_exec($ch);
+curl_close($ch);
+echo $content; */
+
+/* $arrContextOptions=array(
+    "ssl"=>array(
+        "verify_peer"=>false,
+        "verify_peer_name"=>false,
+    ),
+);  
+
+$zag = file_get_contents("https://fish-text.ru/get?format=html&type=title&number=1", false, stream_context_create($arrContextOptions));
+echo $zag;
+
+$text = file_get_contents("https://fish-text.ru/get?format=html&type=paragraph&number=6", false, stream_context_create($arrContextOptions));
+echo $text;
+ */

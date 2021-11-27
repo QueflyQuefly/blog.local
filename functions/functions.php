@@ -51,6 +51,23 @@ function getCommentsByPostId($postid) {
     }
     return $comments;
 }
+function getLastPostId() {
+    global $db, $error;
+    $postId = '';
+    try {
+        $sql = "SELECT id FROM posts ORDER BY id DESC LIMIT 1;";
+        $stmt = $db->query($sql);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $postId = $result['id'];
+        if (!empty($postId)) {
+            return $postId;
+        } else {
+            return null;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
 function getTagsToPostById($postId) {
     global $db, $error;
     try {
@@ -97,13 +114,13 @@ function getPostsForIndex(){
                 $post['name'] = $post['name'] . "&hellip;";
             }
 
-            $post['content_small'] = mb_substr($post['content'], 0, 140);
-            if (mb_strlen($post['content_small'], 'utf-8') > 120) {
+            $post['content_small'] = mb_substr($post['content'], 0, 200);
+            if (mb_strlen($post['content_small'], 'utf-8') > 199) {
                 $post['content_small'] = $post['content_small'] . "&hellip;";
             }
 
             $post['content'] = mb_substr(nl2br($post['content']), 0, 320);
-            if (mb_strlen($post['content'], 'utf-8') > 270) {
+            if (mb_strlen($post['content'], 'utf-8') > 318) {
                 $post['content'] = $post['content'] . "&hellip;";
             }
 
@@ -384,11 +401,7 @@ function addTagsToPosts($tag) {
     try {
 
         $tag = $db->quote($tag);
-        $sql = "SELECT id FROM posts ORDER BY id DESC LIMIT 1;";
-        $stmt = $db->query($sql);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        $postId = $result['id'];
-
+        $postId = getLastPostId();
         $sql = "INSERT INTO tag_posts (tag, post_id) 
         VALUES($tag, $postId);";
 

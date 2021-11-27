@@ -32,7 +32,7 @@ if (isset($_GET['msg'])) {
     $msg = clearStr($_GET['msg']);
     if ($msg == "Аккаунт добавлен") {
         $ok = $msg;
-    }else {
+    } else {
         $error = $msg;
     }
 }
