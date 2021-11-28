@@ -16,11 +16,10 @@ if (isset($_GET['deletePostById'])) {
         header("Location: adminposts.php");
     }
 }
-if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
+if (isset($_GET['deleteCommentById'])) {
     $deleteCommentId = clearInt($_GET['deleteCommentById']);
-    $postId = clearInt($_GET['byPostId']);
-    if ($deleteCommentId != '' && $postId != '') {
-        deleteCommentByIdAndPostId($deleteCommentId, $postId);
+    if ($deleteCommentId != '') {
+        deleteCommentById($deleteCommentId);
         header("Location: adminposts.php");
     } 
 }
@@ -68,6 +67,7 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
                         $post = $posts[$i];
                         $tags = getTagsToPostById($posts[$i]['id']);
                         $comments = getCommentsByPostId($post['id']);
+                        $evaluations = countRatingsByPostId($post['id']);
                         if (empty($posts) or $posts == false) {
                             $countComments = 0;
                         } else {
@@ -77,8 +77,10 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
 
             <li class='list'>
 
-            <p class='list'>ID:<?= $post['id'] ?> ::: Название: <?= $post['name'] ?> <br> Автор: <?= $post['author'] ?> </p>
-            <p class='list'> Тэги: 
+            <p class='list'><span>ID:</span><?= $post['id'] ?> ::: <span>Название:</span> <?= $post['name'] ?></p>
+            <p class='list'><span>Автор:</span>  <?= $post['author'] ?> </p>
+            <p class='list'><span>Рейтинг:</span> <?= $post['rating'] ?> ::: <span>Оценок:</span> <?=$evaluations?> </p>
+            <p class='list'> <span>Тэги:</span> 
                 <?php 
                     if ($tags) {
                         foreach ($tags as $tag) {
@@ -91,16 +93,17 @@ if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
                 ?>
             </p>
             <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
-            <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
+            <p class='list'> <span>Комментариев к посту:</span> <?= $countComments ?> </p>
             
                 <?php 
                     if ($countComments) {
                         echo "<ul class='list'>";
                         for ($j = 0; $j <= $countComments -1; $j++) {
                 ?>
-
+            <br>
             <li class='list'>
-            <p class='list'>ID:<?= $comments[$j]['id'] ?> ::: Автор: <?= $comments[$j]['author'] ?></p>  
+            <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор:</span> <?= $comments[$j]['author'] ?></p>
+            <br>
             <p class='list'>Содержание: <?= $comments[$j]['content'] ?></p>
             <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>
             </li>

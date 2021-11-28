@@ -23,11 +23,10 @@ if (isset($_GET['deletePostById'])) {
         header("Location: cabinet.php?user=$id");
     } 
 }
-if (isset($_GET['deleteCommentById']) && isset($_GET['byPostId'])) {
+if (isset($_GET['deleteCommentById'])) {
     $deleteCommentId = clearInt($_GET['deleteCommentById']);
-    $postId = clearInt($_GET['byPostId']);
-    if ($deleteCommentId !== '' && $postId !== '') {
-        deleteCommentByIdAndPostId($deleteCommentId, $postId);
+    if ($deleteCommentId !== '') {
+        deleteCommentById($deleteCommentId);
         header("Location: cabinet.php?user=$id");
     } 
 }

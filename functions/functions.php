@@ -561,12 +561,20 @@ function deletePostById($id) {
         /* Удаляю пост */
         $sql = "DELETE FROM posts WHERE id = $id;";
         $db->exec($sql);
+        
+        /* Удаляю рэйтинг этого поста */
+        $sql = "DELETE FROM rating_posts WHERE post_id = $id;";
+        $db->exec($sql);
 
         /* Удаляю его картинку */
         //unlink("..\images\PostImgId$id.jpg");
 
         /* Удаляю все комментарии, связанные с постом */
         $sql = "DELETE FROM comments WHERE post_id = $id;";
+        $db->exec($sql);
+
+        /* Удаляю рэйтинг комментариев, связанных с постом  */
+        $sql = "DELETE FROM rating_comments WHERE post_id = $id;";
         $db->exec($sql);
     } catch (PDOException $e) {
         $error = $e->getMessage();
@@ -596,12 +604,16 @@ function deleteUserById($id) {
         $error = $e->getMessage();
     }
 }
-function deleteCommentByIdAndPostId($deleteCommentId, $postId) {
+function deleteCommentById($deleteCommentId) {
     global $db, $error;
     $deleteCommentId = clearInt($deleteCommentId);
-    $postId = clearInt($postId);
     try {
-        $sql = "DELETE FROM comments WHERE id = $deleteCommentId AND post_id = $postId;";
+        /* Удаляю комментарий */
+        $sql = "DELETE FROM comments WHERE id = $deleteCommentId;";
+        $db->exec($sql);
+
+        /* Удаляю рейтинг этого комментария*/
+        $sql = "DELETE FROM rating_comments WHERE com_id = $deleteCommentId;";
         $db->exec($sql);
     } catch (PDOException $e) {
         $error = $e->getMessage();
