@@ -1,12 +1,7 @@
 <?php
 require_once 'dbconfig.php';
 try {
-
-    /* Здесь может ввести в заблуждение dbname=mysql, 
-    но этот скрипт запускается лишь в том случае, если нет dbname=myblog,
-    точнее нет с ней соединения (что указывает на предыдущий аргумент) */
-
-    $db = new PDO("mysql:host=$host;dbname=mysql", $username, $password); 
+    $db = new PDO("mysql:host=$host", $username, $password);
 
     $password = password_hash('12345', PASSWORD_BCRYPT);
     $password = $db->quote($password);
