@@ -81,7 +81,7 @@ $posts = getPostsForIndex();
                 <p class='onepostcontent'><?=$post['content']?></p>
                 <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
 
-                <p class='postdate'>
+                <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
                             echo "Нет оценок. Будьте первым!";
@@ -118,7 +118,7 @@ $posts = getPostsForIndex();
                     <p class='smallpostzagolovok'><?=$post['name_small']?></p>
                     <p class='smallpostcontent'><?=$post['content_small']?></p>
                     <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
-                    <p class='postdate'>
+                    <p class='postrating'>
                         <?php
                             if (!$post['rating']) {
                                 echo "Нет оценок. Будьте первым!";

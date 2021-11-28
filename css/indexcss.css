@@ -146,6 +146,10 @@ img.onepostimage{
 }
 
 /*  */
+p.postrating{
+    margin-top:-1.5vh;
+    margin-left:2vh;
+}
 /* small posts */
 div.smallpost{
     width:140vh;

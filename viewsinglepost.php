@@ -16,8 +16,6 @@ if (isset($_GET['viewPostById'])) {
     }
     $post = getPostForViewById($id);
     $postRating = $post['rating'];
-    $regex = "/#\w+/u";
-    $post['content'] = preg_replace($regex,' ', $post['content']);
 
     $tags = getTagsToPostById($id);
 

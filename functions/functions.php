@@ -551,6 +551,33 @@ function searchPostsByName($searchword) {
 /* functions for search.php */
 
 
+/* functions for stab_db.php  */
+function isNounForTag($string){
+    $groups = ['а','ь'];
+    $nouns = [];
+
+    $string = mb_strtolower($string);
+    $string = clearStr($string);
+    $string = str_replace('.', ' ', $string);
+    $words = explode(' ',$string);
+    //print_r($words);
+    foreach ($words as $w) {
+        $lastSymbol = mb_substr($w, -1);
+        
+        foreach ($groups as $g) {
+            if (mb_strlen($w) > 8) {
+                if (mb_strtoupper($lastSymbol) === mb_strtoupper($g)) {
+                    $word = "#" . $w;
+                    $nouns[] = $word;
+                    $nouns = array_unique($nouns);
+                }
+            }
+        }
+    }
+    return $nouns;
+}
+/* functions for stab_db.php  */
+
 /* functions for admin/ */
 function deletePostById($id) {
     global $db, $error;

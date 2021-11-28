@@ -50,6 +50,7 @@ try {
         $zag[$i] = $db->quote($zag[$i]);
 
         $text[$i] = file_get_contents("https://fish-text.ru/get?format=html&type=paragraph&number=$par", false, stream_context_create($arrContextOptions));
+        $tags[$i] = isNounForTag($text[$i]);
         $text[$i] = $db->quote($text[$i]);
 
         $com[$i] = file_get_contents("https://fish-text.ru/get?format=html&type=sentence&number=$par", false, stream_context_create($arrContextOptions));
@@ -61,6 +62,17 @@ try {
         VALUES($i, $zag[$i], $author, $date, $text[$i], 0);";
 
         $db->exec($sql);
+        
+        if (!empty($tags[$i])) {
+            foreach ($tags[$i] as $tag) {
+                $tag = $db->quote($tag);
+
+                $sql = "INSERT INTO tag_posts (tag, post_id) 
+                VALUES($tag, $i);";
+
+                $db->exec($sql);
+            }
+        }
 
         $sql = "INSERT INTO comments (post_id, author, date, content, rating) 
         VALUES($i, $author, $date, $com[$i], 0);";
