@@ -3,6 +3,18 @@ require_once 'dbconfig.php';
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
 
+try {
+    @$fp = fsockopen("www.google.com", 80, $errno, $errstr, 30);
+    if (!$fp) {
+        throw new Exception('Отсутствует подключение к интернету');
+    }
+    unset($fp);
+} catch (Exception $e) {
+    echo $e->getMessage();
+    exit;
+}
+
+
 $arrContextOptions = [
     "ssl" => [
             "verify_peer" => false,
@@ -14,7 +26,7 @@ $fio = [
                 5 => "Алексей", 6 => "Давид", 7 => "Фёдор"],
 
     "surnames" => [0 => "Бродский", 1 => "Васильев", 2 => "Пугачев", 3=> "Иванюк", 4 => "Житомирский",
-                    5 => "Данилов", 6 => "Ничейный", 7 => "Павлов"]
+                    5 => "Данилов", 6 => "Крупской", 7 => "Павлов"]
 ];  
 
 try {
@@ -24,7 +36,7 @@ try {
 }
 
 $j = getLastPostId() + 1;
-try { 
+try {
     for ($i = $j; $i <= $j + 9; $i++) {
         $par = random_int(2, 7);
 
@@ -40,6 +52,10 @@ try {
         $text[$i] = file_get_contents("https://fish-text.ru/get?format=html&type=paragraph&number=$par", false, stream_context_create($arrContextOptions));
         $text[$i] = $db->quote($text[$i]);
 
+        $com[$i] = file_get_contents("https://fish-text.ru/get?format=html&type=sentence&number=$par", false, stream_context_create($arrContextOptions));
+        $com[$i] = clearStr($com[$i]);
+        $com[$i] = $db->quote($com[$i]);
+
         $date = time();
         $sql = "INSERT INTO posts (id, name, author, date, content, rating) 
         VALUES($i, $zag[$i], $author, $date, $text[$i], 0);";
@@ -47,7 +63,7 @@ try {
         $db->exec($sql);
 
         $sql = "INSERT INTO comments (post_id, author, date, content, rating) 
-        VALUES($i, $author, $date, $i, 0);";
+        VALUES($i, $author, $date, $com[$i], 0);";
 
         $db->exec($sql);
 
