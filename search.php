@@ -16,8 +16,15 @@ if (isset($_GET['exit'])) {
 
 if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $login = $_SESSION['login'];
-    $fio = $_SESSION['fio'];
+
     $link = "<a class='menu' href='?exit'>Выйти</a>";
+    if ($_SESSION['rights'] == 'superuser') {
+        $label = "<a class='menu' href='admin/admin.php'>Вы вошли как администратор</a>";
+    } else {
+        $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
+    }
+} else {
+    session_destroy();
 }
 
 if (!empty($_GET['search'])) {
@@ -86,69 +93,73 @@ $year = date("Y", time());
 </nav>
 
 <div class='allsinglepost'>
+    
     <div class='contentsinglepost'>
-
         <div id='singlepostzagolovok'>
-            <p class='singlepostzagolovok'>Поиск поста по заголовку или по хештэгу</p>
-           
+            <p class='singlepostzagolovok'>Поиск поста</p> 
         </div>
+
         <div class='search'>
             <form class='search' action='<?=$_SERVER['PHP_SELF']?>' method='get'>
                 <input class='text' type='text' id='search' required autofocus minlength="1" maxlength="30" placeholder='Найти...' name='search' value='<?=$search?>'>
                 <button type="submit">&#x2315</button>
             </form>
         </div> 
+    </div>
 
+    <div class='viewsmallposts'>
         <div class='singleposttext'>
             <?php 
                 if (empty($ids)) {
-                    echo "<p class='center'>Поиск поста осуществляется по заголовку или по хештэгу</p>"; 
+                    echo "<p class='center'>Поиск поста осуществляется по заголовку, автору или по хештэгу</p>\n</div>"; 
                 } else {
-                    echo "<p class='center'>Результаты поиска: </p>"; 
-                    echo "<ul class='list'>";
+                    echo "<p class='center'>Результаты поиска: </p>\n</div>"; 
                     foreach ($ids as $id) {
                         $post = getPostForViewById($id);
                         $comments = getCommentsByPostId($id);
                         $tags = getTagsToPostById($id);
-                        if (empty($posts) or $posts == false) {
+
+                        if (empty($posts)) {
                             $countComments = 0;
                         } else {
-                        $countComments = count($comments);
+                            $countComments = count($comments);
                         }
-
             ?>
 
-            <li class='list'>
-                <a class='onepost' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
-                    <p class='list'>Название: <?= $post['name'] ?></p>
-                    <p class='list'>Автор: <?= $post['author'] ?></p>
-                    <p class='list'>Тэги: 
+        <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
+            <div class='smallpost'>
+                <div class='smallposttext'>
+                    <p class='smallpostzagolovok'><?= $post['name'] ?></p>
+                    <p class='smallpostauthor'> &copy; <?= $post['author'] ?></p>
+                    <p class='postdate'>Тэги: 
                         <?php
                             if ($tags) {
                                 foreach ($tags as $tag) {
                                     $tagLink = substr($tag['tag'], 1);
-                                    echo "<object><a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a></object>  ";
+                                    echo "<object><a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a> </object>  ";
                                 }
                             } else {
                                 echo "Нет тэгов";
                             }
                         ?>
-                     </p>
-                    <p class='list'> Комментариев к посту: <?= $countComments ?> </p>
-                    <hr>
-                </a>
-            </li>
+                        </p>
+                    <p class='postdate'> Комментариев к посту: <?= $countComments ?> </p>
+                </div>
+                <div class='smallpostimage'>
+                    <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                </div>
+           </div>
+        </a>
         
             <?php 
                     } 
-                echo "</ul>";
                 }
                 if (!empty($error)) {
                     echo $error;
                 }
             ?>
             
-        </div>
+        
     </div>
 
     <footer class='bottom'>
