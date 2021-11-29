@@ -415,10 +415,29 @@ function addTagsToPosts($tag) {
 
 
 /* functions for cabinet.php */
+function getLoginAndFioById($userId){
+    global $db, $error;
+    $userId = clearInt($userId);
+    $login = '';
+    $fio = '';
+    try {
+        $sql = "SELECT login, fio FROM users WHERE id = $userId;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return false;
+        }
+        if($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            return $result;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
 function getPostsByFio($fio) {
     global $db, $error;
     try {
         $posts = [];
+        $fio = $db->quote($fio);
         $sql = "SELECT id, name, date, content, rating FROM posts WHERE author = $fio;";
         $stmt = $db->query($sql);
         if(!$stmt) {
@@ -440,6 +459,7 @@ function getCommentsByFio($fio) {
     global $db, $error;
     $comments = [];
     try {
+        $fio = $db->quote($fio);
         $sql = "SELECT id, post_id, date, content, rating FROM comments WHERE author = $fio;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
@@ -457,6 +477,7 @@ function getLikedPostsByLogin($login) {
     global $db, $error;
     $posts = [];
     try {
+        $login = $db->quote($login);
         $sql = "SELECT id, post_id, rating FROM rating_posts WHERE login = $login;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
@@ -474,6 +495,7 @@ function getLikedCommentsByLogin($login) {
     global $db, $error;
     $posts = [];
     try {
+        $login = $db->quote($login);
         $sql = "SELECT id, post_id, com_id FROM rating_comments WHERE login = $login;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
@@ -518,7 +540,7 @@ function searchPostsByTag($searchword) {
         $error = $e->getMessage();
     }
 }
-function searchPostsByName($searchword) {
+function searchPostsByNameAndAuthor($searchword) {
     global $db, $error;
     $posts = [];
     try {
@@ -538,6 +560,46 @@ function searchPostsByName($searchword) {
             if (strpos($post['author'], $searchword) !== false) {
                 $results[] = $post['id'];
             }
+        }
+        if (!empty($results)) {
+            return $results;
+        } else {
+            return null;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function searchUsersByFioAndLogin($searchword, $rights = 'user') {
+    global $db, $error;
+    $users = [];
+    try {
+        $searchword = clearStr($searchword);
+        $sql = "SELECT id, login, fio, rights FROM users;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return null;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $users[] = $result;
+        }
+        $i = 0;
+        foreach ($users as $user) {
+            
+            if (strpos($user['fio'], $searchword) !== false) {
+                $results[$i]['id'] = $user['id'];
+                $results[$i]['fio'] = $user['fio'];
+                $results[$i]['rights'] = $user['rights'];
+            }
+            if ($rights === 'superuser') { //поиск по логину только для администраторов
+                if (strpos($user['login'], $searchword) !== false) {
+                    $results[$i]['id'] = $user['id'];
+                    $results[$i]['fio'] = $user['fio'];
+                    $results[$i]['rights'] = $user['rights'];
+                    $results[$i]['login'] = $user['login'];
+                }
+            }
+            $i++;
         }
         if (!empty($results)) {
             return $results;

@@ -378,10 +378,13 @@ input.like{
 label.like{
     background-color:transparent;
     border: none;
-    font-size: 18pt;
+    font-size: 15pt;
     cursor: pointer;
 }
-label.like:hover {
+span.like{
+    font-size: 20pt;
+}
+label.like:hover span.like{
     color: rgb(168, 0, 0);
 }
 /* like area */

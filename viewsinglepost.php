@@ -237,8 +237,8 @@ $year = date("Y", time());
                     ?>
                     
                     <form action='viewsinglepost.php?viewPostById=<?=$id?>#comment<?=$comments[$i]['id']?>' method='post'>
-                        <label class='like' title="Нравится" for='like<?=$comments[$i]['id']?>'>&#9825;</label>
-                        <input type="submit" class='like' id="like<?=$comments[$i]['id']?>" name="<?= $name ?>" value="<?=$comments[$i]['id']?>"><?=$countLikes?>
+                        <label class='like' title="Нравится" for='like<?=$comments[$i]['id']?>'><span class='like'>&#9825; </span><?=$countLikes?></label>
+                        <input type="submit" class='like' id="like<?=$comments[$i]['id']?>" name="<?= $name ?>" value="<?=$comments[$i]['id']?>">
                     </form>
 
                 </div>
