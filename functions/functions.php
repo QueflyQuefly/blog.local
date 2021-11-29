@@ -34,11 +34,30 @@ function addAdmin($login, $fio, $password){
         $error = $e->getMessage();  
     }
 }
-function getCommentsByPostId($postid) {
+function getCommentsByPostId($postId) {
     global $db, $error;
     $comments = [];
     try {
-        $sql = "SELECT id, author, date, content, rating FROM comments WHERE post_id = $postid;";// LIMIT 30
+        $postId = clearInt($postId);
+        $sql = "SELECT id, author, date, content, rating FROM comments WHERE post_id = $postId;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return false;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $comments[] = $result;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $comments;
+}
+function getCommentsById($id) {
+    global $db, $error;
+    $comments = [];
+    try {
+        $id = clearInt($id);
+        $sql = "SELECT post_id, author, date, content, rating FROM comments WHERE id = $id;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
             return false;
@@ -493,7 +512,7 @@ function getLikedPostsByLogin($login) {
 }
 function getLikedCommentsByLogin($login) {
     global $db, $error;
-    $posts = [];
+    $comments = [];
     try {
         $login = $db->quote($login);
         $sql = "SELECT id, post_id, com_id FROM rating_comments WHERE login = $login;";// LIMIT 30
@@ -502,12 +521,12 @@ function getLikedCommentsByLogin($login) {
             return false;
         }
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $posts[] = $result;
+            $comments[$result['com_id']] = $result;
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $posts;   
+    return $comments;   
 }
 /* functions for cabinet.php */
 
