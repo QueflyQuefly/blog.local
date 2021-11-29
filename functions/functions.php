@@ -505,6 +505,9 @@ function getLikedPostsByLogin($login) {
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $posts[] = $result;
         }
+        if (empty($posts)) {
+            return false;
+        }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
