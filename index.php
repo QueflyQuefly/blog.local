@@ -4,6 +4,7 @@ $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
 $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
+$adminLink = '';
     
 if (isset($_GET['exit'])) {
     $_SESSION['log_in'] = false;
@@ -13,12 +14,10 @@ if (isset($_GET['exit'])) {
 
 if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $login = $_SESSION['login'];
-
+    $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     $link = "<a class='menu' href='?exit'>Выйти</a>";
     if ($_SESSION['rights'] == 'superuser') {
-        $label = "<a class='menu' href='admin/admin.php'>Вы вошли как администратор</a>";
-    } else {
-        $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
+        $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 } else {
     session_destroy();
@@ -41,21 +40,19 @@ $posts = getPostsForIndex();
 <body>
     <nav>
     <div class='top'>
-       
-            <div class="logo">
-                 <a class="logo" title="На главную" href='/'>
-                <img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-                <div id='namelogo'>Просто Блог</div>
-                </а>
-            </div>
-        
-
+        <div class="logo">
+            <a class="logo" title="На главную" href='/'>
+            <img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
+            <div id='namelogo'>Просто Блог</div>
+            </а>
+        </div>
         <div class="menu">
             <ul class='menu'>
                 <li class='menu'><?=$link?></li>
-                <li class='menu'><a class='menu' href='search.php'>Поиск поста</a></li>
+                <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
                 <li class='menu'><?=$label?></li>
+                <li class='menu'><?=$adminLink?></li>
             </ul>
         </div>
     </div>

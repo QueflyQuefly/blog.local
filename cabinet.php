@@ -5,19 +5,28 @@ require_once $functions;
 $link = '';
 $login = '';
 $fio = '';
+$adminLink = '';
+$show = false;
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 if (isset($_GET['user'])) {
     $userId = clearInt($_GET['user']);
     $user = getLoginAndFioById($userId);
     $login = $user['login'];
     $fio = $user['fio'];
-    $show = false;
+    if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
+        $show = true;
+    }
 } elseif (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $login = $_SESSION['login'];
     $fio = $_SESSION['fio'];
+    $rights = $_SESSION['rights'];
     $show = true;
     $link = "<a class='menu' href='index.php?exit'>Выйти</a>";
-} else {
+    if ($_SESSION['rights'] == 'superuser') {
+        $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
+    }
+}
+ else {
     header("Location: login.php");
 }
 
@@ -58,8 +67,9 @@ $year = date("Y", time());
         <div class="menu">
             <ul class='menu'>
                 <li class='menu'><?=$link?></li>
-                <li class='menu'><a class='menu' href='search.php'>Поиск поста</a></li>
+                <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
+                <li class='menu'><?=$adminLink?></li>
             </ul>
         </div>
     </div>
@@ -67,7 +77,6 @@ $year = date("Y", time());
 
 <div class='allwithoutmenu'>
     <div class='content'>
-
         <div id='singlepostzagolovok'>
             <p class='singlepostzagolovok'>Личный кабинет пользователя</p>
         </div>

@@ -8,6 +8,7 @@ $login = '';
 $fio = '';
 $search = '';
 $rights = '';
+$adminLink = '';
 $_SESSION['referrer'] = 'search.php';
 
 if (isset($_GET['exit'])) {
@@ -17,13 +18,11 @@ if (isset($_GET['exit'])) {
 
 if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $login = $_SESSION['login'];
-
-    $link = "<a class='menu' href='?exit'>Выйти</a>";
     $rights = $_SESSION['rights'];
-    if ($rights == 'superuser') {
-        $label = "<a class='menu' href='admin/admin.php'>Вы вошли как администратор</a>";
-    } else {
-        $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
+    $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
+    $link = "<a class='menu' href='?exit'>Выйти</a>";
+    if ($_SESSION['rights'] == 'superuser') {
+        $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 }
 
@@ -64,8 +63,6 @@ if (!empty($_GET['search'])) {
                     $userids[$u['id']] = $u;
                 }
             }
-            var_dump($userids);
-            var_dump($users);
         } else {
             $error = "<p class='error'>Ничего не найдено</p>";
         }
@@ -95,9 +92,9 @@ $year = date("Y", time());
         <div class="menu">
             <ul class='menu'>
                 <li class='menu'><?=$link?></li>
-                <li class='menu'><a class='menu' href='search.php'>Поиск поста</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
                 <li class='menu'><?=$label?></li>
+                <li class='menu'><?=$adminLink?></li>
             </ul>
         </div>
     </div>
@@ -187,8 +184,6 @@ $year = date("Y", time());
         <a class='post' href='cabinet.php?user=<?=$user['id']?>'>
             <div class='smallpost'>
                 <div class='smallposttext'>
-
-                    <p class='smallpostzagolovok'>ID:<?= $user['id'] ?> </p>
                     <div class='onepostzagolovok'>
                         <p class='onepostzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
                     </div>
@@ -196,6 +191,7 @@ $year = date("Y", time());
                     <?php
                         if ($rights === 'superuser') {
                     ?>
+                    <p class='smallpostzagolovok'>ID:<?= $user['id'] ?> </p>
                     <p class='smallpostauthor'>Логин: <?= $user['login'] ?></p>
                     <p class='postdate'><object><a class='list' href='adminusers.php?deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
                     <?php
