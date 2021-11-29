@@ -57,7 +57,7 @@ if (!empty($_GET['search'])) {
             }
             $ids = array_unique($idsnotsort);
         } 
-        if (!empty($users[0])) {
+        elseif (!empty($users[0])) {
             foreach ($users as $user) {
                 foreach ($user as $u) {
                     $userids[$u['id']] = $u;
