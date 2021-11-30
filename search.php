@@ -70,6 +70,29 @@ if (!empty($_GET['search'])) {
         $error = "<p class='error'>Введите хоть что-нибудь</p>\n";
     }
 } 
+
+if (isset($_GET['deletePostById'])) {
+    $deletePostId = clearInt($_GET['deletePostById']);
+    if ($deletePostId !== '') {
+        deletePostById($deletePostId);
+        header("Location: search.php?search=$search");
+    } 
+}
+if (isset($_GET['deleteCommentById'])) {
+    $deleteCommentId = clearInt($_GET['deleteCommentById']);
+    if ($deleteCommentId !== '') {
+        deleteCommentById($deleteCommentId);
+        header("Location: search.php?search=$search");
+    } 
+}
+if (isset($_GET['deleteUserById'])) {
+    $deleteUserById = clearInt($_GET['deleteUserById']);
+    if ($deleteUserById !== '') {
+        deleteUserById($deleteUserById);
+        header("Location: search.php?search=$search");
+    } 
+}
+
 $year = date("Y", time());
 ?>
 
@@ -117,99 +140,95 @@ $year = date("Y", time());
 
     <div class='viewsmallposts'>
         <div class='singleposttext'>
-            <?php 
-                if (empty($ids)) {
-                    echo "<p class='center'>Поиск поста осуществляется по заголовку, автору или по хештэгу</p>\n"; 
-                    if ($rights === 'superuser') {
-                        echo "<p class='center'>Поиск автора осуществляется по ФИО и логину</p>\n</div>"; 
+        <?php 
+            echo "<p class='center'>Поиск поста осуществляется по заголовку, автору или по хештэгу</p>\n"; 
+            if ($rights === 'superuser') {
+                echo "<p class='center'>Поиск автора осуществляется по ФИО и логину</p>\n</div>"; 
+            } else {
+                echo "<p class='center'>Поиск автора осуществляется по ФИО</p>\n</div>"; 
+            }
+            if (!empty($ids)) {
+                echo "<div class='singleposttext'><p class='center'>Результаты поиска (посты): </p>\n</div>"; 
+                foreach ($ids as $id) {
+                    $post = getPostForViewById($id);
+                    $comments = getCommentsByPostId($id);
+                    $tags = getTagsToPostById($id);
+
+                    if (empty($posts)) {
+                        $countComments = 0;
                     } else {
-                        echo "<p class='center'>Поиск автора осуществляется по ФИО</p>\n</div>"; 
+                        $countComments = count($comments);
                     }
-                } else {
-                    echo "<p class='center'>Результаты поиска (посты): </p>\n</div>"; 
-                    foreach ($ids as $id) {
-                        $post = getPostForViewById($id);
-                        $comments = getCommentsByPostId($id);
-                        $tags = getTagsToPostById($id);
+        ?>
 
-                        if (empty($posts)) {
-                            $countComments = 0;
-                        } else {
-                            $countComments = count($comments);
-                        }
-            ?>
-
-            <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
-                <div class='smallpost'>
-                    <div class='smallposttext'>
-                        <p class='smallpostzagolovok'><?= $post['name'] ?></p>
-                        <p class='smallpostauthor'><?= $post['date'] ?> &copy; <?= $post['author'] ?></p>
-                        <p class='postdate'>Тэги: 
-                            <?php
-                                if ($tags) {
-                                    foreach ($tags as $tag) {
-                                        $tagLink = substr($tag['tag'], 1);
-                                        echo "<object><a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a> </object>\n  ";
-                                    }
-                                } else {
-                                    echo "Нет тэгов";
+        <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
+            <div class='smallpost'>
+                <div class='smallposttext'>
+                    <p class='smallpostzagolovok'><?= $post['name'] ?></p>
+                    <p class='smallpostauthor'><?= $post['date'] ?> &copy; <?= $post['author'] ?></p>
+                    <p class='postdate'>Тэги: 
+                        <?php
+                            if ($tags) {
+                                foreach ($tags as $tag) {
+                                    $tagLink = substr($tag['tag'], 1);
+                                    echo "<object><a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a> </object>\n  ";
                                 }
-                            ?>
-                            </p>
-                        <p class='postdate'> Комментариев к посту: <?= $countComments ?> </p>
-                        <?php
-                            if ($rights === 'superuser') {
-                        ?>
-
-                        <p class='postdate'><object><a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object></p>
-
-                        <?php
+                            } else {
+                                echo "Нет тэгов";
                             }
                         ?>
-                    </div>
-                    <div class='smallpostimage'>
-                        <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
-                    </div>
-                </div>
-            </a>
+                        </p>
+                    <p class='postdate'> Комментариев к посту: <?= $countComments ?> </p>
+                    <?php
+                        if ($rights === 'superuser') {
+                    ?>
 
-            <?php 
-                    }
-                }
-                echo "<div class='viewcomments'>";
-                if (!empty($userids)) {
-                    echo "<div class='singleposttext'><p class='center'>Результаты поиска (пользователи): </p>\n</div>"; 
-                    foreach ($userids as $user) {
-            ?>
+                    <p class='postdate'><object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object></p>
 
-            <a class='post' href='cabinet.php?user=<?=$user['id']?>'>
-                <div class='viewcomment'>
-                    <div class='commentcontent'>
-                        <div class='onepostzagolovok'>
-                            <p class='onepostzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
-                        </div>
-                        <p class='smallpostzagolovok'> Категория: <?= $user['rights'] ?></p>
-                        <?php
-                            if ($rights === 'superuser') {
-                        ?>
-                        <p class='smallpostzagolovok'>ID:<?= $user['id'] ?> </p>
-                        <p class='smallpostauthor'>Логин: <?= $user['login'] ?></p>
-                        <p class='postdate'><object><a class='list' href='adminusers.php?deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
-                        <?php
-                            }
-                        ?>
-                    </div>
+                    <?php
+                        }
+                    ?>
                 </div>
-            </a>
-        
-            <?php 
-                    } 
+                <div class='smallpostimage'>
+                    <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                </div>
+            </div>
+        </a>
+
+        <?php 
                 }
-                if (!empty($error)) {
-                    echo $error;
-                }
-            ?>
-        </div>
+            }
+            if (!empty($userids)) {
+                echo "<div class='singleposttext'><p class='center'>Результаты поиска (пользователи): </p>\n</div>"; 
+                foreach ($userids as $user) {
+        ?>
+
+        <a class='post' href='cabinet.php?user=<?=$user['id']?>'>
+            <div class='smallpost'>
+                <div class='smallposttext'>
+                    <p class='smallpostzagolovok'> Просмотр дополнительной информации по нажатию</p>
+                    <p class='smallpostzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
+                    <p class='smallpostzagolovok'> Категория: <?= $user['rights'] ?></p>
+                    <?php
+                        if ($rights === 'superuser') {
+                    ?>
+                    <p class='smallpostzagolovok'>ID:<?= $user['id'] ?> </p>
+                    <p class='smallpostzagolovok'>Логин: <?= $user['login'] ?></p>
+                    <p class='postdate'><object><a class='list' href='search.php?search=<?=$search?>&deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
+                    <?php
+                        }
+                    ?>
+                </div>
+            </div>
+        </a>
+    
+        <?php 
+                } 
+            }
+            if (!empty($error)) {
+                echo $error;
+            }
+        ?>
     </div>
 
     <footer class='bottom'>

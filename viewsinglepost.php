@@ -8,13 +8,13 @@ $fio = '';
 $login = '';
 $adminLink = '';
 
-$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (isset($_GET['viewPostById'])) {
     $id = clearInt($_GET['viewPostById']);
     if (empty($id)) {
         header("Location: /");
     }
+    $_SESSION['referrer'] = "viewsinglepost.php?viewPostById=$id";
     $post = getPostForViewById($id);
     $postRating = $post['rating'];
 
@@ -92,7 +92,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-
+if (isset($_GET['deletePostById'])) {
+    $deletePostId = clearInt($_GET['deletePostById']);
+    if ($deletePostId !== '') {
+        deletePostById($deletePostId);
+        header("Location: /");
+    } 
+}
+if (isset($_GET['deleteCommentById'])) {
+    $deleteCommentId = clearInt($_GET['deleteCommentById']);
+    if ($deleteCommentId !== '') {
+        deleteCommentById($deleteCommentId);
+        header("Location: {$_SESSION['referrer']}");
+    } 
+}
 
 $year = date("Y", time());
 ?>
@@ -191,6 +204,13 @@ $year = date("Y", time());
 
                 ?>
             </p>
+            <?php
+                if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
+            ?>
+            <object><a class='list' href='viewsinglepost.php?viewPostById=<?=$id?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
+            <?php
+                }
+            ?>
             
         </div>
         <div class='addcomments'  id='comment'>
@@ -226,6 +246,15 @@ $year = date("Y", time());
                 <p class='commentauthor'><?=$comments[$i]['author']?><div class='commentdate'><?=$date?></div></p>
                 <div class='commentcontent'>
                     <p class='commentcontent'><?=$content?></p> 
+                    <p class='commentcontent'>
+                        <?php
+                            if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
+                        ?> 
+                            <object><a class='menu' href='viewsinglepost.php?viewPostById=<?=$id?>&deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
+                        <?php
+                            }
+                        ?>
+                    </p>
                 </div>
                 <div class='like'>
                     <?php

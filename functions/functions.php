@@ -548,11 +548,15 @@ function searchPostsByTag($searchword) {
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $posts[] = $result;
         }
-        foreach ($posts as $post) {
-            if (strpos($post['tag'], $searchword) !== false) {
-                $results[] = $post['post_id'];
-            }
-        } 
+        if (!empty($posts)) {
+            foreach ($posts as $post) {
+                if (strpos($post['tag'], $searchword) !== false) {
+                    $results[] = $post['post_id'];
+                }
+            } 
+        } else {
+            return null;
+        }
         if (!empty($results)) {
             return $results;
         } else {
@@ -612,8 +616,11 @@ function searchUsersByFioAndLogin($searchword, $rights = 'user') {
                 $results[$i]['id'] = $user['id'];
                 $results[$i]['fio'] = $user['fio'];
                 $results[$i]['rights'] = $user['rights'];
+                if ($rights == 'superuser') { //поиск по логину только для администраторов
+                    $results[$i]['login'] = $user['login'];
+                }
             }
-            if ($rights === 'superuser') { //поиск по логину только для администраторов
+            if ($rights == 'superuser') { //поиск по логину только для администраторов
                 if (strpos($user['login'], $searchword) !== false) {
                     $results[$i]['id'] = $user['id'];
                     $results[$i]['fio'] = $user['fio'];
@@ -686,6 +693,10 @@ function deletePostById($id) {
 
         /* Удаляю рэйтинг комментариев, связанных с постом  */
         $sql = "DELETE FROM rating_comments WHERE post_id = $id;";
+        $db->exec($sql);
+
+        /* Удаляю тэги, связанных с постом  */
+        $sql = "DELETE FROM tag_posts WHERE post_id = $id;";
         $db->exec($sql);
     } catch (PDOException $e) {
         $error = $e->getMessage();
