@@ -2,17 +2,17 @@
 session_start();
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
-$link = '';
+$link = "<a class='menu' href='login.php'>Войти</a>";
 $login = '';
 $fio = '';
 $adminLink = '';
 $show = false;
-$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 if (isset($_GET['user'])) {
     $userId = clearInt($_GET['user']);
     $user = getLoginAndFioById($userId);
     $login = $user['login'];
     $fio = $user['fio'];
+    $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
     if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
         $show = true;
     }
@@ -22,6 +22,7 @@ if (isset($_GET['user'])) {
     $rights = $_SESSION['rights'];
     $show = true;
     $link = "<a class='menu' href='index.php?exit'>Выйти</a>";
+    $_SESSION['referrer'] = 'cabinet.php';
     if ($_SESSION['rights'] == 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
@@ -34,14 +35,14 @@ if (isset($_GET['deletePostById'])) {
     $deletePostId = clearInt($_GET['deletePostById']);
     if ($deletePostId !== '') {
         deletePostById($deletePostId);
-        header("Location: cabinet.php?user=$id");
+        header("Location: {$_SESSION['referrer']}");
     } 
 }
 if (isset($_GET['deleteCommentById'])) {
     $deleteCommentId = clearInt($_GET['deleteCommentById']);
     if ($deleteCommentId !== '') {
         deleteCommentById($deleteCommentId);
-        header("Location: cabinet.php?user=$id");
+        header("Location: {$_SESSION['referrer']}");
     } 
 }
 
@@ -78,19 +79,15 @@ $year = date("Y", time());
 <div class='allwithoutmenu'>
     <div class='content'>
         <div id='singlepostzagolovok'>
-            <p class='singlepostzagolovok'>Личный кабинет пользователя</p>
+            <p class='singlepostzagolovok'>
+                Личный кабинет пользователя <br> &copy; <?=$fio?>
+        <?php
+            if ($show) {
+                echo "::: логин: $login";
+            }
+        ?>
+            </p>
         </div>
-        <div class='singlepostauthor'>
-            <?php
-                if ($show) {
-            ?>
-            <p class='center'>Логин: <?=$login?></p>
-            <?php
-                }
-            ?>
-            <p class='center'>ФИО: <?=$fio?></p>
-        </div>
-        
             <?php 
                 $posts = getPostsByFio($fio);
                 if (empty($posts) or $posts == false) {
@@ -212,7 +209,7 @@ $year = date("Y", time());
 
                     <div class='smallposttext'>
                         <p class='smallpostzagolovok'><?=$post['name']?></p>
-                        <p class='postdate'><?=$post['date']?></p>
+                        <p class='postdate'><?=$post['date']. " &copy; " . $post['author']?></p>
                         <p class='postrating'>Рейтинг поста: <?=$post['rating']?></p>
                     </div>
 

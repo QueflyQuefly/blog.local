@@ -57,17 +57,17 @@ if (!empty($_GET['search'])) {
             }
             $ids = array_unique($idsnotsort);
         } 
-        elseif (!empty($users[0])) {
+        if (!empty($users[0])) {
             foreach ($users as $user) {
                 foreach ($user as $u) {
                     $userids[$u['id']] = $u;
                 }
             }
-        } else {
-            $error = "<p class='error'>Ничего не найдено</p>";
+        } elseif (empty($posts[0]) && empty($users[0])) {
+            $error = "<p class='error'>Ничего не найдено</p>\n";
         }
     } else {
-        $error = "<p class='error'>Введите хоть что-нибудь</p>";
+        $error = "<p class='error'>Введите хоть что-нибудь</p>\n";
     }
 } 
 $year = date("Y", time());
@@ -143,13 +143,13 @@ $year = date("Y", time());
                 <div class='smallpost'>
                     <div class='smallposttext'>
                         <p class='smallpostzagolovok'><?= $post['name'] ?></p>
-                        <p class='smallpostauthor'> &copy; <?= $post['author'] ?></p>
+                        <p class='smallpostauthor'><?= $post['date'] ?> &copy; <?= $post['author'] ?></p>
                         <p class='postdate'>Тэги: 
                             <?php
                                 if ($tags) {
                                     foreach ($tags as $tag) {
                                         $tagLink = substr($tag['tag'], 1);
-                                        echo "<object><a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a> </object>  ";
+                                        echo "<object><a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a> </object>\n  ";
                                     }
                                 } else {
                                     echo "Нет тэгов";
@@ -172,34 +172,36 @@ $year = date("Y", time());
                     </div>
                 </div>
             </a>
+
             <?php 
                     }
                 }
-            if (!empty($userids)) {
-                echo "<div class='singleposttext'><p class='center'>Результаты поиска (пользователи): </p></div>"; 
-                foreach ($userids as $user) {
+                echo "<div class='viewcomments'>";
+                if (!empty($userids)) {
+                    echo "<div class='singleposttext'><p class='center'>Результаты поиска (пользователи): </p>\n</div>"; 
+                    foreach ($userids as $user) {
+            ?>
 
-        ?>
-
-        <a class='post' href='cabinet.php?user=<?=$user['id']?>'>
-            <div class='smallpost'>
-                <div class='smallposttext'>
-                    <div class='onepostzagolovok'>
-                        <p class='onepostzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
+            <a class='post' href='cabinet.php?user=<?=$user['id']?>'>
+                <div class='viewcomment'>
+                    <div class='commentcontent'>
+                        <div class='onepostzagolovok'>
+                            <p class='onepostzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
+                        </div>
+                        <p class='smallpostzagolovok'> Категория: <?= $user['rights'] ?></p>
+                        <?php
+                            if ($rights === 'superuser') {
+                        ?>
+                        <p class='smallpostzagolovok'>ID:<?= $user['id'] ?> </p>
+                        <p class='smallpostauthor'>Логин: <?= $user['login'] ?></p>
+                        <p class='postdate'><object><a class='list' href='adminusers.php?deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
+                        <?php
+                            }
+                        ?>
                     </div>
-                    <p class='smallpostzagolovok'> Категория: <?= $user['rights'] ?></p>
-                    <?php
-                        if ($rights === 'superuser') {
-                    ?>
-                    <p class='smallpostzagolovok'>ID:<?= $user['id'] ?> </p>
-                    <p class='smallpostauthor'>Логин: <?= $user['login'] ?></p>
-                    <p class='postdate'><object><a class='list' href='adminusers.php?deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
-                    <?php
-                        }
-                    ?>
                 </div>
-           </div>
-        </a>
+            </a>
+        
             <?php 
                     } 
                 }
@@ -207,6 +209,7 @@ $year = date("Y", time());
                     echo $error;
                 }
             ?>
+        </div>
     </div>
 
     <footer class='bottom'>
