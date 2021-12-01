@@ -37,7 +37,7 @@ try {
 
 $j = getLastPostId() + 1;
 try {
-    for ($i = $j; $i <= $j + 9; $i++) {
+    for ($i = $j; $i <= $j + 10; $i++) {
         $par = random_int(2, 7);
 
         $name = random_int(1, 7);
