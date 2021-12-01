@@ -16,6 +16,7 @@ try {
         login VARCHAR(20),
         fio VARCHAR(20),
         password CHAR(60),
+        date INT,
         rights VARCHAR(20),
         PRIMARY KEY (id)
         );
@@ -24,7 +25,7 @@ try {
         (
         id INT AUTO_INCREMENT,
         post_id INT,
-        author VARCHAR(20),
+        login VARCHAR(20),
         date INT,
         content TEXT,
         rating INT,
@@ -36,6 +37,7 @@ try {
         (
         id INT AUTO_INCREMENT,
         name TEXT,
+        login VARCHAR(20),
         author VARCHAR(20),
         date INT,
         content TEXT,

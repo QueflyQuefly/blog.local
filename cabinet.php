@@ -89,15 +89,15 @@ $year = date("Y", time());
             </p>
         </div>
             <?php 
-                $posts = getPostsByFio($fio);
+                $posts = getPostsByLogin($login);
                 if (empty($posts) or $posts == false) {
                     $countPosts = 0; 
                 } else {
                     $countPosts = count($posts);
                 }
-                echo "<p class='smallpostzagolovok'>Список постов &copy; $fio (всего $countPosts):</p>";
+                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список постов &copy; $fio (всего $countPosts):</p></div>";
                 if (empty($posts) or $posts == false) {
-                    echo "<p class='center'>Нет постов для отображения</p>"; 
+                    echo "<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>"; 
                 } else {
                     echo "<ul class='list'>";
                     $num = count($posts) - 1;
@@ -120,7 +120,7 @@ $year = date("Y", time());
                 <div class='smallpost'>
                     <div class='smallposttext'>
                         <p class='smallpostzagolovok'><?= $post['name'] ?></p>
-                        <p class='postdate'> &copy; <?= $post['date'] ?></p>
+                        <p class='postdate'> &copy; <?= $post['date'] ?> Рейтинг поста: <?=$post['rating']?></p>
                         <?php
                             if ($show) {
                         ?>
@@ -148,13 +148,13 @@ $year = date("Y", time());
             
             
             <?php 
-                $comments = getCommentsByFio($fio);
+                $comments = getCommentsByLogin($login);
                 if (empty($comments) or $comments == false) {
                     $countComments = 0;
                 } else {
                 $countComments = count($comments);
                 }
-                echo "<p class='smallpostzagolovok'>Список комментариев &copy; $fio (всего $countComments):</p>";
+                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список комментариев &copy; $fio (всего $countComments):</p></div>";
                 if ($countComments) {
                     echo "<ul class='list'>";
                     for ($i = 0; $i <= $countComments -1; $i++) {
@@ -184,7 +184,7 @@ $year = date("Y", time());
 
                     }
                 } else {
-                    echo "<p class='center'>Нет комментариев для отображения</p>";
+                    echo "<div class='contentsinglepost'><p class='center'>Нет комментариев для отображения</p></div>";
                 }
             ?>
     
@@ -197,7 +197,7 @@ $year = date("Y", time());
             } else {
                 $countPostsLike = count($postsLike);
             }
-            echo "<p class='smallpostzagolovok'>Оценённые посты  &copy; $fio (всего $countPostsLike):</p>";
+            echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Оценённые посты  &copy; $fio (всего $countPostsLike):</p></div>";
             if ($countPostsLike) {
                 for ($j = 0; $j <= $countPostsLike -1; $j++) {
                     $post = getPostForViewById($postsLike[$j]['post_id']);
@@ -221,15 +221,15 @@ $year = date("Y", time());
             </a>
         </div>
 
-            <?php
+        <?php
 
-                    }
-                } else {
-                    echo "<p class='center'>Нет постов для отображения</p>";
                 }
-            ?>
+            } else {
+                echo "<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>";
+            }
+        ?>
             
-        <div class='viewcomments'>            
+        <div class='viewcomments'>
             <?php 
                 $comments = getLikedCommentsByLogin($login);
                 foreach ($comments as $id=>$value) {
@@ -240,17 +240,17 @@ $year = date("Y", time());
                 } else {
                     $countComments = count($comments);
                 }
-                echo "<p class='smallpostzagolovok'>Понравившиеся комментарии &copy; $fio (всего $countComments):</p>";
+                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Понравившиеся комментарии &copy; $fio (всего $countComments):</p></div>";
                 if ($countComments) {
                     for ($i = 0; $i <= $countComments -1; $i++) {
-                        
+                        $author = getUserFioByLogin($comments[$i]['login']);
                         $content = nl2br($comments[$i]['content']);
                         $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);
             ?>
 
             <a class='post' href='viewsinglepost.php?viewPostById=<?=$comments[$i]['post_id']?>#comment<?=$id?>'>
                 <div class='viewcomment' id='comment'>
-                    <p class='commentauthor'><?=$comments[$i]['author']?><div class='commentdate'><?=$date?></div></p>
+                    <p class='commentauthor'><?=$author['fio']?><div class='commentdate'><?=$date?></div></p>
                     <div class='commentcontent'>
                         <p class='commentcontent'><?=$content?></p> 
                     </div>
@@ -261,7 +261,7 @@ $year = date("Y", time());
 
                     }
                 } else {
-                    echo "<p class='center'>Нет комментариев для отображения</p>";
+                    echo "<div class='contentsinglepost'><p class='center'>Нет комментариев для отображения</p></div>";
                 }
             ?>
 

@@ -58,8 +58,8 @@ try {
         $com[$i] = $db->quote($com[$i]);
 
         $date = time();
-        $sql = "INSERT INTO posts (id, name, author, date, content, rating) 
-        VALUES($i, $zag[$i], $author, $date, $text[$i], 0);";
+        $sql = "INSERT INTO posts (id, name, login, author, date, content, rating) 
+        VALUES($i, $zag[$i], $i, $author, $date, $text[$i], 0);";
 
         $db->exec($sql);
         
@@ -74,15 +74,15 @@ try {
             }
         }
 
-        $sql = "INSERT INTO comments (post_id, author, date, content, rating) 
-        VALUES($i, $author, $date, $com[$i], 0);";
+        $sql = "INSERT INTO comments (post_id, login, date, content, rating) 
+        VALUES($i, $i, $date, $com[$i], 0);";
 
         $db->exec($sql);
 
         $password = password_hash($i, PASSWORD_BCRYPT);
         $password = $db->quote($password);
-        $sql = "INSERT INTO users (login, fio, password, rights) 
-        VALUES($i, $author, $password, 'user');";
+        $sql = "INSERT INTO users (login, fio, password, date, rights) 
+        VALUES($i, $author, $password, $date, 'user');";
 
         $db->exec($sql);
     }

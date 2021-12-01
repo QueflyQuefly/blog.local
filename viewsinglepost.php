@@ -31,7 +31,6 @@ if (isset($_GET['viewPostById'])) {
 
 if (isset($_GET['exit'])) {
     $_SESSION['log_in'] = false;
-    session_destroy();
     $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
     header("Location: $uri");
 }
@@ -41,16 +40,16 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $fio = $_SESSION['fio'];
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
 
-    $link = "<a class='menu' href='?exit'>Выйти</a>";
+    $link = "<a class='menu' href='viewsinglepost.php?viewPostById=$id&exit'>Выйти</a>";
     if ($_SESSION['rights'] == 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     var_dump($_POST);
-    if (isset($_POST['addCommentAuthor']) && isset($_POST['addCommentContent'])) {
+    if (isset($_POST['addCommentContent'])) {
         if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
-            $commentAuthor = $_POST['addCommentAuthor'];
+            $commentAuthor = $login;
             $commentContent = $_POST['addCommentContent'];
             if ($commentAuthor && $commentContent) {
                 insertComments($id, $commentAuthor, time(), $commentContent);
@@ -222,7 +221,6 @@ $year = date("Y", time());
             <div class='addcomment'>
 
                 <form action='viewsinglepost.php?viewPostById=<?=$id?>#comment' method='post'>
-                    <input type='hidden' name='addCommentAuthor' value='<?=$fio?>'> 
                    
                     <br><textarea name='addCommentContent' required  minlength="1" maxlength='500' wrap='hard' placeholder="Опишите ваши эмоции :-) (до 500 символов)" id='textcomment'></textarea><br>
                     
@@ -239,11 +237,13 @@ $year = date("Y", time());
                 if (!empty($comments)) {
                 for ($i = count($comments)-1; $i >= 0; $i--) {
                     $content = nl2br($comments[$i]['content']);
+                    $login = $comments[$i]['login'];
+                    $author = getUserFioByLogin($login);
                     $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);
             ?>
 
             <div class='viewcomment' id='comment<?= $comments[$i]['id'] ?>'>
-                <p class='commentauthor'><?=$comments[$i]['author']?><div class='commentdate'><?=$date?></div></p>
+                <p class='commentauthor'><?=$author['fio']?><div class='commentdate'><?=$date?></div></p>
                 <div class='commentcontent'>
                     <p class='commentcontent'><?=$content?></p> 
                     <p class='commentcontent'>

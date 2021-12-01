@@ -39,7 +39,7 @@ function getCommentsByPostId($postId) {
     $comments = [];
     try {
         $postId = clearInt($postId);
-        $sql = "SELECT id, author, date, content, rating FROM comments WHERE post_id = $postId;";// LIMIT 30
+        $sql = "SELECT id, login, date, content, rating FROM comments WHERE post_id = $postId;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
             return false;
@@ -57,7 +57,7 @@ function getCommentsById($id) {
     $comments = [];
     try {
         $id = clearInt($id);
-        $sql = "SELECT post_id, author, date, content, rating FROM comments WHERE id = $id;";// LIMIT 30
+        $sql = "SELECT post_id, login, date, content, rating FROM comments WHERE id = $id;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
             return false;
@@ -99,6 +99,24 @@ function getTagsToPostById($postId) {
         }
         if (!empty($tags)) {
             return $tags;
+        } else {
+            return null;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+/* Пока просто пусть будет */
+function getUserFioByLogin($login) {
+    global $db, $error;
+    try {
+        $login = $db->quote($login);
+
+        $sql = "SELECT fio FROM users WHERE login=$login";
+        $stmt = $db->query($sql);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!empty($result)) {
+            return $result;
         } else {
             return null;
         }
@@ -211,10 +229,11 @@ function createUser($login, $fio, $password) {
         }
         $login = $db->quote($login);
         $fio = $db->quote($fio);
+        $date = time();
         $password = $db->quote($password);
 
-        $sql = "INSERT INTO users (login, fio, password, rights) 
-        VALUES($login, $fio, $password, 'user');";
+        $sql = "INSERT INTO users (login, fio, password, date, rights) 
+        VALUES($login, $fio, $password, $date, 'user');";
         $db->exec($sql);
 
         $db->commit();
@@ -271,7 +290,7 @@ function insertComments($id, $commentAuthor, $commentDate, $commentContent) {
         $content = $db->quote($commentContent);
         $content = trim(strip_tags($content));
 
-        $sql = "INSERT INTO comments (post_id, author, date, content, rating) 
+        $sql = "INSERT INTO comments (post_id, login, date, content, rating) 
         VALUES($id, $author, $date, $content, 0)";
         $db->exec($sql);
 
@@ -393,7 +412,7 @@ function isUserChangesComRating($login, $comId){
 
 
 /* functions for addpost.php */
-function insertToPosts($name, $author, $content, $rating) {
+function insertToPosts($name, $author, $login, $content) {
     global $db, $error;
     $date = time();
 
@@ -401,11 +420,12 @@ function insertToPosts($name, $author, $content, $rating) {
 
         $name = $db->quote($name);
         $author = $db->quote($author);
+        $login = $db->quote($login);
         $content = $db->quote($content);
-        $rating = clearInt($rating);
+        $rating = 0;
 
-        $sql = "INSERT INTO posts (name, author, date, content, rating) 
-        VALUES($name, $author, $date, $content, $rating);";
+        $sql = "INSERT INTO posts (name, author, login, date, content, rating) 
+        VALUES($name, $author, $login, $date, $content, $rating);";
 
         $db->exec($sql);
     } catch (PDOException $e) {
@@ -418,9 +438,8 @@ function addTagsToPosts($tag) {
     $date = time();
 
     try {
-
         $tag = $db->quote($tag);
-        $postId = getLastPostId();
+        $postId = getLastPostId() + 1;
         $sql = "INSERT INTO tag_posts (tag, post_id) 
         VALUES($tag, $postId);";
 
@@ -457,7 +476,7 @@ function getPostsByFio($fio) {
     try {
         $posts = [];
         $fio = $db->quote($fio);
-        $sql = "SELECT id, name, date, content, rating FROM posts WHERE author = $fio;";
+        $sql = "SELECT id, name, login, date, content, rating FROM posts WHERE author = $fio;";
         $stmt = $db->query($sql);
         if(!$stmt) {
             return false;
@@ -465,7 +484,7 @@ function getPostsByFio($fio) {
         while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $posts[] = $post;
         }
-        if(!$posts) {
+        if(empty($posts)) {
             return false;
         } else {
             return $posts;
@@ -474,12 +493,34 @@ function getPostsByFio($fio) {
         $error = $e->getMessage();
     }
 }
-function getCommentsByFio($fio) {
+function getPostsByLogin($login) {
+    global $db, $error;
+    try {
+        $posts = [];
+        $login = $db->quote($login);
+        $sql = "SELECT id, name, author, date, content, rating FROM posts WHERE login = $login;";
+        $stmt = $db->query($sql);
+        if(!$stmt) {
+            return false;
+        }
+        while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $posts[] = $post;
+        }
+        if(empty($posts)) {
+            return false;
+        } else {
+            return $posts;
+        }
+    } catch(PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function getCommentsByLogin($login) {
     global $db, $error;
     $comments = [];
     try {
-        $fio = $db->quote($fio);
-        $sql = "SELECT id, post_id, date, content, rating FROM comments WHERE author = $fio;";// LIMIT 30
+        $login = $db->quote($login);
+        $sql = "SELECT id, post_id, date, content, rating FROM comments WHERE login = $login;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
             return false;

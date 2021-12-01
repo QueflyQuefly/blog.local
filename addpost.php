@@ -9,7 +9,7 @@ require_once $functions;
 
 $size = 4096000; //max size of upload image
 
-if (!isset($_SESSION['log_in']) or $_SESSION['log_in'] == false) {
+if (empty($_SESSION['log_in'])) {
     header("Location: login.php");
 }
 
@@ -22,9 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addPostName'])) {
         $name = clearStr($_POST['addPostName']);
         $author = clearStr($_POST['addPostAuthor']);
+        $login = $_SESSION['login'];
         $content = clearStr($_POST['addPostContent']);
 
-        if ($name && $author && $content) {
+        if ($name != '' && $author != '' && $login != '' && $content != '') {
 
             /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
                 switch($_FILES['addPostImg']["error"]){
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 for ($i = 0; $i < $countTags; $i++) {
                     addTagsToPosts($tags[$i]);
                 }
-                insertToPosts($name, $author, $content, 0);
+                insertToPosts($name, $author, $login, $content);
 
 
                 /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . getLastPostId() . ".jpg"); */
