@@ -15,8 +15,16 @@ if (isset($_GET['viewPostById'])) {
         header("Location: /");
     }
     $_SESSION['referrer'] = "viewsinglepost.php?viewPostById=$id";
+
     $post = getPostForViewById($id);
     $postRating = $post['rating'];
+    $postAuthor = getUserFioByLogin($post['login']);
+    $postAuthorId = $postAuthor['id'];
+    if ($post['author'] != $postAuthor['fio']) {
+        $dontShowLink = true;
+    } else {
+        $dontShowLink = false;
+    }
 
     $tags = getTagsToPostById($id);
 
@@ -41,8 +49,9 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
 
     $link = "<a class='menu' href='viewsinglepost.php?viewPostById=$id&exit'>Выйти</a>";
-    if ($_SESSION['rights'] == 'superuser') {
+    if ($_SESSION['rights'] === 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
+        $isAdmin = true;
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -179,7 +188,17 @@ $year = date("Y", time());
 
 
         <div id='singlepostauthor'>
-            <p class='singlepostauthor'><?=$post['author']?></p>
+            <?php
+                if (!$dontShowLink) {
+            ?>
+            <p class='singlepostauthor'><a class='menu' title='Перейти в личный кабинет пользвателя' href='cabinet.php?user=<?=$postAuthorId?>'><?=$post['author']?></a></p>
+            <?php
+                } else {
+            ?>
+            <p class='singlepostauthor'><a class='menu' title='Пользователь не захотел раскрывать своё имя' href='viewsinglepost.php?viewPostById=<?=$id?>'><?=$post['author']?></a></p>
+            <?php
+                }
+            ?>
             <p class='singlepostdate'><?=$post['date']?></p>
         </div>
 
@@ -204,7 +223,7 @@ $year = date("Y", time());
                 ?>
             </p>
             <?php
-                if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
+                if (!empty($isAdmin)) {
             ?>
             <object><a class='list' href='viewsinglepost.php?viewPostById=<?=$id?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
             <?php
@@ -243,12 +262,12 @@ $year = date("Y", time());
             ?>
 
             <div class='viewcomment' id='comment<?= $comments[$i]['id'] ?>'>
-                <p class='commentauthor'><?=$author['fio']?><div class='commentdate'><?=$date?></div></p>
+                <p class='commentauthor'><a class='menu' href='cabinet.php?user=<?=$author['id']?>'><?=$author['fio']?></a><div class='commentdate'><?=$date?></div></p>
                 <div class='commentcontent'>
                     <p class='commentcontent'><?=$content?></p> 
                     <p class='commentcontent'>
                         <?php
-                            if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
+                            if (!empty($isAdmin)) {
                         ?> 
                             <object><a class='menu' href='viewsinglepost.php?viewPostById=<?=$id?>&deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
                         <?php

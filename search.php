@@ -9,18 +9,19 @@ $fio = '';
 $search = '';
 $rights = '';
 $adminLink = '';
-$_SESSION['referrer'] = 'search.php';
+$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (isset($_GET['exit'])) {
     $_SESSION['log_in'] = false;
-    header("Location: search.php");
-} 
+    $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
+    header("Location: $uri");
+}
 
 if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     $login = $_SESSION['login'];
     $rights = $_SESSION['rights'];
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
-    $link = "<a class='menu' href='?exit'>Выйти</a>";
+    $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
     if ($_SESSION['rights'] == 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
@@ -178,16 +179,17 @@ $year = date("Y", time());
                             }
                         ?>
                         </p>
-                    <p class='postdate'> Комментариев к посту: <?= $countComments ?> </p>
-                    <?php
-                        if ($rights === 'superuser') {
-                    ?>
+                    <p class='postdate'> Комментариев к посту: <?= $countComments ?>
+                        <?php
+                            if ($rights === 'superuser') {
+                        ?>
 
-                    <p class='postdate'><object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object></p>
+                        <object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object>
 
-                    <?php
-                        }
-                    ?>
+                        <?php
+                            }
+                        ?>
+                    </p>
                 </div>
                 <div class='smallpostimage'>
                     <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>

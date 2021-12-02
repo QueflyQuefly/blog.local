@@ -201,7 +201,7 @@ function deleteCommentById($deleteCommentId) {
 function getPostsForIndex(){
     global $db, $error;
     try {
-        $sql = "SELECT id, name, author, date, content, rating FROM posts;"; // LIMIT 10
+        $sql = "SELECT id, name, author, login, date, content, rating FROM posts;"; // LIMIT 10
         $stmt = $db->query($sql);
 
         if ($stmt == false) {
@@ -340,7 +340,7 @@ function getPostForViewById($id) {
     global $db, $error;
     try {
         $id = clearInt($id);
-        $sql = "SELECT id, name, author, date, content, rating FROM posts WHERE id = $id;";
+        $sql = "SELECT id, name, author, login, date, content, rating FROM posts WHERE id = $id;";
         $stmt = $db->query($sql);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
         $post['content'] = str_replace("<br />", "<p>", nl2br($post['content']));

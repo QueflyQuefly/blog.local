@@ -13,10 +13,14 @@ if (isset($_GET['user'])) {
     $login = $user['login'];
     $fio = $user['fio'];
     $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
-    if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
-        $show = true;
+    
+    if (!empty($_SESSION['log_in'])) {
+        $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
+        if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
+            $show = true;
+        }
     }
-} elseif (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+} elseif (!empty($_SESSION['log_in'])) {
     $login = $_SESSION['login'];
     $fio = $_SESSION['fio'];
     $rights = $_SESSION['rights'];
@@ -30,7 +34,11 @@ if (isset($_GET['user'])) {
  else {
     header("Location: login.php");
 }
-
+if (isset($_GET['exit'])) {
+    $_SESSION['log_in'] = false;
+    $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
+    header("Location: $uri");
+}
 if (isset($_GET['deletePostById'])) {
     $deletePostId = clearInt($_GET['deletePostById']);
     if ($deletePostId !== '') {
