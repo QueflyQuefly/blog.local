@@ -106,13 +106,12 @@ function getTagsToPostById($postId) {
         $error = $e->getMessage();
     }
 }
-/* Пока просто пусть будет */
 function getUserFioByLogin($login) {
     global $db, $error;
     try {
         $login = $db->quote($login);
 
-        $sql = "SELECT fio FROM users WHERE login=$login";
+        $sql = "SELECT id, fio FROM users WHERE login=$login";
         $stmt = $db->query($sql);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!empty($result)) {
@@ -120,6 +119,77 @@ function getUserFioByLogin($login) {
         } else {
             return null;
         }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function deletePostById($id) {
+    global $db, $error;
+    
+    try {  
+        $id = clearInt($id);
+
+        /* Удаляю пост */
+        $sql = "DELETE FROM posts WHERE id = $id;";
+        $db->exec($sql);
+        
+        /* Удаляю рэйтинг этого поста */
+        $sql = "DELETE FROM rating_posts WHERE post_id = $id;";
+        $db->exec($sql);
+
+        /* Удаляю его картинку */
+        //unlink("..\images\PostImgId$id.jpg");
+
+        /* Удаляю все комментарии, связанные с постом */
+        $sql = "DELETE FROM comments WHERE post_id = $id;";
+        $db->exec($sql);
+
+        /* Удаляю рэйтинг комментариев, связанных с постом  */
+        $sql = "DELETE FROM rating_comments WHERE post_id = $id;";
+        $db->exec($sql);
+
+        /* Удаляю тэги, связанных с постом  */
+        $sql = "DELETE FROM tag_posts WHERE post_id = $id;";
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function connectToUsers() {
+    global $db, $error;
+    try {
+        $sql = "SELECT id, login, fio, password, rights FROM users;";
+        $stmt = $db->query($sql);
+        while ($arr = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $users[] = $arr;
+        }
+        return $users;
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+        return false;
+    }
+}
+function deleteUserById($id) {
+    global $db, $error;
+    $id = clearInt($id);
+    try {
+        $sql = "DELETE FROM users WHERE id = $id;";
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+function deleteCommentById($deleteCommentId) {
+    global $db, $error;
+    $deleteCommentId = clearInt($deleteCommentId);
+    try {
+        /* Удаляю комментарий */
+        $sql = "DELETE FROM comments WHERE id = $deleteCommentId;";
+        $db->exec($sql);
+
+        /* Удаляю рейтинг этого комментария*/
+        $sql = "DELETE FROM rating_comments WHERE com_id = $deleteCommentId;";
+        $db->exec($sql);
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
@@ -580,7 +650,7 @@ function searchPostsByTag($searchword) {
     global $db, $error;
     $results = [];
     try {
-        $searchword = clearStr($searchword);
+        $searchword = mb_strtolower(clearStr($searchword));
         $sql = "SELECT tag, post_id FROM tag_posts;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
@@ -591,6 +661,7 @@ function searchPostsByTag($searchword) {
         }
         if (!empty($posts)) {
             foreach ($posts as $post) {
+                $post['tag'] = mb_strtolower($post['tag']);
                 if (strpos($post['tag'], $searchword) !== false) {
                     $results[] = $post['post_id'];
                 }
@@ -611,7 +682,7 @@ function searchPostsByNameAndAuthor($searchword) {
     global $db, $error;
     $posts = [];
     try {
-        $searchword = clearStr($searchword);
+        $searchword = mb_strtolower(clearStr($searchword));
         $sql = "SELECT id, name, author FROM posts;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
@@ -621,10 +692,12 @@ function searchPostsByNameAndAuthor($searchword) {
             $posts[] = $result;
         }
         foreach ($posts as $post) {
-            if (strpos($post['name'], $searchword) !== false) {
+            $name = mb_strtolower($post['name']);
+            if (strpos($name, $searchword) !== false) {
                 $results[] = $post['id'];
             }
-            if (strpos($post['author'], $searchword) !== false) {
+            $author = mb_strtolower($post['author']);
+            if (strpos($author, $searchword) !== false) {
                 $results[] = $post['id'];
             }
         }
@@ -641,7 +714,7 @@ function searchUsersByFioAndLogin($searchword, $rights = 'user') {
     global $db, $error;
     $users = [];
     try {
-        $searchword = clearStr($searchword);
+        $searchword = mb_strtolower(clearStr($searchword));
         $sql = "SELECT id, login, fio, rights FROM users;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
@@ -652,17 +725,18 @@ function searchUsersByFioAndLogin($searchword, $rights = 'user') {
         }
         $i = 0;
         foreach ($users as $user) {
-            
-            if (strpos($user['fio'], $searchword) !== false) {
+            $fio = mb_strtolower($user['fio']);
+            if (strpos($fio, $searchword) !== false) {
                 $results[$i]['id'] = $user['id'];
                 $results[$i]['fio'] = $user['fio'];
                 $results[$i]['rights'] = $user['rights'];
-                if ($rights == 'superuser') { //поиск по логину только для администраторов
+                if ($rights == 'superuser') { //логин отображается только для администраторов
                     $results[$i]['login'] = $user['login'];
                 }
             }
             if ($rights == 'superuser') { //поиск по логину только для администраторов
-                if (strpos($user['login'], $searchword) !== false) {
+                $login = mb_strtolower($user['login']);
+                if (strpos($login, $searchword) !== false) {
                     $results[$i]['id'] = $user['id'];
                     $results[$i]['fio'] = $user['fio'];
                     $results[$i]['rights'] = $user['rights'];
@@ -709,76 +783,3 @@ function isNounForTag($string){
     return $nouns;
 }
 /* functions for stab_db.php  */
-
-/* functions for admin/ */
-function deletePostById($id) {
-    global $db, $error;
-    
-    try {  
-        $id = clearInt($id);
-
-        /* Удаляю пост */
-        $sql = "DELETE FROM posts WHERE id = $id;";
-        $db->exec($sql);
-        
-        /* Удаляю рэйтинг этого поста */
-        $sql = "DELETE FROM rating_posts WHERE post_id = $id;";
-        $db->exec($sql);
-
-        /* Удаляю его картинку */
-        //unlink("..\images\PostImgId$id.jpg");
-
-        /* Удаляю все комментарии, связанные с постом */
-        $sql = "DELETE FROM comments WHERE post_id = $id;";
-        $db->exec($sql);
-
-        /* Удаляю рэйтинг комментариев, связанных с постом  */
-        $sql = "DELETE FROM rating_comments WHERE post_id = $id;";
-        $db->exec($sql);
-
-        /* Удаляю тэги, связанных с постом  */
-        $sql = "DELETE FROM tag_posts WHERE post_id = $id;";
-        $db->exec($sql);
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-}
-function connectToUsers() {
-    global $db, $error;
-    try {
-        $sql = "SELECT id, login, fio, password, rights FROM users;";
-        $stmt = $db->query($sql);
-        while ($arr = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $users[] = $arr;
-        }
-        return $users;
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-        return false;
-    }
-}
-function deleteUserById($id) {
-    global $db, $error;
-    $id = clearInt($id);
-    try {
-        $sql = "DELETE FROM users WHERE id = $id;";
-        $db->exec($sql);
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-}
-function deleteCommentById($deleteCommentId) {
-    global $db, $error;
-    $deleteCommentId = clearInt($deleteCommentId);
-    try {
-        /* Удаляю комментарий */
-        $sql = "DELETE FROM comments WHERE id = $deleteCommentId;";
-        $db->exec($sql);
-
-        /* Удаляю рейтинг этого комментария*/
-        $sql = "DELETE FROM rating_comments WHERE com_id = $deleteCommentId;";
-        $db->exec($sql);
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-}
