@@ -216,8 +216,8 @@ function getPostsForIndex(){
             return false;
         }
         foreach ($rows as $post) {
-            $post['name'] = mb_substr($post['name'], 0, 140);
-            if (mb_strlen($post['name'], 'utf-8') > 100) {
+            $post['name'] = mb_substr($post['name'], 0, 100);
+            if (mb_strlen($post['name'], 'utf-8') > 99) {
                 $post['name'] = $post['name'] . "&hellip;";
             }
 
@@ -226,13 +226,13 @@ function getPostsForIndex(){
                 $post['content_small'] = $post['content_small'] . "&hellip;";
             }
 
-            $post['content'] = mb_substr(nl2br($post['content']), 0, 320);
-            if (mb_strlen($post['content'], 'utf-8') > 318) {
+            $post['content'] = mb_substr($post['content'], 0, 300);
+            if (mb_strlen($post['content'], 'utf-8') > 299) {
                 $post['content'] = $post['content'] . "&hellip;";
             }
 
             $post['name_small'] = mb_substr($post['name'], 0, 45);
-            if (mb_strlen($post['name_small'], 'utf-8') > 40) {
+            if (mb_strlen($post['name_small'], 'utf-8') > 44) {
                 $post['name_small'] = $post['name_small'] . "&hellip;";
             }
 

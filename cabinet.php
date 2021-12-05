@@ -16,6 +16,9 @@ if (isset($_GET['user'])) {
     
     if (!empty($_SESSION['log_in'])) {
         $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
+        if ($login === $_SESSION['login']) {
+            $show = true;
+        }
         if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
             $show = true;
         }
