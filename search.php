@@ -54,14 +54,14 @@ if (!empty($_GET['search'])) {
             }
         } else {
             if (strpos($search, '#') !== false) {
-                if ($result = searchPostsByTag($searchword)) {
+                if ($result = searchPostsByTag($search)) {
                     $posts[] = $result;
                 }
             } else {
-                if ($result = searchPostsByNameAndAuthor($searchword)) {
+                if ($result = searchPostsByNameAndAuthor($search)) {
                     $posts[] = $result;
                 }
-                if ($result = searchUsersByFioAndLogin($searchword, $rights)) {
+                if ($result = searchUsersByFioAndLogin($search, $rights)) {
                     $posts[] = $result;
                 }
             }
@@ -81,10 +81,10 @@ if (!empty($_GET['search'])) {
                 }
             }
         } elseif (empty($posts[0]) && empty($users[0])) {
-            $error = "<p class='error'>Ничего не найдено</p>\n";
+            $error = "<div class='singleposttext'><p class='error'>Ничего не найдено</p></div>\n";
         }
     } else {
-        $error = "<p class='error'>Введите хоть что-нибудь</p>\n";
+        $error = "<div class='singleposttext'><p class='error'>Введите хоть что-нибудь</p></div>\n";
     }
 } 
 

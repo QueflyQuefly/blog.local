@@ -25,7 +25,9 @@ if (!empty($_SESSION['log_in'])) {
 
 $year = date("Y", time());
 $ids = get10lastPostId();
-krsort($ids);
+if (!empty($ids)) {
+    krsort($ids);
+}
 ?>
 
 
@@ -64,12 +66,12 @@ krsort($ids);
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
 
         <?php 
-            foreach ($ids as $id) {
-                $posts[] = getPostsForIndexById($id);
-            }
-            if (empty($posts) or $posts == false) {
+            if (empty($ids)) {
                 die("<p>Нет постов для отображения</p>");    
             } else {
+                foreach ($ids as $id) {
+                    $posts[] = getPostsForIndexById($id);
+                }
                 $num = count($posts) - 1;
                 $post = $posts[$num];
         ?>
@@ -142,10 +144,12 @@ krsort($ids);
         <?php
                 }
             }
-            echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
             $ids = getMoreTalkedPosts();
-            foreach ($ids as $id) {
-                $post = getPostsForIndexById($id);
+            if (!empty($ids)) {
+                echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
+                
+                foreach ($ids as $id) {
+                    $post = getPostsForIndexById($id);
         ?>
 
         <div class='viewsmallposts'>
@@ -178,6 +182,7 @@ krsort($ids);
         </div>
 
         <?php
+                }
             }
         ?>
 

@@ -211,7 +211,11 @@ function get10lastPostId() {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $rows[] = $row['id'];
         }
-        return $rows;
+        if (!empty($rows)) {
+            return $rows;
+        } else {
+            return false;
+        }
     } catch (PDOException $e) {
         $error = $e->getMessage();
         return false;
@@ -237,26 +241,31 @@ function getPostsForIndexById($id) {
         foreach ($rows as $post) {
             $post['id'] = $id;
             $post['name'] = mb_substr($post['name'], 0, 100);
+            $post['name'] = strip_tags($post['name']);
             if (mb_strlen($post['name'], 'utf-8') > 99) {
                 $post['name'] = $post['name'] . "&hellip;";
             }
 
             $post['content_small'] = mb_substr($post['content'], 0, 200);
+            $post['content_small'] = strip_tags($post['content_small']);
             if (mb_strlen($post['content_small'], 'utf-8') > 199) {
                 $post['content_small'] = $post['content_small'] . "&hellip;";
             }
 
             $post['content'] = mb_substr($post['content'], 0, 300);
+            $post['content'] = strip_tags($post['content']);
             if (mb_strlen($post['content'], 'utf-8') > 299) {
                 $post['content'] = $post['content'] . "&hellip;";
             }
 
             $post['name_small'] = mb_substr($post['name'], 0, 45);
+            $post['name_small'] = strip_tags($post['name_small']);
             if (mb_strlen($post['name_small'], 'utf-8') > 44) {
                 $post['name_small'] = $post['name_small'] . "&hellip;";
             }
 
             $post['author'] = " &copy; " . $post['author'];
+            $post['author'] = strip_tags($post['author']);
             $post['date'] = date("d.m.Y",$post['date']) ." в ". date("H:i", $post['date']);
         }
         return $post;
@@ -275,9 +284,6 @@ function getMoreTalkedPosts() {
         if ($stmt == false) {
             return false;
         }
-        $func = function(int $value): int {
-            return $value * 2;
-        };
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $postId = $row['post_id'];
@@ -285,16 +291,23 @@ function getMoreTalkedPosts() {
             $st = $db->query($sql);
             while ($r = $st->fetch(PDO::FETCH_ASSOC)) {
                 $rows[$postId] = $r['count'];
-                krsort($rows);
             }
         }
-        for ($i = 0; $i < 3; $i++) {
-            $maxId = array_search(max($rows), $rows);
-            $ids[] = $maxId;
-            unset($rows[$maxId]);
+        if (!empty($rows)) {
+            krsort($rows);
+            for ($i = 0; $i < 3; $i++) {
+                if (!empty($rows)) {
+                    $maxId = array_search(max($rows), $rows);
+                    if (!empty($maxId)) {
+                        $ids[] = $maxId;
+                        unset($rows[$maxId]);
+                    }
+                }
+            }
+            return $ids;
+        } else {
+            return false;
         }
-        
-        return $ids;
     } catch (PDOException $e) {
         $error = $e->getMessage();
         return false;
@@ -442,7 +455,7 @@ function changePostRating($rating, $postId, $login){
                 $postRates[] = $postRate['rating'];
             }
             $countRatings =  count($postRates);
-            for ($i = 0; $i <= $countRatings; $i++) {
+            for ($i = 0; $i < $countRatings; $i++) {
                 $summ += $postRates[$i];
                 $postRating = $summ / $countRatings;
                 $postRating = round($postRating, 1, PHP_ROUND_HALF_UP);

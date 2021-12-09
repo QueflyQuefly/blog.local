@@ -5,6 +5,7 @@ try {
 
     $password = password_hash('12345', PASSWORD_BCRYPT);
     $password = $db->quote($password);
+    $date = time();
 
     $sql = "CREATE DATABASE $dbname;
 
@@ -85,8 +86,8 @@ try {
 
 
         INSERT INTO users
-        (login, fio, password, rights) 
-        VALUES ('12345', 'Администратор', $password, 'superuser')
+        (login, fio, password, date, rights) 
+        VALUES ('12345', 'Администратор', $password, $date, 'superuser')
         ;";
 
     $db->exec($sql);
