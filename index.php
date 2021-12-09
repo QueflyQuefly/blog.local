@@ -24,7 +24,8 @@ if (!empty($_SESSION['log_in'])) {
 }
 
 $year = date("Y", time());
-$posts = getPostsForIndex();
+$ids = get10lastPostId();
+krsort($ids);
 ?>
 
 
@@ -63,6 +64,9 @@ $posts = getPostsForIndex();
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
 
         <?php 
+            foreach ($ids as $id) {
+                $posts[] = getPostsForIndexById($id);
+            }
             if (empty($posts) or $posts == false) {
                 die("<p>Нет постов для отображения</p>");    
             } else {
@@ -136,10 +140,45 @@ $posts = getPostsForIndex();
         </div>
 
         <?php
-
+                }
             }
-        }
+            echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
+            $ids = getMoreTalkedPosts();
+            foreach ($ids as $id) {
+                $post = getPostsForIndexById($id);
+        ?>
 
+        <div class='viewsmallposts'>
+
+            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['id']?>'>
+            <div class='smallpost'>
+
+                <div class='smallposttext'>
+                    <p class='smallpostzagolovok'><?=$post['name_small']?></p>
+                    <p class='smallpostcontent'><?=$post['content_small']?></p>
+                    <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
+                    <p class='postrating'>
+                        <?php
+                            if (!$post['rating']) {
+                                echo "Нет оценок. Будьте первым!";
+                            } else {
+                                echo "Рейтинг поста: " . $post['rating'];
+                            }     
+                        ?>  
+                    </p>
+                </div>
+
+                <div class='smallpostimage'>
+                    <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                </div>
+                
+            </div>
+            </a>
+
+        </div>
+
+        <?php
+            }
         ?>
 
     </div>

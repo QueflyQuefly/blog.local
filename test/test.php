@@ -92,7 +92,7 @@ foreach ($chat[1] as $tag) {
 } catch (PDOException $e) {
     echo $e->getMessage();
 } */
-$to  = "drotov.mihailo@gmail.com" ; 
+/* $to  = "drotov.mihailo@gmail.com" ; 
 
 $subject = "Заголовок письма"; 
 
@@ -101,4 +101,6 @@ $headers  = "Content-type: text/html; charset=utf-8 \r\n";
 $headers = "From: prostoblog.local@gmail.com\r\n"; 
 $headers .= "Reply-To: prostoblog.local@gmail.com\r\n"; 
 
-mail($to, $subject, $message, $headers);
+mail($to, $subject, $message, $headers); */
+
+var_dump(getMoreTalkedPosts());

@@ -198,10 +198,29 @@ function deleteCommentById($deleteCommentId) {
 
 
 /* functions for index.php */
-function getPostsForIndex(){
+function get10lastPostId() {
     global $db, $error;
     try {
-        $sql = "SELECT id, name, author, login, date, content, rating FROM posts;"; // LIMIT 10
+        $sql = "SELECT id FROM posts ORDER BY id DESC LIMIT 10;";
+        $stmt = $db->query($sql);
+
+        if ($stmt == false) {
+            return false;
+        }
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $rows[] = $row['id'];
+        }
+        return $rows;
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+        return false;
+    }
+}
+function getPostsForIndexById($id) {
+    global $db, $error;
+    try {
+        $sql = "SELECT name, author, login, date, content, rating FROM posts WHERE id = $id;"; // LIMIT 10
         $stmt = $db->query($sql);
 
         if ($stmt == false) {
@@ -216,6 +235,7 @@ function getPostsForIndex(){
             return false;
         }
         foreach ($rows as $post) {
+            $post['id'] = $id;
             $post['name'] = mb_substr($post['name'], 0, 100);
             if (mb_strlen($post['name'], 'utf-8') > 99) {
                 $post['name'] = $post['name'] . "&hellip;";
@@ -238,14 +258,47 @@ function getPostsForIndex(){
 
             $post['author'] = " &copy; " . $post['author'];
             $post['date'] = date("d.m.Y",$post['date']) ." в ". date("H:i", $post['date']);
-            $posts[] = $post;
         }
-        return $posts;
+        return $post;
     } catch (PDOException $e) {
         $error = $e->getMessage();
         return false;
     }
-    
+}
+function getMoreTalkedPosts() {
+    global $db, $error;
+    try {
+        $date = time() - 604800;
+        $sql = "SELECT id, post_id FROM comments WHERE date >= $date;"; // LIMIT 10
+        $stmt = $db->query($sql);
+
+        if ($stmt == false) {
+            return false;
+        }
+        $func = function(int $value): int {
+            return $value * 2;
+        };
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $postId = $row['post_id'];
+            $sql = "SELECT COUNT(*) as count FROM comments WHERE date >= $date AND post_id = $postId;"; // LIMIT 10
+            $st = $db->query($sql);
+            while ($r = $st->fetch(PDO::FETCH_ASSOC)) {
+                $rows[$postId] = $r['count'];
+                krsort($rows);
+            }
+        }
+        for ($i = 0; $i < 3; $i++) {
+            $maxId = array_search(max($rows), $rows);
+            $ids[] = $maxId;
+            unset($rows[$maxId]);
+        }
+        
+        return $ids;
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+        return false;
+    }
 }
 /* functions for index.php */
 

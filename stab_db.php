@@ -59,8 +59,8 @@ try {
         $com[$i] = $db->quote($com[$i]);
 
         $date = time();
-        $sql = "INSERT INTO posts (id, name, login, author, date, content, rating) 
-        VALUES($i, $zag[$i], $login, $author, $date, $text[$i], 0);";
+        $sql = "INSERT INTO posts (name, login, author, date, content, rating) 
+        VALUES($zag[$i], $login, $author, $date, $text[$i], 0);";
 
         $db->exec($sql);
         
