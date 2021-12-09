@@ -263,26 +263,26 @@ function getPostsForIndexById($id) {
         }
         foreach ($rows as $post) {
             $post['id'] = $id;
-            $post['name'] = mb_substr($post['name'], 0, 100);
             $post['name'] = strip_tags($post['name']);
+            $post['name'] = mb_substr($post['name'], 0, 100);
             if (mb_strlen($post['name'], 'utf-8') > 99) {
                 $post['name'] = $post['name'] . "&hellip;";
             }
 
-            $post['content_small'] = mb_substr($post['content'], 0, 200);
-            $post['content_small'] = strip_tags($post['content_small']);
+            $post['content_small'] = strip_tags($post['content']);
+            $post['content_small'] = mb_substr($post['content_small'], 0, 200);
             if (mb_strlen($post['content_small'], 'utf-8') > 199) {
                 $post['content_small'] = $post['content_small'] . "&hellip;";
             }
 
-            $post['content'] = mb_substr($post['content'], 0, 300);
             $post['content'] = strip_tags($post['content']);
+            $post['content'] = mb_substr($post['content'], 0, 300);
             if (mb_strlen($post['content'], 'utf-8') > 299) {
                 $post['content'] = $post['content'] . "&hellip;";
             }
 
-            $post['name_small'] = mb_substr($post['name'], 0, 45);
-            $post['name_small'] = strip_tags($post['name_small']);
+            $post['name_small'] = strip_tags($post['name']);
+            $post['name_small'] = mb_substr($post['name_small'], 0, 45);
             if (mb_strlen($post['name_small'], 'utf-8') > 44) {
                 $post['name_small'] = $post['name_small'] . "&hellip;";
             }

@@ -145,6 +145,7 @@ if (!empty($ids)) {
         <?php
                 }
             }
+            echo "<p class='center'><a class='submit' href='posts.php'>Посмотреть ещё</a></p>";
             $ids = getMoreTalkedPosts();
             if (!empty($ids)) {
                 echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";

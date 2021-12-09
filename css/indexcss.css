@@ -325,7 +325,7 @@ textarea#textcomment:hover {
 }
 
 /* buttons */
-input.submit{
+.submit{
     padding: 8px 25px;
     background-color:rgb(1, 90, 255);
     color:white;
@@ -333,7 +333,7 @@ input.submit{
     font-size: 12pt;
     margin-bottom: 2%;
 }
-input.submit:hover{
+.submit:hover{
     background-color:rgb(0, 18, 177);
     cursor: pointer;
 }
