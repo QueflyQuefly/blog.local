@@ -57,7 +57,13 @@ if (isset($_GET['deleteCommentById'])) {
 
         <div class='list'>
             <?php 
-                $posts = getPostsForIndex();
+                $ids = getPostIds();
+                if (!empty($ids)) {
+                    krsort($ids);
+                }
+                foreach ($ids as $id) {
+                    $posts[] = getPostsForIndexById($id);
+                }
                 if (empty($posts) or $posts == false) {
                     echo "<p class='error'>Нет постов для отображения</p>"; 
                 } else {

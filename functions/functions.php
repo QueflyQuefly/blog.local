@@ -76,6 +76,9 @@ function getLastPostId() {
     try {
         $sql = "SELECT id FROM posts ORDER BY id DESC LIMIT 1;";
         $stmt = $db->query($sql);
+        if (!$stmt) {
+            return null;
+        }
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $postId = $result['id'];
         if (!empty($postId)) {
@@ -474,6 +477,9 @@ function changePostRating($rating, $postId, $login){
             $sql = "SELECT rating FROM rating_posts WHERE post_id=$postId";
             $stmt = $db->query($sql);
             $summ = 0;
+            if (!$stmt) {
+                return null;
+            }
             while ($postRate = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $postRates[] = $postRate['rating'];
             }
