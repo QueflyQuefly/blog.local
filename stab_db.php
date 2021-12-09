@@ -44,6 +44,7 @@ try {
         $surname = random_int(1, 7);
         $author = $fio['names'][$name] . " " . $fio['surnames'][$surname];
         $author = $db->quote($author);
+        $login = "'$i@gmail.com'";
 
         $zag[$i] = file_get_contents("https://fish-text.ru/get?format=html&type=title&number=1", false, stream_context_create($arrContextOptions));
         $zag[$i] = clearStr($zag[$i]);
@@ -59,7 +60,7 @@ try {
 
         $date = time();
         $sql = "INSERT INTO posts (id, name, login, author, date, content, rating) 
-        VALUES($i, $zag[$i], $i, $author, $date, $text[$i], 0);";
+        VALUES($i, $zag[$i], $login, $author, $date, $text[$i], 0);";
 
         $db->exec($sql);
         
@@ -75,14 +76,14 @@ try {
         }
 
         $sql = "INSERT INTO comments (post_id, login, date, content, rating) 
-        VALUES($i, $i, $date, $com[$i], 0);";
+        VALUES($i, $login, $date, $com[$i], 0);";
 
         $db->exec($sql);
 
         $password = password_hash($i, PASSWORD_BCRYPT);
         $password = $db->quote($password);
         $sql = "INSERT INTO users (login, fio, password, date, rights) 
-        VALUES($i, $author, $password, $date, 'user');";
+        VALUES($login, $author, $password, $date, 'user');";
 
         $db->exec($sql);
     }

@@ -278,7 +278,7 @@ $year = date("Y", time());
                 <div class='like'>
                     <?php
                         $countLikes = $comments[$i]['rating'];
-                        if (!isUserChangesComRating($login, $comments[$i]['id'])) {
+                        if (!isUserChangesComRating($_SESSION['login'], $comments[$i]['id'])) {
                             $name = 'like';
                         } else {
                             $name = 'unlike';

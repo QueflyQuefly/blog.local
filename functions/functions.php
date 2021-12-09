@@ -487,13 +487,22 @@ function insertToPosts($name, $author, $login, $content) {
     $date = time();
 
     try {
+        $id = getLastPostId() + 1;
+
+        $sql = "SELECT login_want_subscribe FROM subscriptions WHERE login = $login";
+        $stmt = $db->query($sql);
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $toEmail = $result['login_want_subscribe'];
+            $message = "Новый пост от $author: http://blog.local/viewsinglepost.php?viewpostById=$id \n $name";
+            mail($toEmail, 'Новый пост', $message);
+        }
 
         $name = $db->quote($name);
         $author = $db->quote($author);
         $login = $db->quote($login);
         $content = $db->quote($content);
         $rating = 0;
-
+        
         $sql = "INSERT INTO posts (name, author, login, date, content, rating) 
         VALUES($name, $author, $login, $date, $content, $rating);";
 
@@ -641,6 +650,53 @@ function getLikedCommentsByLogin($login) {
         $error = $e->getMessage();
     }
     return $comments;   
+}
+function toSubscribeUser($loginWantSubscribe, $login) {
+    global $db, $error;
+    try {
+        $login = $db->quote($login);
+        $loginWantSubscribe = $db->quote($loginWantSubscribe);
+
+        $sql = "INSERT INTO subscriptions (login_want_subscribe, login) 
+        VALUES($loginWantSubscribe, $login);";
+
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        $db->rollBack();
+        $error = $e->getMessage();
+    }
+}
+function toUnsubscribeUser($loginWantUnsubscribe, $login) {
+    global $db, $error;
+    try {
+        $login = $db->quote($login);
+        $loginWantUnsubscribe = $db->quote($loginWantUnsubscribe);
+
+        $sql = "DELETE FROM subscriptions WHERE login_want_subscribe = $loginWantUnsubscribe AND login = $login;";
+
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        $db->rollBack();
+        $error = $e->getMessage();
+    }
+}
+function isSubscribedUser($loginWantSubscribe, $login){
+    global $db, $error;
+    try {
+        $login = $db->quote($login);
+        $loginWantSubscribe = $db->quote($loginWantSubscribe);
+
+        $sql = "SELECT id FROM subscriptions WHERE login_want_subscribe=$loginWantSubscribe";
+        $stmt = $db->query($sql);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
 }
 /* functions for cabinet.php */
 

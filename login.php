@@ -55,7 +55,7 @@ if (isset($_GET['msg'])) {
             <p class='label'>Вход</p>
 
             <form action='login.php' method='post'>
-                <input type='login' name='login' required minlength="1" maxlength='20' autofocus autocomplete="true" placeholder='Ваш логин' class='text'><br>
+                <input type='login' name='login' required minlength="1" maxlength='50' autofocus autocomplete="true" placeholder='Ваш логин' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Ваш пароль' class='text'><br>
 
                 <div class='msg'>

@@ -102,7 +102,7 @@ if (isset($_GET['deleteCommentById'])) {
                 ?>
             <br>
             <li class='list'>
-            <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор:</span> <?= $comments[$j]['author'] ?></p>
+            <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор(его логин):</span> <?= $comments[$j]['login'] ?></p>
             <br>
             <p class='list'>Содержание: <?= $comments[$j]['content'] ?></p>
             <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>

@@ -15,6 +15,17 @@ if (isset($_GET['user'])) {
     $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
     
     if (!empty($_SESSION['log_in'])) {
+        $loginWantSubscribe = $_SESSION['login'];
+        if (isset($_GET['subscribe'])) {
+            toSubscribeUser($loginWantSubscribe, $login);
+            $uri = str_replace('&subscribe', '', $_SERVER['REQUEST_URI']);
+            header("Location: $uri");
+        }
+        if (isset($_GET['unsubscribe'])) {
+            toUnsubscribeUser($loginWantSubscribe, $login);
+            $uri = str_replace('&unsubscribe', '', $_SERVER['REQUEST_URI']);
+            header("Location: $uri");
+        }
         $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
         if ($login === $_SESSION['login']) {
             $show = true;
@@ -92,12 +103,21 @@ $year = date("Y", time());
         <div id='singlepostzagolovok'>
             <p class='singlepostzagolovok'>
                 Личный кабинет пользователя <br> &copy; <?=$fio?>
-        <?php
-            if ($show) {
-                echo "::: логин: $login";
-            }
-        ?>
+                <?php
+                    if ($show) {
+                        echo "::: email: $login";
+                    }
+                ?>
             </p>
+            <?php
+                if (!empty($_SESSION['log_in']) && $login !== $_SESSION['login']) {
+                    if (!isSubscribedUser($_SESSION['login'], $login)) {
+                        echo "<p class='postdate' style='font-size:12pt'><a title='Подписаться' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a></p>";
+                    } else {
+                        echo "<p class='postdate' style='font-size:12pt'><a title='Отменить подписку' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a></p>";
+                    }
+                }
+            ?>
         </div>
             <?php 
                 $posts = getPostsByLogin($login);

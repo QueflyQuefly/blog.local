@@ -13,7 +13,7 @@ try {
         CREATE TABLE users
         (
         id INT AUTO_INCREMENT,
-        login VARCHAR(20),
+        login VARCHAR(50),
         fio VARCHAR(20),
         password CHAR(60),
         date INT,
@@ -25,7 +25,7 @@ try {
         (
         id INT AUTO_INCREMENT,
         post_id INT,
-        login VARCHAR(20),
+        login VARCHAR(50),
         date INT,
         content TEXT,
         rating INT,
@@ -37,7 +37,7 @@ try {
         (
         id INT AUTO_INCREMENT,
         name TEXT,
-        login VARCHAR(20),
+        login VARCHAR(50),
         author VARCHAR(20),
         date INT,
         content TEXT,
@@ -49,7 +49,7 @@ try {
         CREATE TABLE rating_posts
         (
         id INT AUTO_INCREMENT,
-        login VARCHAR(20),
+        login VARCHAR(50),
         post_id INT,
         rating TINYINT,
         PRIMARY KEY (id)
@@ -59,7 +59,7 @@ try {
         CREATE TABLE rating_comments
         (
         id INT AUTO_INCREMENT,
-        login VARCHAR(20),
+        login VARCHAR(50),
         com_id INT,
         post_id INT,
         PRIMARY KEY (id)
@@ -71,6 +71,15 @@ try {
         id INT AUTO_INCREMENT,
         tag TINYTEXT,
         post_id INT,
+        PRIMARY KEY (id)
+        );
+
+
+        CREATE TABLE subscriptions
+        (
+        id INT AUTO_INCREMENT,
+        login_want_subscribe VARCHAR(50),
+        login VARCHAR(50),
         PRIMARY KEY (id)
         );
 

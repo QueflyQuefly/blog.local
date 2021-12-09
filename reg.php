@@ -6,11 +6,17 @@ $error = '';
 if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password'])) {
     $login = clearStr($_POST['login']);
     $fio = clearStr($_POST['fio']);
-    $password = clearStr($_POST['password']);    
+    $password = clearStr($_POST['password']);
+    $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
+    if (!preg_match($regex, $login)) {
+        $error = "Неверный формат email";
+        header("Location: reg.php?msg=$error");
+        exit;
+    }   
     if ($login && $fio && $password) {
         $password = password_hash($password, PASSWORD_BCRYPT);
         if (!createUser($login, $fio, $password)) {
-            $error = "Пользователь с таким логином уже зарегистрирован";
+            $error = "Пользователь с таким email уже зарегистрирован";
             header("Location: reg.php?msg=$error"); 
         } else {
             $ok = "Аккаунт добавлен";
@@ -42,7 +48,7 @@ if (isset($_GET['msg'])) {
             <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Регистрация</p>
             <form action='reg.php' method='post'>
-                <input type='login' name='login' required autofocus minlength="1" maxlength='20' placeholder='Введите уникальный логин' class='text'><br>
+                <input type='login' name='login' required autofocus minlength="1" maxlength='50' placeholder='Введите email' class='text'><br>
                 <input type='login' name='fio' required minlength="1" maxlength='20' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Введите пароль' class='text'><br>
 

@@ -79,3 +79,26 @@ foreach ($chat[1] as $tag) {
 } */
 
 //insertToPosts('1', 'vvvv', '1', 'jdbvjkvfdjvb');
+
+//var_dump(isUserChangesComRating('1@gmail.com', 11));
+/* try {
+    $sql = "SELECT login_want_subscribe FROM subscriptions WHERE login = '5@gmail.com'";
+    $stmt = $db->query($sql);
+    while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $toEmail = $result['login_want_subscribe'];
+        $message = "Новый пост от $author: blog.local/viewsinglepost.php?viewpostById=$id \n $name";
+        mail($toEmail, 'Новый пост', $message);
+    }
+} catch (PDOException $e) {
+    echo $e->getMessage();
+} */
+$to  = "drotov.mihailo@gmail.com" ; 
+
+$subject = "Заголовок письма"; 
+
+$message = "<p><a href='blog.local/viewsinglepost.php?viewPostById=9'>Перейти</a></p><p>Текст письма</p> </br> <b>1-ая строчка </b> </br><i>2-ая строчка </i> </br>";
+$headers  = "Content-type: text/html; charset=utf-8 \r\n"; 
+$headers = "From: prostoblog.local@gmail.com\r\n"; 
+$headers .= "Reply-To: prostoblog.local@gmail.com\r\n"; 
+
+mail($to, $subject, $message, $headers);

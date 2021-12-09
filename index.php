@@ -12,7 +12,7 @@ if (isset($_GET['exit'])) {
     header("Location: /");
 } 
 
-if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+if (!empty($_SESSION['log_in'])) {
     $login = $_SESSION['login'];
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     $link = "<a class='menu' href='?exit'>Выйти</a>";
