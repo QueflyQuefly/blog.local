@@ -24,9 +24,19 @@ if (!empty($_SESSION['log_in'])) {
 }
 
 $year = date("Y", time());
-$ids = get10lastPostId();
+$ids = getPostIds();
 if (!empty($ids)) {
     krsort($ids);
+}
+if (!empty($_GET['number'])) {
+    $number = clearInt($_GET['number']);
+} else {
+    $number = 10;
+}
+if (!empty($_GET['page'])) {
+    $page = clearInt($_GET['page']);
+} else {
+    $page = 1;
 }
 ?>
 
@@ -65,6 +75,28 @@ if (!empty($ids)) {
     <div class='content'>
 
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
+        <div class='singleposttext'>
+            <form action='posts.php' method='get'>
+                <label for='number'>Кол-во постов: <select id='page' name="number"></label>
+                    <?php
+                        for ($i = 1; $i < count($ids) / $page; $i++) {
+                            echo "<option value='$i'>$i</option>";
+                        }
+                    ?>
+                    <option value='<?=$number?>' selected><?=$number?></option>
+                </select>
+                <label for='page'>Страница: <select id='page' name="page"></label>
+                    <?php
+                        for ($i = 1; $i < count($ids) / $number + 1; $i++) { //+1 означает, что иногда нужна еще одна последняя страница
+                            echo "<option value='$i'>$i</option>";
+                        }
+                    ?>
+                    <option value='<?=$page?>' selected><?=$page?></option>
+                </select>
+                <input type='submit' class='submit' value='Применить'>
+            </form>
+        </div>
+
 
         <?php 
             if (empty($ids)) {
@@ -73,44 +105,21 @@ if (!empty($ids)) {
                 foreach ($ids as $id) {
                     $posts[] = getPostsForIndexById($id);
                 }
-                $num = count($posts) - 1;
+
+                $page = $page * $number - $number + 1;
+
+                $num = count($posts) - $page;
+                if ($num < 0) {
+                    $num = 0;
+                }
                 $post = $posts[$num];
-        ?>
+                $minId = $num - $number + 1;
+                if ($minId < 0) {
+                    $minId = 0;
+                }
 
-        <a class='onepost' href="viewsinglepost.php?viewPostById=<?=$post['id']?>">
-        <div class='viewonepost'>
-            
-            <div class='oneposttext'>
-                <p class='onepostzagolovok'><?=$post['name']?></p>
-                <p class='onepostcontent'><?=$post['content']?></p>
-                <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
-
-                <p class='postrating'>
-                    <?php
-                        if (!$post['rating']) {
-                            echo "Нет оценок. Будьте первым!";
-                        } else {
-                            echo "Рейтинг поста: " . $post['rating'];
-                        }     
-                    ?> 
-                </p>
-            </div>
-            <div class='onepostimage'>
-                <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='onepostimage'>
-            </div>
-        </div>
-        </a>
-
-        <?php
-            $num--;
-            $minId = 0;
-
-            if ($num > 9) {
-                $minId = $num - 8;  //Благодаря minId вывожу всего в общем и целом 10 постов
-            }
-
-            for ($id = $num; $id >= $minId; $id--) { 
-                $post = $posts[$id];
+                for ($id = $num; $id >= $minId; $id--) { 
+                    $post = $posts[$id];
         ?>
 
         <div class='viewsmallposts'>
@@ -137,46 +146,6 @@ if (!empty($ids)) {
                     <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
                 </div>
                
-            </div>
-            </a>
-
-        </div>
-
-        <?php
-                }
-            }
-            $ids = getMoreTalkedPosts();
-            if (!empty($ids)) {
-                echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
-                
-                foreach ($ids as $id) {
-                    $post = getPostsForIndexById($id);
-        ?>
-
-        <div class='viewsmallposts'>
-
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['id']?>'>
-            <div class='smallpost'>
-
-                <div class='smallposttext'>
-                    <p class='smallpostzagolovok'><?=$post['name_small']?></p>
-                    <p class='smallpostcontent'><?=$post['content_small']?></p>
-                    <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
-                    <p class='postrating'>
-                        <?php
-                            if (!$post['rating']) {
-                                echo "Нет оценок. Будьте первым!";
-                            } else {
-                                echo "Рейтинг поста: " . $post['rating'];
-                            }     
-                        ?>  
-                    </p>
-                </div>
-
-                <div class='smallpostimage'>
-                    <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
-                </div>
-                
             </div>
             </a>
 

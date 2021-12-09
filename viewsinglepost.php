@@ -55,7 +55,6 @@ if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    var_dump($_POST);
     if (isset($_POST['addCommentContent'])) {
         if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
             $commentAuthor = $login;
@@ -125,6 +124,7 @@ $year = date("Y", time());
     <meta charset='UTF-8'>
     <title>Пост - Просто блог</title>
     <link rel='stylesheet' href='css/indexcss.css'>
+    <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
 <body>
 <nav>
@@ -256,8 +256,8 @@ $year = date("Y", time());
                 if (!empty($comments)) {
                 for ($i = count($comments)-1; $i >= 0; $i--) {
                     $content = nl2br($comments[$i]['content']);
-                    $login = $comments[$i]['login'];
-                    $author = getUserFioByLogin($login);
+                    $authorComLogin = $comments[$i]['login'];
+                    $author = getUserFioByLogin($authorComLogin);
                     $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);
             ?>
 
@@ -278,7 +278,7 @@ $year = date("Y", time());
                 <div class='like'>
                     <?php
                         $countLikes = $comments[$i]['rating'];
-                        if (!isUserChangesComRating($_SESSION['login'], $comments[$i]['id'])) {
+                        if (!isUserChangesComRating($login, $comments[$i]['id'])) {
                             $name = 'like';
                         } else {
                             $name = 'unlike';

@@ -198,6 +198,29 @@ function deleteCommentById($deleteCommentId) {
 
 
 /* functions for index.php */
+function getPostIds() {
+    global $db, $error;
+    try {
+        $sql = "SELECT id FROM posts ORDER BY id DESC;";
+        $stmt = $db->query($sql);
+
+        if ($stmt == false) {
+            return false;
+        }
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $rows[] = $row['id'];
+        }
+        if (!empty($rows)) {
+            return $rows;
+        } else {
+            return false;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+        return false;
+    }
+}
 function get10lastPostId() {
     global $db, $error;
     try {

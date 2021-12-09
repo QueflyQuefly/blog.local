@@ -79,6 +79,7 @@ $year = date("Y", time());
     <meta charset='UTF-8'>
     <title>Кабинет - Просто блог</title>
     <link rel='stylesheet' href='css/indexcss.css'>
+    <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
 <body>
 <nav>
