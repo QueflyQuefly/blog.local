@@ -481,6 +481,9 @@ form.search::after {
     clear: both;
     display: table;
 }
+div.searchdescription {
+    margin-left: 17%;
+}
 
 
 

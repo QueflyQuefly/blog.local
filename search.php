@@ -32,22 +32,38 @@ if (!empty($_GET['search'])) {
     $search = clearStr($search);
     if ($search) {
         if (strpos($search, ' ') !== false) {
+            if ($result = searchPostsByContent($search)) {
+                $posts[] = $result;
+            }
+
             $searchwords = explode(' ', $search);
     
             foreach ($searchwords as $searchword) {
                 if (strpos($searchword, '#') !== false) {
-                    $posts[] = searchPostsByTag($searchword);
+                    if ($result = searchPostsByTag($searchword)) {
+                        $posts[] = $result;
+                    }
                 } else {
-                    $posts[] = searchPostsByNameAndAuthor($searchword);
-                    $users[] = searchUsersByFioAndLogin($searchword, $rights);
+                    if ($result = searchPostsByNameAndAuthor($searchword)) {
+                        $posts[] = $result;
+                    }
+                    if ($result = searchUsersByFioAndLogin($searchword, $rights)) {
+                        $posts[] = $result;
+                    }
                 }
             }
         } else {
             if (strpos($search, '#') !== false) {
-                $posts[] = searchPostsByTag($search);
+                if ($result = searchPostsByTag($searchword)) {
+                    $posts[] = $result;
+                }
             } else {
-                $posts[] = searchPostsByNameAndAuthor($search);
-                $users[] = searchUsersByFioAndLogin($search, $rights);
+                if ($result = searchPostsByNameAndAuthor($searchword)) {
+                    $posts[] = $result;
+                }
+                if ($result = searchUsersByFioAndLogin($searchword, $rights)) {
+                    $posts[] = $result;
+                }
             }
         }
         if (!empty($posts[0])) {
@@ -140,15 +156,15 @@ $year = date("Y", time());
     </div>
 
     <div class='viewsmallposts'>
-        <div class='singleposttext'>
         <?php 
-            echo "<p class='center'>Поиск поста осуществляется по заголовку, автору или по хештэгу</p>\n"; 
-            if ($rights === 'superuser') {
-                echo "<p class='center'>Поиск автора осуществляется по ФИО и логину</p>\n</div>"; 
+            if (empty($ids)) {
+                echo "<div class='searchdescription'><div class='smallposttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
+                if ($rights === 'superuser') {
+                    echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
+                } else {
+                    echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО</div>\n</div>"; 
+                }
             } else {
-                echo "<p class='center'>Поиск автора осуществляется по ФИО</p>\n</div>"; 
-            }
-            if (!empty($ids)) {
                 echo "<div class='singleposttext'><p class='center'>Результаты поиска (посты): </p>\n</div>"; 
                 foreach ($ids as $id) {
                     $post = getPostForViewById($id);

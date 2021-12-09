@@ -766,6 +766,34 @@ function searchPostsByNameAndAuthor($searchword) {
         $error = $e->getMessage();
     }
 }
+function searchPostsByContent($searchword) {
+    global $db, $error;
+    $posts = [];
+    try {
+        $searchword = mb_strtolower(clearStr($searchword));
+        $sql = "SELECT id, content FROM posts;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return null;
+        }
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $posts[] = $result;
+        }
+        foreach ($posts as $post) {
+            $content = mb_strtolower($post['content']);
+            if (strpos($content, $searchword) !== false) {
+                $results[] = $post['id'];
+            }
+        }
+        if (!empty($results)) {
+            return $results;
+        } else {
+            return null;
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
 function searchUsersByFioAndLogin($searchword, $rights = 'user') {
     global $db, $error;
     $users = [];
