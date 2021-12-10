@@ -15,7 +15,7 @@ try {
         (
         id INT AUTO_INCREMENT,
         login VARCHAR(50),
-        fio VARCHAR(20),
+        fio VARCHAR(50),
         password CHAR(60),
         date INT,
         rights VARCHAR(20),
@@ -39,7 +39,7 @@ try {
         id INT AUTO_INCREMENT,
         name TEXT,
         login VARCHAR(50),
-        author VARCHAR(20),
+        author VARCHAR(50),
         date INT,
         content TEXT,
         rating DOUBLE,
