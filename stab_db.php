@@ -1,4 +1,5 @@
 <?php
+set_time_limit(600);
 require_once 'dbconfig.php';
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
@@ -7,6 +8,12 @@ try {
     $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
 } catch (PDOException $e) {
     require_once "init_db.php";
+}
+
+if (!empty($_GET['number'])) {
+    $number = clearInt($_GET['number']);
+} else {
+    $number = 10;
 }
 
 $fio = [
@@ -63,7 +70,7 @@ $texts = [
 ];  
 
 $j = getLastPostId() + 1;
-for ($i = $j; $i < $j + 10; $i++) {
+for ($i = $j; $i < $j + $number; $i++) {
     try {
 
         $random1 = mt_rand(0, 12);
@@ -103,24 +110,24 @@ for ($i = $j; $i < $j + 10; $i++) {
         }
         for ($m = 0; $m <= $random3; $m++) {
             $random4 = mt_rand(0, 5);
-            $random5 = mt_rand($j, $j + 10);
+            $random5 = mt_rand($j, $j + $number - 1);
             $random6 = mt_rand(0, 12);
+            $dateCom = mt_rand($date, time());
             $com = $texts[$random6];
             $com = $db->quote($com);
             $loginCom = "'$random5@gmail.com'";
+
 
             changePostRating($random4, $i, $loginCom);
 
             $randomLike = mt_rand(0, 1000);
             $sql = "INSERT INTO comments (post_id, login, date, content, rating) 
-            VALUES($i, $loginCom, $date, $com, $randomLike);";
+            VALUES($i, $loginCom, $dateCom, $com, $randomLike);";
 
             if (!$db->exec($sql)) {
                 echo $sql;
             }
         }
-
-        
 
         $password = password_hash($i, PASSWORD_BCRYPT);
         $password = $db->quote($password);
@@ -135,6 +142,55 @@ for ($i = $j; $i < $j + 10; $i++) {
     echo $error = $e->getMessage();
     }
 }
-if (empty($error)) {
-    echo "Подключение к БД: успешно<br>Создано 10 новых пользователей, 10 новых постов и несколько комментариев к ним. <a href='/'>На главную</а>";
-}
+
+$year = date("Y", time());
+?>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='UTF-8'>
+    <title>Главная - Просто блог</title>
+    <link rel='stylesheet' href='css/indexcss.css'>
+    <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
+</head>
+<body>
+    <nav>
+    <div class='top'>
+        <div class="logo">
+            <a class="logo" title="На главную" href='/'>
+                <img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
+                <div id='namelogo'>Просто Блог</div>
+            </a>
+        </div>
+        <div class='menu'>
+            <ul class='menu'>
+                <li class='menu'><a class='menu' href='/'>На главную</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class='allwithoutmenu'>
+    <div class='content'>
+        <div id='desc'><p>
+            <?php
+                if (empty($error)) {
+                    echo "Подключение к БД: успешно</p><p>Создано $number новых пользователей, $number новых постов и несколько(до 12) комментариев к ним.";
+                }
+            ?>
+        </p></div>
+        <div class='viewcomment'>
+            <form action='stab_db.php' method='get'>
+                <p>Введите нужное количество постов для создания:</p>
+                    <input name='number' type='text' class='text' placeholder='Кол-во постов и пользователей'><p></p>
+                <input type='submit' class='submit' value='Применить'>
+            </form>
+        </div>
+    </div>
+    <footer class='bottom'>
+        <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+    </footer>
+</div>
+</body>
+</html>
