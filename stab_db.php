@@ -4,14 +4,9 @@ $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
 
 try {
-    @$fp = fsockopen("www.google.com", 80, $errno, $errstr, 30);
-    if (!$fp) {
-        throw new Exception('Отсутствует подключение к интернету');
-    }
-    unset($fp);
-} catch (Exception $e) {
-    echo $e->getMessage();
-    exit;
+    $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+} catch (PDOException $e) {
+    require_once "init_db.php";
 }
 
 $fio = [
@@ -51,7 +46,6 @@ $zags2 = [
     11 => 'это худшее путешествие',
     12 => 'это моя рекомендация. Место обязательно к посещению',
 ];  
-
 $texts = [
     0 => '<p>Путешествие - это как попадание в сказку, где всё необычно и не реально. Я люблю путешествовать, узнавать другие страны и города. Залог хорошего путешествия, это грамотная подготовка. Когда я куда-нибудь приезжаю, то стараюсь посмотреть все местные достопримечательности или просто красивые места. Всё это я подготавливаю заранее. Надо знать, что смотреть в первую очередь, как добраться до них, когда они открыты и т.д. Если подготовиться хорошо, то посмотреть и узнать можно гораздо больше и дешевле.</p>',
     1 => '<p>Путешествовать должны все люди. Без путешествий жизнь становится скучной и серой. Я не понимаю тех людей, кто не хочет и не любит смотреть мир. Я ещё мало где был, но уверен, что успею за свою жизнь посмотреть много красивых стран и городов. Больше всего мне нравится путешествовать на автомобиле. Мы семьёй съездили уже в Крым, Великий Новгород, Псков, Карелию и Ярославль. Сейчас мы собираемся на Онежское озеро.</p>',
@@ -68,12 +62,6 @@ $texts = [
     12 => '<p>С давних времен люди не зная, что там за дальше, отправлялись в путешествие, их манила неизведанность, тайна, любопытство. И это было достаточно опасно, но несмотря на это, открывались новые города, страны, моря, океаны, материки. Сейчас современный человек знает многое, но отправляясь в путешествие, он по-прежнему открывает перед собой удивительный и неповторимый мир.</p>',
 ];  
 
-try {
-    $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-} catch (PDOException $e) {
-    require_once "init_db.php";
-}
-
 $j = getLastPostId() + 1;
 for ($i = $j; $i < $j + 10; $i++) {
     try {
@@ -81,7 +69,6 @@ for ($i = $j; $i < $j + 10; $i++) {
         $random1 = mt_rand(0, 12);
         $random2 = mt_rand(0, 12);
         $random3 = mt_rand(0, 12);
-        $random4 = mt_rand(0, 5);
         $author = $fio['names'][$random2] . " " . $fio['surnames'][$random3];
         $author = $db->quote($author);
         $login = "'$i@gmail.com'";
@@ -115,11 +102,14 @@ for ($i = $j; $i < $j + 10; $i++) {
             }
         }
         for ($m = 0; $m <= $random3; $m++) {
+            $random4 = mt_rand(0, 5);
             $random5 = mt_rand($j, $j + 10);
             $random6 = mt_rand(0, 12);
             $com = $texts[$random6];
             $com = $db->quote($com);
             $loginCom = "'$random5@gmail.com'";
+
+            changePostRating($random4, $i, $loginCom);
 
             $randomLike = mt_rand(0, 1000);
             $sql = "INSERT INTO comments (post_id, login, date, content, rating) 
@@ -130,7 +120,7 @@ for ($i = $j; $i < $j + 10; $i++) {
             }
         }
 
-        changePostRating($random4, $i, $login);
+        
 
         $password = password_hash($i, PASSWORD_BCRYPT);
         $password = $db->quote($password);
