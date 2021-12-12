@@ -18,7 +18,7 @@ if (isset($_GET['viewPostById'])) {
 
     $post = getPostForViewById($id);
     $postRating = $post['rating'];
-    $postAuthor = getUserFioByLogin($post['login']);
+    $postAuthor = getUserIdAndFioByLogin($post['login']);
     $postAuthorId = $postAuthor['id'];
     if ($post['author'] != $postAuthor['fio']) {
         $dontShowLink = true;
@@ -43,20 +43,22 @@ if (isset($_GET['exit'])) {
     header("Location: $uri");
 }
 
-if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
-    $login = $_SESSION['login'];
-    $fio = $_SESSION['fio'];
+if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $login = $user['login'];
+    $fio = $user['fio'];
+    $rights = $user['rights'];
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
 
     $link = "<a class='menu' href='viewsinglepost.php?viewPostById=$id&exit'>Выйти</a>";
-    if ($_SESSION['rights'] === 'superuser') {
+    if ($rights === 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
         $isAdmin = true;
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addCommentContent'])) {
-        if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+        if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
             $commentAuthor = $login;
             $commentContent = $_POST['addCommentContent'];
             if ($commentAuthor && $commentContent) {
@@ -70,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     if (!isUserChangesPostRating($login, $id) && isset($_POST['star'])) {
-        if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+        if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
             $star = clearInt($_POST['star']);
             changePostRating($star, $id, $login);
             header("Location: viewsinglepost.php?viewPostById=$id");
@@ -80,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     if (isset($_POST['like'])) {
-        if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+        if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
         $like = clearInt($_POST['like']);
         changeComRating('like', $like, $id, $login);
         header("Location: viewsinglepost.php?viewPostById=$id#comment$like");
@@ -89,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     } 
     if (isset($_POST['unlike'])) {
-        if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
+        if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
             $unlike = clearInt($_POST['unlike']);
             changeComRating('unlike', $unlike, $id, $login);
             header("Location: viewsinglepost.php?viewPostById=$id#comment$unlike");
@@ -257,7 +259,7 @@ $year = date("Y", time());
                 for ($i = count($comments)-1; $i >= 0; $i--) {
                     $content = nl2br($comments[$i]['content']);
                     $authorComLogin = $comments[$i]['login'];
-                    $author = getUserFioByLogin($authorComLogin);
+                    $author = getUserIdAndFioByLogin($authorComLogin);
                     $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);
             ?>
 

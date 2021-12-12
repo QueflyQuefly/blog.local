@@ -49,7 +49,7 @@ if (isset($_GET['msg'])) {
             <p class='label'>Регистрация</p>
             <form action='reg.php' method='post'>
                 <input type='login' name='login' required autofocus minlength="1" maxlength='50' placeholder='Введите email' class='text'><br>
-                <input type='login' name='fio' required minlength="1" maxlength='20' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
+                <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Введите пароль' class='text'><br>
 
                 <div class='msg'>

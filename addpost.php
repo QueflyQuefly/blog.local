@@ -11,10 +11,12 @@ $size = 4096000; //max size of upload image
 
 if (empty($_SESSION['log_in'])) {
     header("Location: login.php");
-}
-
-if (!isset($_SESSION['fio'])) {
-    $_SESSION['fio'] = '';
+} else {
+    if (!empty($_SESSION['user_id'])) {
+        $user = getLoginFioRightsById($_SESSION['user_id']);
+        $login = $user['login'];
+        $fio = $user['fio'];
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -22,10 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addPostName'])) {
         $name = clearStr($_POST['addPostName']);
         $author = clearStr($_POST['addPostAuthor']);
-        $login = $_SESSION['login'];
         $content = clearStr($_POST['addPostContent']);
 
-        if ($name != '' && $author != '' && $login != '' && $content != '') {
+        if ($name !== '' && $author !== '' && $login !== '' && $content !== '') {
 
             /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
                 switch($_FILES['addPostImg']["error"]){
@@ -117,7 +118,7 @@ if (isset($_GET['msg'])) {
                 <input type='text' title='Заголовок' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostName' placeholder="Добавьте заголовок поста. Количество символов: от 20 до 140"><br>
                 
                 <label id='input' for='file_img' class='addpost'>Автор: </label>
-                <input type='text' title='Автор' class='addpostauthor' required minlength="1" maxlength='40' name='addPostAuthor' placeholder="Имя автора или его псевдоним. Количество символов: от 3 до 40" value='<?=$_SESSION['fio']?>'> 
+                <input type='text' title='Автор' class='addpostauthor' required minlength="1" maxlength='40' name='addPostAuthor' placeholder="Имя автора или его псевдоним. Количество символов: от 3 до 40" value='<?=$fio?>'> 
 
                 <br> <input type="hidden" name="MAX_FILE_SIZE" value="<?=$size?>"> <br>
                 <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$size?> байт</label>

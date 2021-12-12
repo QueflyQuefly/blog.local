@@ -12,11 +12,14 @@ if (isset($_GET['exit'])) {
     header("Location: /");
 } 
 
-if (!empty($_SESSION['log_in'])) {
-    $login = $_SESSION['login'];
+if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $login = $user['login'];
+    $fio = $user['fio'];
+    $rights = $user['rights'];
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     $link = "<a class='menu' href='?exit'>Выйти</a>";
-    if ($_SESSION['rights'] == 'superuser') {
+    if ($rights == 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 } else {
@@ -71,7 +74,7 @@ if (!empty($ids)) {
                 die("<p>Нет постов для отображения</p>");    
             } else {
                 foreach ($ids as $id) {
-                    $posts[] = getPostsForIndexById($id);
+                    $posts[] = getPostForIndexById($id);
                 }
                 $num = count($posts) - 1;
                 $post = $posts[$num];
@@ -151,7 +154,7 @@ if (!empty($ids)) {
                 echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
                 
                 foreach ($ids as $id) {
-                    $post = getPostsForIndexById($id);
+                    $post = getPostForIndexById($id);
         ?>
 
         <div class='viewsmallposts'>

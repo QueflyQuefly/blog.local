@@ -109,7 +109,7 @@ function getTagsToPostById($postId) {
         $error = $e->getMessage();
     }
 }
-function getUserFioByLogin($login) {
+function getUserIdAndFioByLogin($login) {
     global $db, $error;
     try {
         $login = $db->quote($login);
@@ -247,10 +247,10 @@ function get10lastPostId() {
         return false;
     }
 }
-function getPostsForIndexById($id) {
+function getPostForIndexById($id) {
     global $db, $error;
     try {
-        $sql = "SELECT name, author, login, date, content, rating FROM posts WHERE id = $id;"; // LIMIT 10
+        $sql = "SELECT name, author, login, date, content, rating FROM posts WHERE id = $id;";
         $stmt = $db->query($sql);
 
         if ($stmt == false) {
@@ -304,7 +304,7 @@ function getMoreTalkedPosts() {
     global $db, $error;
     try {
         $date = time() - 604800;
-        $sql = "SELECT id, post_id FROM comments WHERE date >= $date;"; // LIMIT 10
+        $sql = "SELECT id, post_id FROM comments WHERE date >= $date LIMIT 100;";
         $stmt = $db->query($sql);
 
         if ($stmt == false) {
@@ -313,7 +313,7 @@ function getMoreTalkedPosts() {
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $postId = $row['post_id'];
-            $sql = "SELECT COUNT(*) as count FROM comments WHERE date >= $date AND post_id = $postId;"; // LIMIT 10
+            $sql = "SELECT COUNT(*) as count FROM comments WHERE date >= $date AND post_id = $postId;";
             $st = $db->query($sql);
             while ($r = $st->fetch(PDO::FETCH_ASSOC)) {
                 $rows[$postId] = $r['count'];
@@ -627,13 +627,45 @@ function addTagsToPosts($tag) {
 
 
 /* functions for cabinet.php */
-function getLoginAndFioById($userId){
+function updateUser($id, $login, $fio, $password = false) {
+    global $db, $error;
+    try {
+        $db->beginTransaction();
+
+        $user = getLoginFioRightsById($id);
+        $unchangedLogin = $user['login'];
+        if ($unchangedLogin != $login) {
+            if (!isLoginUnique($login)) {
+                return false;
+            }
+        }
+        $id = clearInt($id);
+        $login = $db->quote($login);
+        $fio = $db->quote($fio);
+        $password = $db->quote($password);
+
+        $sql = "UPDATE users SET login = $login, fio = $fio WHERE id = $id;";
+        $db->exec($sql);
+
+        if ($password !== false) {
+            $sql = "UPDATE users SET password = $password WHERE id = $id;";
+            $db->exec($sql);
+        }
+
+        $db->commit();
+    } catch (PDOException $e) {
+        $db->rollBack();
+        $error = $e->getMessage();
+    }
+    return true;
+}
+function getLoginFioRightsById($userId){
     global $db, $error;
     $userId = clearInt($userId);
     $login = '';
     $fio = '';
     try {
-        $sql = "SELECT login, fio FROM users WHERE id = $userId;";// LIMIT 30
+        $sql = "SELECT login, fio, rights FROM users WHERE id = $userId;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
             return false;

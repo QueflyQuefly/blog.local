@@ -12,11 +12,14 @@ if (isset($_GET['exit'])) {
     header("Location: /");
 } 
 
-if (!empty($_SESSION['log_in'])) {
-    $login = $_SESSION['login'];
+if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $login = $user['login'];
+    $fio = $user['fio'];
+    $rights = $user['rights'];
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     $link = "<a class='menu' href='?exit'>Выйти</a>";
-    if ($_SESSION['rights'] == 'superuser') {
+    if ($rights == 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 } else {
@@ -103,7 +106,7 @@ if (!empty($_GET['page'])) {
                 die("<p>Нет постов для отображения</p>");    
             } else {
                 foreach ($ids as $id) {
-                    $posts[] = getPostsForIndexById($id);
+                    $posts[] = getPostForIndexById($id);
                 }
 
                 $page = $page * $number - $number + 1;

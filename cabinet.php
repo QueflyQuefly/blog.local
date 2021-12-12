@@ -6,16 +6,22 @@ $link = "<a class='menu' href='login.php'>Войти</a>";
 $login = '';
 $fio = '';
 $adminLink = '';
+$msg = '';
 $show = false;
+$linkToChange = false;
 if (isset($_GET['user'])) {
     $userId = clearInt($_GET['user']);
-    $user = getLoginAndFioById($userId);
+    $user = getLoginFioRightsById($userId);
     $login = $user['login'];
     $fio = $user['fio'];
     $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
     
-    if (!empty($_SESSION['log_in'])) {
-        $loginWantSubscribe = $_SESSION['login'];
+    if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+        $user = getLoginFioRightsById($_SESSION['user_id']);
+        $userLogin = $user['login'];
+        $userFio = $user['fio'];
+        $userRights = $user['rights'];
+        $loginWantSubscribe = $userLogin;
         if (isset($_GET['subscribe'])) {
             toSubscribeUser($loginWantSubscribe, $login);
             $uri = str_replace('&subscribe', '', $_SERVER['REQUEST_URI']);
@@ -27,21 +33,23 @@ if (isset($_GET['user'])) {
             header("Location: $uri");
         }
         $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-        if ($login === $_SESSION['login']) {
+        if ($login === $userLogin) {
             $show = true;
         }
-        if (isset($_SESSION['rights']) && $_SESSION['rights'] === 'superuser') {
+        if (isset($userRights) && $userRights === 'superuser') {
             $show = true;
         }
     }
-} elseif (!empty($_SESSION['log_in'])) {
-    $login = $_SESSION['login'];
-    $fio = $_SESSION['fio'];
-    $rights = $_SESSION['rights'];
+} elseif (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $login = $user['login'];
+    $fio = $user['fio'];
+    $rights = $user['rights'];
     $show = true;
+    $linkToChange = true;
     $link = "<a class='menu' href='index.php?exit'>Выйти</a>";
     $_SESSION['referrer'] = 'cabinet.php';
-    if ($_SESSION['rights'] == 'superuser') {
+    if ($rights == 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 }
@@ -67,6 +75,42 @@ if (isset($_GET['deleteCommentById'])) {
         header("Location: {$_SESSION['referrer']}");
     } 
 }
+if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password'])) {
+    $id = $_SESSION['user_id'];
+    $login = clearStr($_POST['login']);
+    $fio = clearStr($_POST['fio']);
+    $password = clearStr($_POST['password']);
+    $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
+    if (!preg_match($regex, $login)) {
+        $msg = "Неверный формат email";
+        header("Location: cabinet.php?changeinfo&msg=$msg");
+        exit;
+    }   
+    if ($login && $fio && $password) {
+        $password = password_hash($password, PASSWORD_BCRYPT);
+        if (!updateUser($id, $login, $fio, $password)) {
+            $msg = "Пользователь с таким email уже зарегистрирован";
+            header("Location: cabinet.php?changeinfo&msg=$msg"); 
+        } else {
+            $msg = "Изменения сохранены";
+            header("Location: cabinet.php?msg=$msg");
+        } 
+    } elseif ($login && $fio) {
+        if (!updateUser($id, $login, $fio)) {
+            $msg = "Пользователь с таким email уже зарегистрирован";
+            header("Location: cabinet.php?changeinfo&msg=$msg"); 
+        } else {
+            $msg = "Изменения сохранены";
+            header("Location: cabinet.php?msg=$msg");
+        } 
+    } else { 
+        $msg = "Заполните все поля";
+        header("Location: cabinet.php?changeinfo&msg=$msg");
+    }
+}
+if (isset($_GET['msg'])) {
+    $msg = clearStr($_GET['msg']);
+}
 
 $year = date("Y", time());
 ?>
@@ -86,7 +130,7 @@ $year = date("Y", time());
     <div class='top'>
         <div class="logo">
             <a class="logo" title="На главную" href='/'><img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-            <div id='namelogo'>Просто Блог</div></а>
+            <div id='namelogo'>Просто Блог</div></a>
         </div>
         <div class="menu">
             <ul class='menu'>
@@ -103,22 +147,47 @@ $year = date("Y", time());
     <div class='content'>
         <div id='singlepostzagolovok'>
             <p class='singlepostzagolovok'>
-                Личный кабинет пользователя <br> &copy; <?=$fio?>
+                Личный кабинет пользователя <br> 
+                ФИО: <?=$fio?><br> 
                 <?php
                     if ($show) {
-                        echo "::: email: $login";
+                        echo "E-mail: $login";
+                    }
+                    if ($linkToChange) {
+                        echo "<a class='list' style='font-size:13pt' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
+                    }
+                    if (isset($_GET['changeinfo'])) {
+                        echo <<< EOD
+                        <div class='container'>
+                            <div class='center'>
+                                <div class='form'>
+                                    <form action='cabinet.php' method='post'>
+                                        <input type='login' name='login' required autofocus minlength="1" maxlength='50' placeholder='Введите новый email' class='text' value='$login'><br>
+                                        <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='Новый псевдоним' class='text' value='$fio'><br>
+                                        <input type='password' name='password' minlength="0" maxlength='20' placeholder='Новый пароль; оставьте пустым, если не хотите менять' class='text'><br>
+                        
+                                        <div class='msg'>
+                                            <p class='error'>$msg</p>
+                                        </div>
+
+                                        <div id='right'><input type='submit' value='Сохранить' class='submit'></div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+EOD;
+                    } elseif (!empty($msg)) {
+                        echo "<p class='list' style='font-size:13pt'>$msg</p>";
+                    }
+                    if (isset($_GET['user']) && !empty($_SESSION['log_in']) && $login !== $userLogin) {
+                        if (!isSubscribedUser($userLogin, $login)) {
+                            echo "<a class='list' title='Подписаться' style='font-size:13pt' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a>";
+                        } else {
+                            echo "<a class='list' title='Отменить подписку' style='font-size:13pt' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a>";
+                        }
                     }
                 ?>
             </p>
-            <?php
-                if (!empty($_SESSION['log_in']) && $login !== $_SESSION['login']) {
-                    if (!isSubscribedUser($_SESSION['login'], $login)) {
-                        echo "<p class='postdate' style='font-size:12pt'><a title='Подписаться' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a></p>";
-                    } else {
-                        echo "<p class='postdate' style='font-size:12pt'><a title='Отменить подписку' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a></p>";
-                    }
-                }
-            ?>
         </div>
             <?php 
                 $posts = getPostsByLogin($login);
@@ -275,7 +344,7 @@ $year = date("Y", time());
                 echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Понравившиеся комментарии &copy; $fio (всего $countComments):</p></div>";
                 if ($countComments) {
                     for ($i = 0; $i <= $countComments -1; $i++) {
-                        $author = getUserFioByLogin($comments[$i]['login']);
+                        $author = getUserIdAndFioByLogin($comments[$i]['login']);
                         $content = nl2br($comments[$i]['content']);
                         $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);
             ?>

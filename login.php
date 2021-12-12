@@ -14,9 +14,8 @@ if (isset($_POST['login']) && isset($_POST['password'])) {
 
     if (isUser($login, $password)) {
         $_SESSION['log_in'] = true;
-        $_SESSION['login'] = $login;
-        $_SESSION['fio'] = $fio; //it is global var from function isUser
-        $_SESSION['rights'] = getRightsByLogin($login);
+        $user = getUserIdAndFioByLogin($login);
+        $_SESSION['user_id'] = $user['id'];
 
         if (isset($_SESSION['referrer'])) {
             header("Location: {$_SESSION['referrer']}");

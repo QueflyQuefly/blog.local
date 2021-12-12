@@ -17,12 +17,14 @@ if (isset($_GET['exit'])) {
     header("Location: $uri");
 }
 
-if (isset($_SESSION['log_in']) && $_SESSION['log_in']) {
-    $login = $_SESSION['login'];
-    $rights = $_SESSION['rights'];
+if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $login = $user['login'];
+    $fio = $user['fio'];
+    $rights = $user['rights'];
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-    if ($_SESSION['rights'] == 'superuser') {
+    if ($rights == 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 }
@@ -168,7 +170,7 @@ $year = date("Y", time());
             } else {
                 echo "<div class='singleposttext'><p class='center'>Результаты поиска (посты): </p>\n</div>"; 
                 foreach ($ids as $id) {
-                    $post = getPostForViewById($id);
+                    $post = getPostForIndexById($id);
                     $comments = getCommentsByPostId($id);
                     $tags = getTagsToPostById($id);
 
