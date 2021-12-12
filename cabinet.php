@@ -16,7 +16,7 @@ if (isset($_GET['user'])) {
     $fio = $user['fio'];
     $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
     
-    if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+    if (!empty($_SESSION['user_id'])) {
         $user = getLoginFioRightsById($_SESSION['user_id']);
         $userLogin = $user['login'];
         $userFio = $user['fio'];
@@ -36,11 +36,11 @@ if (isset($_GET['user'])) {
         if ($login === $userLogin) {
             $show = true;
         }
-        if (isset($userRights) && $userRights === 'superuser') {
+        if ($userRights === 'superuser') {
             $show = true;
         }
     }
-} elseif (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+} elseif (!empty($_SESSION['user_id'])) {
     $user = getLoginFioRightsById($_SESSION['user_id']);
     $login = $user['login'];
     $fio = $user['fio'];
@@ -57,7 +57,7 @@ if (isset($_GET['user'])) {
     header("Location: login.php");
 }
 if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
+    $_SESSION['user_id'] = false;
     $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
     header("Location: $uri");
 }
@@ -179,7 +179,7 @@ EOD;
                     } elseif (!empty($msg)) {
                         echo "<p class='list' style='font-size:13pt'>$msg</p>";
                     }
-                    if (isset($_GET['user']) && !empty($_SESSION['log_in']) && $login !== $userLogin) {
+                    if (isset($_GET['user']) && !empty($_SESSION['user_id']) && $login !== $userLogin) {
                         if (!isSubscribedUser($userLogin, $login)) {
                             echo "<a class='list' title='Подписаться' style='font-size:13pt' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a>";
                         } else {

@@ -8,12 +8,12 @@ $adminLink1 = '';
 $adminLink2 = '';
     
 if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
+    $_SESSION['user_id'] = false;
     session_destroy();
     header("Location: /");
 } 
 
-if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+if (!empty($_SESSION['user_id'])) {
     $user = getLoginFioRightsById($_SESSION['user_id']);
     $login = $user['login'];
     $fio = $user['fio'];

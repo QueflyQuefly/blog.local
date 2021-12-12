@@ -4,17 +4,18 @@ $file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions',
 require_once $file_functions;
 $error = []; $users = [];
 
-if (!isset($_SESSION['rights'])) {
-    $_SESSION['rights'] = '';
+if (!empty($_SESSION['user_id'])) {
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $rights = $user['rights'];
+} else {
+    $rights = false;
 }
-
 if (isset($_GET['deleteUserById'])) {
     $deleteId = clearInt($_GET['deleteUserById']);
     if ($deleteId != false) {
-        connectToUsers();
         deleteUserById($deleteId);
         header("Location: adminusers.php");
-    } 
+    }
 }
 ?>
 
@@ -34,7 +35,7 @@ if (isset($_GET['deleteUserById'])) {
         <div class='msg'>
             <p class='error'>
                 <?php
-                    if($_SESSION['rights'] != "superuser"){
+                    if ($rights !== "superuser") {
                         echo "<p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>";
                         exit;
                     }
@@ -46,23 +47,23 @@ if (isset($_GET['deleteUserById'])) {
 
         <div class='list'>
             <?php 
-                $users = connectToUsers();
-                if (empty($users) or $users == false) {
+                $usersIds = getUsersIds();
+                if (empty($usersIds)) {
                     echo "<p class='error'>Нет пользователей</p>"; 
                 } else {
                     echo "<ul class='list'>";
                     
-                    for ($i= 0; $i <= count($users)-1; $i++) { //здесь не foreach, чтобы в случае чего вывести в обратном порядке
-                        $user = $users[$i];
+                    foreach ($usersIds as $userId) {
+                        $user = getLoginFioRightsById($userId);
             ?>
 
             
 
             <li class='list'>
 
-                <p class='list'>ID:<?= $user['id'] ?> ::: ФИО(псевдоним): <?= $user['fio'] ?>   ::: Категория: <?= $user['rights'] ?>
+                <p class='list'>ID:<?= $userId ?> ::: ФИО(псевдоним): <?= $user['fio'] ?>   ::: Категория: <?= $user['rights'] ?>
                 <br>Логин: <?= $user['login'] ?></p>
-                <a class='list' href='adminusers.php?deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?> -а</a>
+                <a class='list' href='adminusers.php?deleteUserById=<?= $userId ?> '> Удалить <?= $user['rights'] ?> -а</a>
                 <hr>
 
             </li>

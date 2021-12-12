@@ -5,10 +5,12 @@ require_once $file_functions;
 
 $error = ''; $posts = [];
 
-if (!isset($_SESSION['rights'])) {
-    $_SESSION['rights'] = '';
+if (!empty($_SESSION['user_id'])) {
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $rights = $user['rights'];
+} else {
+    $rights = false;
 }
-
 if (isset($_GET['deletePostById'])) {
     $deletePostId = clearInt($_GET['deletePostById']);
     if ($deletePostId != '') {
@@ -23,7 +25,6 @@ if (isset($_GET['deleteCommentById'])) {
         header("Location: adminposts.php");
     } 
 }
-
 ?>
 
 
@@ -42,7 +43,7 @@ if (isset($_GET['deleteCommentById'])) {
         <div class='msg'>
             <p class='error'>
                 <?php
-                    if ($_SESSION['rights'] != "superuser") {
+                    if ($rights !== "superuser") {
                         echo "<p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>";
                         exit;
                     }
@@ -53,16 +54,17 @@ if (isset($_GET['deleteCommentById'])) {
         </div>
 
 
-        <p class='label'>Список всех постов <a href='adminposts.php'> &#8634</a></p>
+        <p class='label'>Список постов постранично <br> (50 постов - одна страница)<a href='adminposts.php'> &#8634</a></p>
 
         <div class='list'>
             <?php 
                 $ids = getPostIds();
+                $ids = array_slice($ids, 0, 50);
                 if (!empty($ids)) {
                     krsort($ids);
                 }
                 foreach ($ids as $id) {
-                    $posts[] = getPostsForIndexById($id);
+                    $posts[] = getPostForIndexById($id);
                 }
                 if (empty($posts) or $posts == false) {
                     echo "<p class='error'>Нет постов для отображения</p>"; 

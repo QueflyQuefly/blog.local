@@ -38,12 +38,12 @@ if (isset($_GET['viewPostById'])) {
 }
 
 if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
+    $_SESSION['user_id'] = false;
     $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
     header("Location: $uri");
 }
 
-if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+if (!empty($_SESSION['user_id'])) {
     $user = getLoginFioRightsById($_SESSION['user_id']);
     $login = $user['login'];
     $fio = $user['fio'];
@@ -58,7 +58,7 @@ if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['addCommentContent'])) {
-        if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+        if (!empty($_SESSION['user_id'])) {
             $commentAuthor = $login;
             $commentContent = $_POST['addCommentContent'];
             if ($commentAuthor && $commentContent) {
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     if (!isUserChangesPostRating($login, $id) && isset($_POST['star'])) {
-        if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+        if (!empty($_SESSION['user_id'])) {
             $star = clearInt($_POST['star']);
             changePostRating($star, $id, $login);
             header("Location: viewsinglepost.php?viewPostById=$id");
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     if (isset($_POST['like'])) {
-        if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+        if (!empty($_SESSION['user_id'])) {
         $like = clearInt($_POST['like']);
         changeComRating('like', $like, $id, $login);
         header("Location: viewsinglepost.php?viewPostById=$id#comment$like");
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     } 
     if (isset($_POST['unlike'])) {
-        if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+        if (!empty($_SESSION['user_id'])) {
             $unlike = clearInt($_POST['unlike']);
             changeComRating('unlike', $unlike, $id, $login);
             header("Location: viewsinglepost.php?viewPostById=$id#comment$unlike");

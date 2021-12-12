@@ -35,7 +35,6 @@ if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password']))
                 $error = "Пользователь с таким email уже зарегистрирован";
                 header("Location: reg.php?msg=$error"); 
             } else {
-                $_SESSION['log_in'] = true;
                 $user = getUserIdAndFioByLogin($login);
                 $userId = $user['id'];
                 $_SESSION['user_id'] = $userId;

@@ -3,18 +3,20 @@ $file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions',
 require_once $file_functions;
 
 session_start();
-if (!isset($_SESSION['rights'])) {
-    $_SESSION['rights'] = '';
-}
+
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
-$_SESSION['entrance'] = false;
-
+if (!empty($_SESSION['user_id'])) {
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $rights = $user['rights'];
+} else {
+    $rights = false;
+}
 if (isset($_POST['view'])) {
-    if ($_POST['view'] == 'viewposts') {
+    if ($_POST['view'] === 'viewposts') {
         header("Location: adminposts.php");
     }
-    if ($_POST['view'] == 'viewusers') {
+    if ($_POST['view'] === 'viewusers') {
         header("Location: adminusers.php");
     }
 }
@@ -35,7 +37,7 @@ if (isset($_POST['view'])) {
             <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Администрирование</p>
 
-            <?php if ($_SESSION['rights'] != "superuser") { ?>
+            <?php if ($rights !== "superuser") { ?>
 
             <div class='msg'>
                 <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>

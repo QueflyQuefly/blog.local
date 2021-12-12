@@ -7,12 +7,11 @@ $label = "<a class='menu' href='login.php'>Вы не авторизованы</a
 $adminLink = '';
     
 if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
-    session_destroy();
+    $_SESSION['user_id'] = false;
     header("Location: /");
 } 
 
-if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+if (!empty($_SESSION['user_id'])) {
     $user = getLoginFioRightsById($_SESSION['user_id']);
     $login = $user['login'];
     $fio = $user['fio'];
@@ -22,8 +21,6 @@ if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
     if ($rights == 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
-} else {
-    session_destroy();
 }
 
 $year = date("Y", time());

@@ -9,14 +9,12 @@ require_once $functions;
 
 $size = 4096000; //max size of upload image
 
-if (empty($_SESSION['log_in'])) {
+if (empty($_SESSION['user_id'])) {
     header("Location: login.php");
 } else {
-    if (!empty($_SESSION['user_id'])) {
-        $user = getLoginFioRightsById($_SESSION['user_id']);
-        $login = $user['login'];
-        $fio = $user['fio'];
-    }
+    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $login = $user['login'];
+    $fio = $user['fio'];
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

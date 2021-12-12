@@ -161,13 +161,13 @@ function deletePostById($id) {
         $error = $e->getMessage();
     }
 }
-function connectToUsers() {
+function getUsersIds() {
     global $db, $error;
     try {
-        $sql = "SELECT id, login, fio, password, rights FROM users;";
+        $sql = "SELECT id FROM users;";
         $stmt = $db->query($sql);
         while ($arr = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $users[] = $arr;
+            $users[] = $arr['id'];
         }
         return $users;
     } catch (PDOException $e) {

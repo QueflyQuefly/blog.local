@@ -12,7 +12,6 @@ if (isset($_POST['login']) && isset($_POST['password'])) {
     $password = clearStr($_POST['password']);
 
     if (isUser($login, $password)) {
-        $_SESSION['log_in'] = true;
         $user = getUserIdAndFioByLogin($login);
         $_SESSION['user_id'] = $user['id'];
 

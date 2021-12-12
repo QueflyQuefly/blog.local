@@ -12,12 +12,12 @@ $adminLink = '';
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (isset($_GET['exit'])) {
-    $_SESSION['log_in'] = false;
+    $_SESSION['user_id'] = false;
     $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
     header("Location: $uri");
 }
 
-if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
+if (!empty($_SESSION['user_id'])) {
     $user = getLoginFioRightsById($_SESSION['user_id']);
     $login = $user['login'];
     $fio = $user['fio'];
