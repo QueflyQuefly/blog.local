@@ -7,22 +7,27 @@ $ok = '';
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
 
-if (isset($_POST['login']) && isset($_POST['password'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $integer = clearInt($_POST['integer']);
     $login = clearStr($_POST['login']);
     $password = clearStr($_POST['password']);
+    if ($integer == $_SESSION['integer']) {
+        if (isUser($login, $password)) {
+            $user = getUserIdAndFioByLogin($login);
+            $_SESSION['user_id'] = $user['id'];
 
-    if (isUser($login, $password)) {
-        $user = getUserIdAndFioByLogin($login);
-        $_SESSION['user_id'] = $user['id'];
-
-        if (isset($_SESSION['referrer'])) {
-            header("Location: {$_SESSION['referrer']}");
+            if (isset($_SESSION['referrer'])) {
+                header("Location: {$_SESSION['referrer']}");
+            } else {
+                header("Location: /");
+            }
         } else {
-            header("Location: /");
+            $error = "Неверный логин или пароль";
+            header("Location: login.php?msg=$error");
         }
     } else {
-        $error = "Неверный логин или пароль";
-        header("Location: login.php?msg=$error");
+        $error = "Неверно введен код с Captcha";
+        header("Location: reg.php?msg=$error");
     }
 }
 if (isset($_GET['msg'])) {
@@ -49,6 +54,8 @@ if (isset($_GET['msg'])) {
             <form action='login.php' method='post'>
                 <input type='login' name='login' required minlength="1" maxlength='50' autofocus autocomplete="true" placeholder='Ваш логин' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Ваш пароль' class='text'><br>
+                <img src="noise-picture.php">
+                <input type='login' name='integer' required minlength="1" maxlength='20' placeholder='Введите код с картинки' class='text'><br>
 
                 <div class='msg'>
                     <p class='error'><?=$error?></p>

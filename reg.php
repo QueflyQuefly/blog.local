@@ -11,7 +11,8 @@ if (!empty($_SESSION['user_id'])) {
         $forAdmin = "<label><input type='checkbox' name='add_admin' class='center'>Зарегистрировать как админа</label>";
     }
 }
-if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $integer = clearInt($_POST['integer']);
     $login = clearStr($_POST['login']);
     $fio = clearStr($_POST['fio']);
     $password = clearStr($_POST['password']);
@@ -23,23 +24,28 @@ if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password']))
     }   
     if ($login !== '' && $fio !== '' && $password !== '') {
         $password = password_hash($password, PASSWORD_BCRYPT);
-        if (isset($_POST['add_admin'])) {
-            if (!addAdmin($login, $fio, $password)) {
-                $error = "Пользователь с таким email уже зарегистрирован";
-                header("Location: reg.php?msg=$error"); 
+        if ($integer == $_SESSION['integer']) {
+            if (isset($_POST['add_admin'])) {
+                if (!addAdmin($login, $fio, $password)) {
+                    $error = "Пользователь с таким email уже зарегистрирован";
+                    header("Location: reg.php?msg=$error"); 
+                } else {
+                    header("Location: /");
+                } 
             } else {
-                header("Location: /");
-            } 
+                if (!createUser($login, $fio, $password)) {
+                    $error = "Пользователь с таким email уже зарегистрирован";
+                    header("Location: reg.php?msg=$error"); 
+                } else {
+                    $user = getUserIdAndFioByLogin($login);
+                    $userId = $user['id'];
+                    $_SESSION['user_id'] = $userId;
+                    header("Location: /");
+                } 
+            }
         } else {
-            if (!createUser($login, $fio, $password)) {
-                $error = "Пользователь с таким email уже зарегистрирован";
-                header("Location: reg.php?msg=$error"); 
-            } else {
-                $user = getUserIdAndFioByLogin($login);
-                $userId = $user['id'];
-                $_SESSION['user_id'] = $userId;
-                header("Location: /");
-            } 
+            $error = "Неверно введен код с Captcha";
+            header("Location: reg.php?msg=$error");
         }
     } else { 
         $error = "Заполните все поля";
@@ -70,6 +76,8 @@ if (isset($_GET['msg'])) {
                 <input type='login' name='login' required autofocus minlength="1" maxlength='50' placeholder='Введите email' class='text'value='@gmail.com'><br>
                 <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Введите пароль' class='text'><br>
+                <img src="noise-picture.php">
+                <input type='login' name='integer' required minlength="1" maxlength='20' placeholder='Введите код с картинки' class='text'><br>
                 <?=$forAdmin?>
 
                 <div class='msg'>
