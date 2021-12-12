@@ -2,6 +2,7 @@
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
 $error = '';
+session_start();
 
 if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password'])) {
     $login = clearStr($_POST['login']);
@@ -19,8 +20,11 @@ if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password']))
             $error = "Пользователь с таким email уже зарегистрирован";
             header("Location: reg.php?msg=$error"); 
         } else {
-            $ok = "Аккаунт добавлен";
-            header("Location: login.php?msg=$ok");
+            $_SESSION['log_in'] = true;
+            $user = getUserIdAndFioByLogin($login);
+            $userId = $user['id'];
+            $_SESSION['user_id'] = $userId;
+            header("Location: /");
         } 
     } else { 
         $error = "Заполните все поля";
@@ -48,7 +52,7 @@ if (isset($_GET['msg'])) {
             <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Регистрация</p>
             <form action='reg.php' method='post'>
-                <input type='login' name='login' required autofocus minlength="1" maxlength='50' placeholder='Введите email' class='text'><br>
+                <input type='login' name='login' required autofocus minlength="1" maxlength='50' placeholder='Введите email' class='text'value='@gmail.com'><br>
                 <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Введите пароль' class='text'><br>
 
