@@ -25,6 +25,12 @@ if (isset($_GET['deleteCommentById'])) {
         header("Location: adminposts.php");
     } 
 }
+if (isset($_GET['page'])) {
+    $page = clearInt($_GET['page']);
+} else {
+    $page = 1;
+}
+$number = 50;
 ?>
 
 
@@ -54,33 +60,43 @@ if (isset($_GET['deleteCommentById'])) {
         </div>
 
 
-        <p class='label'>Список постов постранично <br> (50 постов - одна страница)<a href='adminposts.php'> &#8634</a></p>
-
-        <div class='list'>
-            <?php 
-                $ids = getPostIds();
-                $ids = array_slice($ids, 0, 50);
-                if (!empty($ids)) {
-                    krsort($ids);
+        <p class='label'>Список постов постранично и инвертировано <br> (<?=$number?> постов - одна страница)<a href='adminposts.php'> &#8634</a></p>
+        
+        <?php 
+            $ids = getPostIds();
+            echo "<ul class ='list'>";
+            for ($i = 1; $i <= count($ids)/ 50 + 1; $i++) {
+                echo "<li class='menu'><a class='menu' href='adminposts.php?page=$i'>$i</a></li>";
+            }
+            echo "</ul>";
+            echo "<div class='list'>";
+            if (!empty($ids)) {
+                krsort($ids);
+                $countIds = count($ids) - $number * $page;
+                if ($countIds < 0) {
+                    $number += $countIds;
+                    $countIds = 0;
                 }
+                $ids = array_slice($ids, $countIds, $number);
                 foreach ($ids as $id) {
                     $posts[] = getPostForIndexById($id);
                 }
-                if (empty($posts) or $posts == false) {
-                    echo "<p class='error'>Нет постов для отображения</p>"; 
-                } else {
-                    echo "<ul class='list'>";
-                    $num = count($posts) - 1;
-                    for ($i= $num; $i>=0; $i--) {
-                        $post = $posts[$i];
-                        $tags = getTagsToPostById($posts[$i]['id']);
-                        $comments = getCommentsByPostId($post['id']);
-                        $evaluations = countRatingsByPostId($post['id']);
-                        if (empty($posts) or $posts == false) {
-                            $countComments = 0;
-                        } else {
-                        $countComments = count($comments);
-                        }
+            }
+            if (empty($posts)) {
+                echo "<p class='error'>Нет постов для отображения</p>"; 
+            } else {
+                echo "<ul class='list'>";
+                $num = count($posts) - 1;
+                for ($i= $num; $i>=0; $i--) {
+                    $post = $posts[$i];
+                    $tags = getTagsToPostById($posts[$i]['id']);
+                    $comments = getCommentsByPostId($post['id']);
+                    $evaluations = countRatingsByPostId($post['id']);
+                    if (empty($posts) or $posts == false) {
+                        $countComments = 0;
+                    } else {
+                    $countComments = count($comments);
+                    }
             ?>
 
             <li class='list'>
@@ -110,7 +126,7 @@ if (isset($_GET['deleteCommentById'])) {
                 ?>
             <br>
             <li class='list'>
-            <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор(его логин):</span> <?= $comments[$j]['login'] ?></p>
+            <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор(его E-mail):</span> <?= $comments[$j]['login'] ?></p>
             <br>
             <p class='list'>Содержание: <?= $comments[$j]['content'] ?></p>
             <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>

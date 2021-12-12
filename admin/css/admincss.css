@@ -129,6 +129,8 @@ div.viewlist{
 }
 ul.list{
     margin:0 auto;
+    overflow-x:auto;
+    overflow-y: hidden;
 }
 li.list{
     text-overflow: ellipsis;
@@ -152,6 +154,28 @@ a.list{
     color: darkslateblue;
     float:right;
     margin-right: 3%;
+}
+a.menu{
+    color: black;
+    padding: 5px;
+    text-decoration: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* font-style: italic; */
+    transition: color 2s;
+}
+a.menu:hover{
+    color: rgb(124, 124, 124);
+    text-decoration: underline;
+}
+a.menu:active{
+    text-decoration:currentColor;
+}
+li.menu{
+    display: inline;
+    padding: 3vh 0vh;
+    margin-left:2vh;
+    list-style-type: none;
+    text-decoration: none;
 }
 hr{
     width:90%;

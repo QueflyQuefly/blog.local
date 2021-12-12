@@ -56,9 +56,9 @@ if (!empty($_GET['page'])) {
     <div class='top'>
         <div class="logo">
             <a class="logo" title="На главную" href='/'>
-            <img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-            <div id='namelogo'>Просто Блог</div>
-            </а>
+                <img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
+                <div id='namelogo'>Просто Блог</div>
+            </a>    
         </div>
         <div class="menu">
             <ul class='menu'>
@@ -76,25 +76,22 @@ if (!empty($_GET['page'])) {
 
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
         <div class='singleposttext'>
-            <form action='posts.php' method='get'>
-                <label for='number'>Кол-во постов: <select id='page' name="number"></label>
-                    <?php
-                        for ($i = 1; $i < count($ids) / $page; $i++) {
-                            echo "<option value='$i'>$i</option>";
-                        }
-                    ?>
-                    <option value='<?=$number?>' selected><?=$number?></option>
-                </select>
-                <label for='page'>Страница: <select id='page' name="page"></label>
-                    <?php
-                        for ($i = 1; $i < count($ids) / $number + 1; $i++) { //+1 означает, что иногда нужна еще одна последняя страница
-                            echo "<option value='$i'>$i</option>";
-                        }
-                    ?>
-                    <option value='<?=$page?>' selected><?=$page?></option>
-                </select>
-                <input type='submit' class='submit' value='Применить'>
-            </form>
+            <label for='number'>Кол-во постов: <select id='number' class='select' name="number" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
+                <option value='<?=$number?>' selected><?=$number?></option>
+                <?php
+                    for ($i = 1; ($i < count($ids) / $page) && ($i <= 100); $i++) {
+                        echo "<option value='posts.php?number=$i&page=$page'>$i</option>";
+                    }
+                ?>
+            </select>
+            <label for='page'>Страница: <select id='page' class='select' name="page" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
+                <option value='<?=$page?>' selected><?=$page?></option>
+                <?php
+                    for ($i = 1; $i < count($ids) / $number + 1; $i++) { //+1 означает, что иногда нужна еще одна последняя страница
+                        echo "<option value='posts.php?number=$number&page=$i'>$i</option>";
+                    }
+                ?>
+            </select>
         </div>
 
 
@@ -102,24 +99,17 @@ if (!empty($_GET['page'])) {
             if (empty($ids)) {
                 die("<p>Нет постов для отображения</p>");    
             } else {
+                $countIds = count($ids) - $number * $page;
+                if ($countIds < 0) {
+                    $number += $countIds;
+                    $countIds = 0;
+                }
+                $ids = array_slice($ids, $countIds, $number);
                 foreach ($ids as $id) {
                     $posts[] = getPostForIndexById($id);
+                    krsort($posts);
                 }
-
-                $page = $page * $number - $number + 1;
-
-                $num = count($posts) - $page;
-                if ($num < 0) {
-                    $num = 0;
-                }
-                $post = $posts[$num];
-                $minId = $num - $number + 1;
-                if ($minId < 0) {
-                    $minId = 0;
-                }
-
-                for ($id = $num; $id >= $minId; $id--) { 
-                    $post = $posts[$id];
+                foreach ($posts as $post) {
         ?>
 
         <div class='viewsmallposts'>
