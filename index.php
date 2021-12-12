@@ -4,7 +4,8 @@ $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
 $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
-$adminLink = '';
+$adminLink1 = '';
+$adminLink2 = '';
     
 if (isset($_GET['exit'])) {
     $_SESSION['log_in'] = false;
@@ -20,7 +21,8 @@ if (!empty($_SESSION['log_in']) && !empty($_SESSION['user_id'])) {
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     $link = "<a class='menu' href='?exit'>Выйти</a>";
     if ($rights == 'superuser') {
-        $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
+        $adminLink1 = "<a class='menu' href='reg.php'>Создать админа</a>";
+        $adminLink2 = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 } else {
     session_destroy();
@@ -59,7 +61,8 @@ if (!empty($ids)) {
                 <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
                 <li class='menu'><?=$label?></li>
-                <li class='menu'><?=$adminLink?></li>
+                <li class='menu'><?=$adminLink1?></li>
+                <li class='menu'><?=$adminLink2?></li>
             </ul>
         </div>
     </div>

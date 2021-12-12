@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-$_SESSION['log_in'] = false;
 $error = '';
 $ok = '';
 
@@ -28,12 +27,7 @@ if (isset($_POST['login']) && isset($_POST['password'])) {
     }
 }
 if (isset($_GET['msg'])) {
-    $msg = clearStr($_GET['msg']);
-    if ($msg == "Аккаунт добавлен") {
-        $ok = $msg;
-    } else {
-        $error = $msg;
-    }
+    $error = clearStr($_GET['msg']);
 }
 
 ?>

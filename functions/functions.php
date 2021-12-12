@@ -21,15 +21,18 @@ function clearStr($str) {
 function addAdmin($login, $fio, $password){
     global $db, $error;
     try {
+        if (!isLoginUnique($login)) {
+            return false;
+        }
         $login = $db->quote($login);
         $fio = $db->quote($fio);
         $password = password_hash($password, PASSWORD_DEFAULT);
         $password = $db->quote($password);
-        echo $password;
 
         $sql = "INSERT INTO users(login, fio, password, rights) 
                 VALUES ($login, $fio, $password, 'superuser');";
         $db->exec($sql);
+        return true;
     } catch (PDOException $e) {
         $error = $e->getMessage();  
     }
@@ -365,21 +368,6 @@ function isUser($login, $password) {
         }
     }
     return false;
-}
-function getRightsByLogin($login) {
-    global $db, $error;
-
-    $users = []; 
-    try {
-        $login = $db->quote($login);
-        $sql = "SELECT rights FROM users WHERE login = $login;";
-
-        $stmt = $db->query($sql);
-        $rights = $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-    return $rights['rights'];
 }
 function createUser($login, $fio, $password) {
     global $db, $error;
