@@ -424,7 +424,7 @@ function getPostForViewById($id) {
         $stmt = $db->query($sql);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
         $post['content'] = str_replace("<br />
-<br />","</p>\n<p>", nl2br(strip_tags($post['content'])));
+<br />","</p>\n<p>", nl2br($post['content']));
         $post['date'] = date("d.m.Y",$post['date']) ." в ". date("H:i", $post['date']);
     } catch(PDOException $e) {
         $error = $e->getMessage();
