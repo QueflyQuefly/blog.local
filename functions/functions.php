@@ -307,7 +307,7 @@ function getMoreTalkedPosts() {
     global $db, $error;
     try {
         $date = time() - 604800;
-        $sql = "SELECT id, post_id FROM comments WHERE date >= $date LIMIT 100;";
+        $sql = "SELECT id, post_id FROM comments WHERE date >= $date LIMIT 10;";
         $stmt = $db->query($sql);
 
         if ($stmt == false) {

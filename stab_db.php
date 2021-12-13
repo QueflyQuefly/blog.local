@@ -1,5 +1,6 @@
 <?php
-set_time_limit(600);
+$start = microtime(true);
+set_time_limit(6000);
 require_once 'dbconfig.php';
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
@@ -178,7 +179,19 @@ $year = date("Y", time());
         <div id='desc'><p>
             <?php
                 if (empty($error)) {
-                    echo "Подключение к БД: успешно</p><p>Создано $number новых пользователей, $number новых постов и несколько(до 12) комментариев к ним.";
+                    if ($number == 1) {
+                        echo "Подключение к БД: успешно</p><p>Создан $number новый пользователь, 
+                        $number новый пост и несколько(до 12) комментариев к каждому.<br>
+                        Создание 100 постов занимает примерно 18 секунд.<br>
+                        Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
+                    } else {
+                        echo "Подключение к БД: успешно</p><p>Создано $number новых пользователей, 
+                        $number новых постов и несколько(до 12) комментариев к каждому.<br>
+                        Создание 100 постов занимает примерно 20 секунд.<br>
+                        Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
+                    }
+                } else {
+                    echo $error;
                 }
             ?>
         </p></div>

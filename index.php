@@ -1,4 +1,5 @@
 <?php
+$start = microtime(true);
 session_start();
 $functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
 require_once $functions;
@@ -197,7 +198,7 @@ if (!empty($ids)) {
     </div>
 
     <footer class='bottom'>
-        <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+        <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
     </footer>
 </div>
 </body>
