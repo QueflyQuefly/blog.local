@@ -1,7 +1,7 @@
 <?php
 $start = microtime(true);
 session_start();
-$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+$functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
@@ -15,8 +15,8 @@ if (isset($_GET['exit'])) {
 } 
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getLoginFioRightsById($_SESSION['user_id']);
-    $login = $user['login'];
+    $user = getUserEmailFioRightsById($_SESSION['user_id']);
+    $email = $user['email'];
     $fio = $user['fio'];
     $rights = $user['rights'];
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
@@ -30,10 +30,7 @@ if (!empty($_SESSION['user_id'])) {
 }
 
 $year = date("Y", time());
-$ids = get10lastPostId();
-if (!empty($ids)) {
-    krsort($ids);
-}
+$ids = getPostIds(10);
 ?>
 
 
@@ -80,17 +77,18 @@ if (!empty($ids)) {
                 foreach ($ids as $id) {
                     $posts[] = getPostForIndexById($id);
                 }
-                $num = count($posts) - 1;
-                $post = $posts[$num];
+                $post = $posts[0];
+                $authorOfPost = getUserEmailFioRightsById($post['user_id']);
+                $fioOfAuthor = $authorOfPost['fio']; 
         ?>
 
         <a class='onepost' href="viewsinglepost.php?viewPostById=<?=$post['id']?>">
         <div class='viewonepost'>
             
             <div class='oneposttext'>
-                <p class='onepostzagolovok'><?=$post['name']?></p>
+                <p class='onepostzagolovok'><?=$post['zag']?></p>
                 <p class='onepostcontent'><?=$post['content']?></p>
-                <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
+                <p class='postdate'><?=$post['date_time']. " &copy; " . $fioOfAuthor?></p>
 
                 <p class='postrating'>
                     <?php
@@ -109,15 +107,11 @@ if (!empty($ids)) {
         </a>
 
         <?php
-            $num--;
-            $minId = 0;
+            array_shift($posts);
 
-            if ($num > 9) {
-                $minId = $num - 8;  //Благодаря minId вывожу всего в общем и целом 10 постов
-            }
-
-            for ($id = $num; $id >= $minId; $id--) { 
-                $post = $posts[$id];
+            foreach ($posts as $post) {
+                $authorOfPost = getUserEmailFioRightsById($post['user_id']);
+                $fioOfAuthor = $authorOfPost['fio'];  
         ?>
 
         <div class='viewsmallposts'>
@@ -126,9 +120,9 @@ if (!empty($ids)) {
             <div class='smallpost'>
 
                  <div class='smallposttext'>
-                    <p class='smallpostzagolovok'><?=$post['name_small']?></p>
+                    <p class='smallpostzagolovok'><?=$post['zag_small']?></p>
                     <p class='smallpostcontent'><?=$post['content_small']?></p>
-                    <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
+                    <p class='postdate'><?=$post['date_time']. " &copy; " . $fioOfAuthor?></p>
                     <p class='postrating'>
                         <?php
                             if (!$post['rating']) {
@@ -153,12 +147,14 @@ if (!empty($ids)) {
                 }
             }
             echo "<p class='center'><a class='submit' href='posts.php'>Посмотреть ещё</a></p>";
-            $ids = getMoreTalkedPosts();
-            if (!empty($ids)) {
+            $moreTalkedPostIds = getMoreTalkedPostIds();
+            if (!empty($moreTalkedPostIds)) {
                 echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
                 
-                foreach ($ids as $id) {
-                    $post = getPostForIndexById($id);
+                foreach ($moreTalkedPostIds as $postId) {
+                    $post = getPostForIndexById($postId);
+                    $authorOfPost = getUserEmailFioRightsById($post['user_id']);
+                    $fioOfAuthor = $authorOfPost['fio']; 
         ?>
 
         <div class='viewsmallposts'>
@@ -167,9 +163,9 @@ if (!empty($ids)) {
             <div class='smallpost'>
 
                 <div class='smallposttext'>
-                    <p class='smallpostzagolovok'><?=$post['name_small']?></p>
+                    <p class='smallpostzagolovok'><?=$post['zag_small']?></p>
                     <p class='smallpostcontent'><?=$post['content_small']?></p>
-                    <p class='postdate'><?=$post['date']. " " . $post['author']?></p>
+                    <p class='postdate'><?=$post['date_time']. " &copy; " . $fioOfAuthor?></p>
                     <p class='postrating'>
                         <?php
                             if (!$post['rating']) {

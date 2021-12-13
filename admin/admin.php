@@ -7,7 +7,7 @@ session_start();
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $user = getUserEmailFioRightsById($_SESSION['user_id']);
     $rights = $user['rights'];
 } else {
     $rights = false;

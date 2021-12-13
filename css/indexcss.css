@@ -244,8 +244,7 @@ div#singlepostzagolovok{
 .rating-area {
 	overflow: hidden;
 	width: 30vh;
-	/* margin-top: -3vh;
-	margin-left: 2vh; */
+	cursor: pointer;
 }
 .rating-area input{
     display:none;
@@ -255,10 +254,10 @@ div#singlepostzagolovok{
     border: none;
     font-size: 15pt;
     padding:0;
-    cursor: pointer;
+	cursor: pointer;
 }
 .rating-area label:hover {
-    color: rgb(168, 143, 0);
+    color: rgba(163, 126, 4, 0.733);
 }
 
 /* rating area */

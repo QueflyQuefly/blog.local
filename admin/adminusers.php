@@ -5,7 +5,7 @@ require_once $file_functions;
 $error = []; $users = [];
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $user = getUserEmailFioRightsById($_SESSION['user_id']);
     $rights = $user['rights'];
 } else {
     $rights = false;
@@ -46,14 +46,14 @@ if (isset($_GET['deleteUserById'])) {
 
         <div class='list'>
             <?php 
-                $usersIds = getUsersIds();
-                if (empty($usersIds)) {
+                $userIds = getUsersIds();
+                if (empty($userIds)) {
                     echo "<p class='error'>Нет пользователей</p>"; 
                 } else {
                     echo "<ul class='list'>";
                     
-                    foreach ($usersIds as $userId) {
-                        $user = getLoginFioRightsById($userId);
+                    foreach ($userIds as $userId) {
+                        $user = getUserEmailFioRightsById($userId);
             ?>
 
             
@@ -61,7 +61,7 @@ if (isset($_GET['deleteUserById'])) {
             <li class='list'>
 
                 <p class='list'>ID:<?= $userId ?> ::: ФИО(псевдоним): <?= $user['fio'] ?>   ::: Категория: <?= $user['rights'] ?>
-                <br>Логин: <?= $user['login'] ?></p>
+                <br>Логин: <?= $user['email'] ?></p>
                 <a class='list' href='adminusers.php?deleteUserById=<?= $userId ?> '> Удалить <?= $user['rights'] ?> -а</a>
                 <hr>
 

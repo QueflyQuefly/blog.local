@@ -1,11 +1,10 @@
 <?php
 session_start();
+$functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
+require_once $functions;
 
 $error = '';
 $ok = '';
-
-$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
-require_once $functions;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $integer = clearInt($_POST['integer']);
@@ -13,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = clearStr($_POST['password']);
     if ($integer == $_SESSION['integer']) {
         if (isUser($login, $password)) {
-            $user = getUserIdAndFioByLogin($login);
+            $user = getUserIdAndFioByEmail($login);
             $_SESSION['user_id'] = $user['id'];
 
             if (isset($_SESSION['referrer'])) {

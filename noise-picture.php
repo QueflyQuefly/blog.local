@@ -1,6 +1,6 @@
 <?php
 session_start();
-$font = join(DIRECTORY_SEPARATOR, array(__DIR__, 'fonts', 'georgia.ttf'));
+$font = __DIR__ . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'georgia.ttf';
 $img = imageCreateTrueColor(160, 25);
 imageAntiAlias($img, true);
 
@@ -19,7 +19,7 @@ for ($j = 0; $j < $length; $j++){
     $angle = random_int(-45, 45);
     $size = random_int(10, 20);
     static $x = 5;
-    imageTtfText($img, $size, $angle, $x, 20, $black, $font, $integer[$j]);
+    imageTtfText($img, $size, $angle, $x, 18, $black, $font, $integer[$j]);
     $x +=20;
 }
 

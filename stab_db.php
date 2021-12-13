@@ -1,8 +1,10 @@
 <?php
 $start = microtime(true);
+
 set_time_limit(6000);
 require_once 'dbconfig.php';
-$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+
+$functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
 try {
@@ -25,7 +27,7 @@ $fio = [
                     7 => "Павлов", 8 => 'Анатольев', 9 => "Вертеловский", 10 => "Кириллов", 11 => "Григорьев", 12 => "Георгиевский"]
 ]; 
 $zags1 = [
-    0 => 'Пушкиногорье —',
+    0 => 'Пушкиногорье -',
     1 => 'Полуостров Крым -',
     2 => 'Ночная Россия -',
     3 => 'Пизанская башня -',
@@ -92,8 +94,8 @@ for ($i = $j; $i < $j + $number; $i++) {
 
         $randomDate = mt_rand(100000, 2628000);
         $date = time() - $randomDate;
-        $sql = "INSERT INTO posts (id, name, login, author, date, content, rating) 
-        VALUES($i, $zag, $login, $author, $date, $text, 0);";
+        $sql = "INSERT INTO posts (id, zag, user_id, date_time, content, rating) 
+                VALUES($i, $zag, $i, $date, $text, 0);";
 
         if (!$db->exec($sql)) {
             echo $sql;
@@ -104,7 +106,7 @@ for ($i = $j; $i < $j + $number; $i++) {
                 $tag = $db->quote($tag);
 
                 $sql = "INSERT INTO tag_posts (tag, post_id) 
-                VALUES($tag, $i);";
+                        VALUES($tag, $i);";
 
                 if (!$db->exec($sql)) {
                     echo $sql;
@@ -115,17 +117,15 @@ for ($i = $j; $i < $j + $number; $i++) {
             $random4 = mt_rand(0, 5);
             $random5 = mt_rand($j, $j + $number - 1);
             $random6 = mt_rand(0, 12);
-            $dateCom = mt_rand($date, time());
-            $com = $texts[$random6];
-            $com = $db->quote($com);
-            $loginCom = "'$random5@gmail.com'";
+            $dateOfComment = mt_rand($date, time());
+            $commentContent = $texts[$random6];
+            $commentContent = $db->quote($commentContent);
 
-
-            changePostRating($random4, $i, $loginCom);
+            changePostRating($random5, $i, $random4);
 
             $randomLike = mt_rand(0, 1000);
-            $sql = "INSERT INTO comments (post_id, login, date, content, rating) 
-            VALUES($i, $loginCom, $dateCom, $com, $randomLike);";
+            $sql = "INSERT INTO comments (post_id, user_id, date_time, content, rating) 
+                    VALUES($i, $random5, $dateOfComment, $commentContent, $randomLike);";
 
             if (!$db->exec($sql)) {
                 echo $sql;
@@ -134,13 +134,12 @@ for ($i = $j; $i < $j + $number; $i++) {
 
         $password = password_hash($i, PASSWORD_BCRYPT);
         $password = $db->quote($password);
-        $sql = "INSERT INTO users (login, fio, password, date, rights) 
-        VALUES($login, $author, $password, $date, 'user');";
+        $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
+                VALUES($login, $author, $password, $date, 'user');";
 
         if (!$db->exec($sql)) {
             echo $sql;
         }
-        /* echo "$i\n\r$random1\n\r$random2\n\r$random3\n\r$random4\n\r$random5\n\r$random6<br>"; */
     } catch (PDOException $e) {
     echo $error = $e->getMessage();
     }
@@ -182,7 +181,7 @@ $year = date("Y", time());
                     if ($number == 1) {
                         echo "Подключение к БД: успешно</p><p>Создан $number новый пользователь, 
                         $number новый пост и несколько(до 12) комментариев к каждому.<br>
-                        Создание 100 постов занимает примерно 18 секунд.<br>
+                        Создание 100 постов занимает примерно 20 секунд.<br>
                         Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
                     } else {
                         echo "Подключение к БД: успешно</p><p>Создано $number новых пользователей, 

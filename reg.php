@@ -1,11 +1,13 @@
 <?php
-$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+session_start();
+$functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
+
 $error = '';
 $forAdmin = '';
-session_start();
+
 if (!empty($_SESSION['user_id'])) {
-    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $user = getUserEmailFioRightsById($_SESSION['user_id']);
     $rights = $user['rights'];
     if ($rights === 'superuser') {
         $forAdmin = "<label><input type='checkbox' name='add_admin' class='center'>Зарегистрировать как админа</label>";
@@ -26,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $password = password_hash($password, PASSWORD_BCRYPT);
         if ($integer == $_SESSION['integer']) {
             if (isset($_POST['add_admin'])) {
-                if (!addAdmin($login, $fio, $password)) {
+                if (!createAdmin($login, $fio, $password)) {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
                 } else {
@@ -37,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
                 } else {
-                    $user = getUserIdAndFioByLogin($login);
+                    $user = getUserIdAndFioByEmail($login);
                     $userId = $user['id'];
                     $_SESSION['user_id'] = $userId;
                     header("Location: /");
@@ -77,7 +79,7 @@ if (isset($_GET['msg'])) {
                 <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Введите пароль' class='text'><br>
                 <img src="noise-picture.php">
-                <input type='login' name='integer' required minlength="1" maxlength='20' placeholder='Введите код с картинки' class='text'><br>
+                <input type='text' name='integer' required minlength="1" maxlength='20' autocomplete="new-password" placeholder='Введите код с картинки' class='text'><br>
                 <?=$forAdmin?>
 
                 <div class='msg'>

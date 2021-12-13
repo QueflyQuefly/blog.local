@@ -6,7 +6,7 @@ require_once $file_functions;
 $error = ''; $posts = [];
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getLoginFioRightsById($_SESSION['user_id']);
+    $user = getUserEmailFioRightsById($_SESSION['user_id']);
     $rights = $user['rights'];
 } else {
     $rights = false;
@@ -70,8 +70,7 @@ $number = 50;
             echo "</ul><hr>";
             echo "<div class='list'>";
             if (!empty($ids)) {
-                krsort($ids);
-                $countIds = count($ids) - $number * $page;
+                $countIds = $number * ($page - 1);
                 if ($countIds < 0) {
                     $number += $countIds;
                     $countIds = 0;
@@ -85,12 +84,11 @@ $number = 50;
                 echo "<p class='error'>Нет постов для отображения</p>"; 
             } else {
                 echo "<ul class='list'>";
-                $num = count($posts) - 1;
-                for ($i= $num; $i>=0; $i--) {
-                    $post = $posts[$i];
+                foreach ($posts as $post) {
                     $tags = getTagsToPostById($posts[$i]['id']);
                     $comments = getCommentsByPostId($post['id']);
                     $evaluations = countRatingsByPostId($post['id']);
+                    $author = getUserEmailFioRightsById($post['user_id']);
                     if (empty($posts) or $posts == false) {
                         $countComments = 0;
                     } else {
@@ -98,8 +96,8 @@ $number = 50;
                     }
             ?>
             <li class='list'>
-                <p class='list'><span>ID:</span><?= $post['id'] ?> ::: <span>Название:</span> <?= $post['name'] ?></p>
-                <p class='list'><span>Автор:</span>  <?= $post['author'] ?> </p>
+                <p class='list'><span>ID:</span><?= $post['id'] ?> ::: <span>Название:</span> <?= $post['zag'] ?></p>
+                <p class='list'><span>Автор:</span> <?= $author['fio'] ?> </p>
                 <p class='list'><span>Рейтинг:</span> <?= $post['rating'] ?> ::: <span>Оценок:</span> <?=$evaluations?> </p>
                 <p class='list'> <span>Тэги:</span> 
                     <?php 
@@ -120,10 +118,11 @@ $number = 50;
                     if ($countComments) {
                         echo "<ul class='list'>";
                         for ($j = 0; $j <= $countComments -1; $j++) {
+                            $author = getUserEmailFioRightsById($comments[$j]['user_id']);
                 ?>
             <br>
             <li class='list'>
-                <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор(его E-mail):</span> <?= $comments[$j]['login'] ?></p>
+                <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор:</span> <?= $author['fio'] ?> <br> <span>E-mail автора:</span> <?= $author['email'] ?></p>
                 <br>
                 <p class='list'>Содержание: <?= $comments[$j]['content'] ?></p>
                 <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>

@@ -14,10 +14,10 @@ try {
         CREATE TABLE users
         (
         id INT AUTO_INCREMENT,
-        login VARCHAR(50),
+        email VARCHAR(50),
         fio VARCHAR(50),
-        password CHAR(60),
-        date INT,
+        pass_word CHAR(60),
+        date_time INT,
         rights VARCHAR(20),
         PRIMARY KEY (id)
         );
@@ -26,8 +26,8 @@ try {
         (
         id INT AUTO_INCREMENT,
         post_id INT,
-        login VARCHAR(50),
-        date INT,
+        user_id INT,
+        date_time INT,
         content TEXT,
         rating INT,
         PRIMARY KEY (id)
@@ -37,10 +37,9 @@ try {
         CREATE TABLE posts
         (
         id INT AUTO_INCREMENT,
-        name TEXT,
-        login VARCHAR(50),
-        author VARCHAR(50),
-        date INT,
+        zag TEXT,
+        user_id INT,
+        date_time INT,
         content TEXT,
         rating DOUBLE,
         PRIMARY KEY (id)
@@ -50,7 +49,7 @@ try {
         CREATE TABLE rating_posts
         (
         id INT AUTO_INCREMENT,
-        login VARCHAR(50),
+        user_id INT,
         post_id INT,
         rating TINYINT,
         PRIMARY KEY (id)
@@ -60,7 +59,7 @@ try {
         CREATE TABLE rating_comments
         (
         id INT AUTO_INCREMENT,
-        login VARCHAR(50),
+        user_id INT,
         com_id INT,
         post_id INT,
         PRIMARY KEY (id)
@@ -79,14 +78,14 @@ try {
         CREATE TABLE subscriptions
         (
         id INT AUTO_INCREMENT,
-        login_want_subscribe VARCHAR(50),
-        login VARCHAR(50),
+        user_id_want_subscribe INT,
+        user_id INT,
         PRIMARY KEY (id)
         );
 
 
         INSERT INTO users
-        (login, fio, password, date, rights) 
+        (email, fio, pass_word, date_time, rights) 
         VALUES ('12345', 'Администратор', $password, $date, 'superuser')
         ;";
 

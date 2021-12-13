@@ -4,7 +4,7 @@ $_SESSION['referrer'] = 'addpost.php';
 $ok = '';
 $error = '';
 
-$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+$functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
 $size = 4096000; //max size of upload image
@@ -12,70 +12,69 @@ $size = 4096000; //max size of upload image
 if (empty($_SESSION['user_id'])) {
     header("Location: login.php");
 } else {
-    $user = getLoginFioRightsById($_SESSION['user_id']);
-    $login = $user['login'];
+    $userId = $_SESSION['user_id'];
+    $user = getUserEmailFioRightsById($userId);
+    $email = $user['email'];
     $fio = $user['fio'];
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    
-    if (isset($_POST['addPostName'])) {
-        $name = clearStr($_POST['addPostName']);
-        $author = clearStr($_POST['addPostAuthor']);
-        $content = clearStr($_POST['addPostContent']);
+    $zag = clearStr($_POST['addPostZag']);
+    $content = clearStr($_POST['addPostContent']);
 
-        if ($name !== '' && $author !== '' && $login !== '' && $content !== '') {
+    if ($zag !== '' && $content !== '') {
 
-            /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
-                switch($_FILES['addPostImg']["error"]){
-                    case UPLOAD_ERR_INI_SIZE:
-                        $error = "Превышен максимально допустимый размер";
-                        header("Location: addpost.php?msg=$error");
-                        break;
-                    case UPLOAD_ERR_FORM_SIZE:
-                        $error = "Превышено значение $size байт";
-                        header("Location: addpost.php?msg=$error");
-                        break;
-                    case UPLOAD_ERR_PARTIAL:
-                        $error = "Файл загружен частично";
-                        header("Location: addpost.php?msg=$error");
-                        break;
-                    case UPLOAD_ERR_NO_FILE:
-                        $error = "Файл не был загружен";
-                        header("Location: addpost.php?msg=$error");
-                        break;
-                    case UPLOAD_ERR_NO_TMP_DIR:
-                        $error = "Отсутствует временная папка";
-                        header("Location: addpost.php?msg=$error");
-                        break;
-                    case UPLOAD_ERR_CANT_WRITE:
-                        $error = "Не удалось записать файл на диск";
-                        header("Location: addpost.php?msg=$error");
-                }
-            } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-                $regex = "/#\w+/um";
-                preg_match_all($regex, $content, $tags);
-                $content = preg_replace($regex,' ', $content);
-                $tags = $tags[0];
-                $countTags = count($tags);
-                for ($i = 0; $i < $countTags; $i++) {
-                    addTagsToPosts($tags[$i]);
-                }
-                insertToPosts($name, $author, $login, $content);
+        /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
+            switch($_FILES['addPostImg']["error"]){
+                case UPLOAD_ERR_INI_SIZE:
+                    $error = "Превышен максимально допустимый размер";
+                    header("Location: addpost.php?msg=$error");
+                    break;
+                case UPLOAD_ERR_FORM_SIZE:
+                    $error = "Превышено значение $size байт";
+                    header("Location: addpost.php?msg=$error");
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                    $error = "Файл загружен частично";
+                    header("Location: addpost.php?msg=$error");
+                    break;
+                case UPLOAD_ERR_NO_FILE:
+                    $error = "Файл не был загружен";
+                    header("Location: addpost.php?msg=$error");
+                    break;
+                case UPLOAD_ERR_NO_TMP_DIR:
+                    $error = "Отсутствует временная папка";
+                    header("Location: addpost.php?msg=$error");
+                    break;
+                case UPLOAD_ERR_CANT_WRITE:
+                    $error = "Не удалось записать файл на диск";
+                    header("Location: addpost.php?msg=$error");
+            }
+        } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
+            $regex = "/#\w+/um";
+            preg_match_all($regex, $content, $tags);
+            $content = preg_replace($regex,' ', $content);
+            
+            insertToPosts($zag, $userId, $content);
 
+            $lastPostId = getLastPostId();
 
-                /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . getLastPostId() . ".jpg"); */
-                
-                $msg =  "Пост добавлен";
-                header("Location: addpost.php?msg=$msg");
-            /* } else { 
-                $error = "Изображение имеет недопустимое расширение (не jpg)";
-                header("Location: addpost.php?msg=$error");
-            }  */         
-        } else {
-            $error = "Заполните все поля";
+            $tags = $tags[0];
+            foreach ($tags as $tag) {
+                addTagsToPost($tag, $lastPostId);
+            }
+
+            /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . getLastPostId() . ".jpg"); */
+            
+            $msg =  "Пост добавлен";
+            header("Location: addpost.php?msg=$msg");
+        /* } else { 
+            $error = "Изображение имеет недопустимое расширение (не jpg)";
             header("Location: addpost.php?msg=$error");
-        }
+        }  */         
+    } else {
+        $error = "Заполните все поля";
+        header("Location: addpost.php?msg=$error");
     }
 }
 
@@ -113,11 +112,8 @@ if (isset($_GET['msg'])) {
         <div class='form'>
             <form action='addpost.php' method='post' enctype="multipart/form-data" id='addpost'>
                 <label id='input' for='file_img' class='addpost'>Заголовок: </label>
-                <input type='text' title='Заголовок' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostName' placeholder="Добавьте заголовок поста. Количество символов: от 20 до 140"><br>
+                <input type='text' title='Заголовок' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostZag' placeholder="Добавьте заголовок поста. Количество символов: от 20 до 140">
                 
-                <label id='input' for='file_img' class='addpost'>Автор: </label>
-                <input type='text' title='Автор' class='addpostauthor' required minlength="1" maxlength='40' name='addPostAuthor' placeholder="Имя автора или его псевдоним. Количество символов: от 3 до 40" value='<?=$fio?>'> 
-
                 <br> <input type="hidden" name="MAX_FILE_SIZE" value="<?=$size?>"> <br>
                 <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$size?> байт</label>
                 <input class='addpostimg' type='file' name='addPostImg' id='file_img' > <!-- required -->

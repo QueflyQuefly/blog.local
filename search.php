@@ -1,7 +1,8 @@
 <?php
 session_start();
-$functions = join(DIRECTORY_SEPARATOR, array('functions', 'functions.php'));
+$functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
+
 $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
 $login = '';
@@ -18,40 +19,31 @@ if (isset($_GET['exit'])) {
 }
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getLoginFioRightsById($_SESSION['user_id']);
-    $login = $user['login'];
-    $fio = $user['fio'];
-    $rights = $user['rights'];
+    $user = getUserEmailFioRightsById($_SESSION['user_id']);
     $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
     $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-    if ($rights == 'superuser') {
+    if ($user['rights'] === 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 }
 
 if (!empty($_GET['search'])) {
-    $search = $_GET['search'];
-    $search = clearStr($search);
+    $search = clearStr($_GET['search']);
     if ($search) {
         if (strpos($search, ' ') !== false) {
             if ($result = searchPostsByContent($search)) {
                 $posts[] = $result;
             }
-
-            $searchwords = explode(' ', $search);
-    
-            foreach ($searchwords as $searchword) {
-                if (strpos($searchword, '#') !== false) {
-                    if ($result = searchPostsByTag($searchword)) {
-                        $posts[] = $result;
-                    }
-                } else {
-                    if ($result = searchPostsByNameAndAuthor($searchword)) {
-                        $posts[] = $result;
-                    }
-                    if ($result = searchUsersByFioAndLogin($searchword, $rights)) {
-                        $users[] = $result;
-                    }
+            if (strpos($search, '#') !== false) {
+                if ($result = searchPostsByTag($search)) {
+                    $posts[] = $result;
+                }
+            } else {
+                if ($result = searchPostsByNameAndAuthor($search)) {
+                    $posts[] = $result;
+                }
+                if ($result = searchUsersByFioAndLogin($search, $user['rights'])) {
+                    $users[] = $result;
                 }
             }
         } else {
@@ -63,7 +55,7 @@ if (!empty($_GET['search'])) {
                 if ($result = searchPostsByNameAndAuthor($search)) {
                     $posts[] = $result;
                 }
-                if ($result = searchUsersByFioAndLogin($search, $rights)) {
+                if ($result = searchUsersByFioAndLogin($search, $user['rights'])) {
                     $users[] = $result;
                 }
             }
@@ -175,6 +167,7 @@ $year = date("Y", time());
                     $post = getPostForIndexById($id);
                     $comments = getCommentsByPostId($id);
                     $tags = getTagsToPostById($id);
+                    $author = getUserEmailFioRightsById($post['user_id']);
 
                     if (empty($posts)) {
                         $countComments = 0;
@@ -186,8 +179,8 @@ $year = date("Y", time());
         <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
             <div class='smallpost'>
                 <div class='smallposttext'>
-                    <p class='smallpostzagolovok'><?= $post['name'] ?></p>
-                    <p class='smallpostauthor'><?= $post['date'] ?> &copy; <?= $post['author'] ?></p>
+                    <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
+                    <p class='smallpostauthor'><?= $post['date_time'] ?> &copy; <?= $author['fio'] ?></p>
                     <p class='postdate'>Тэги: 
                         <?php
                             if ($tags) {
