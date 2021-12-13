@@ -50,7 +50,7 @@ if (!empty($_GET['search'])) {
                         $posts[] = $result;
                     }
                     if ($result = searchUsersByFioAndLogin($searchword, $rights)) {
-                        $posts[] = $result;
+                        $users[] = $result;
                     }
                 }
             }
@@ -64,7 +64,7 @@ if (!empty($_GET['search'])) {
                     $posts[] = $result;
                 }
                 if ($result = searchUsersByFioAndLogin($search, $rights)) {
-                    $posts[] = $result;
+                    $users[] = $result;
                 }
             }
         }
@@ -74,6 +74,7 @@ if (!empty($_GET['search'])) {
                     $idsnotsort[] = $post_id;
                 }
             }
+            $idsnotsort = array_slice($idsnotsort, 0 , 30);
             $ids = array_unique($idsnotsort);
         } 
         if (!empty($users[0])) {
@@ -82,6 +83,7 @@ if (!empty($_GET['search'])) {
                     $userids[$u['id']] = $u;
                 }
             }
+            $userids = array_slice($userids, 0 , 30);
         } elseif (empty($posts[0]) && empty($users[0])) {
             $error = "<div class='singleposttext'><p class='error'>Ничего не найдено</p></div>\n";
         }
@@ -152,7 +154,7 @@ $year = date("Y", time());
 
         <div class='search'>
             <form class='search' action='<?=$_SERVER['PHP_SELF']?>' method='get'>
-                <input class='text' type='text' id='search' required autofocus minlength="1" maxlength="30" placeholder='Найти...' name='search' value='<?=$search?>'>
+                <input class='text' type='text' id='search' required autofocus minlength="1" maxlength="100" placeholder='Найти...' name='search' value='<?=$search?>'>
                 <button type="submit">&#x2315</button>
             </form>
         </div> 

@@ -133,7 +133,7 @@ $year = date("Y", time());
     <div class='top'>
         <div class="logo">
             <a class="logo" title="На главную" href='/'><img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-            <div id='namelogo'>Просто Блог</div></а>
+            <div id='namelogo'>Просто Блог</div></a>
         </div>
         <div class="menu">
             <ul class='menu'>
@@ -257,7 +257,7 @@ $year = date("Y", time());
             <?php
                 if (!empty($comments)) {
                 for ($i = count($comments)-1; $i >= 0; $i--) {
-                    $content = nl2br($comments[$i]['content']);
+                    $content = nl2br(strip_tags($comments[$i]['content']));
                     $authorComLogin = $comments[$i]['login'];
                     $author = getUserIdAndFioByLogin($authorComLogin);
                     $date = date("d.m.Y",$comments[$i]['date']) ." в ". date("H:i", $comments[$i]['date']);

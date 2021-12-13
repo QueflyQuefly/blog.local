@@ -122,7 +122,7 @@ if (isset($_GET['msg'])) {
                 <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$size?> байт</label>
                 <input class='addpostimg' type='file' name='addPostImg' id='file_img' > <!-- required -->
                 
-                <br><textarea class='text' title='Содержание' required minlength="1" maxlength='4000' spellcheck="true" name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='content'></textarea><br>
+                <br><textarea class='text' title='Содержание' required minlength="1" maxlength='4000' spellcheck="true"  wrap='hard' name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='content'></textarea><br>
                 
                 <input type='submit' value='Добавить пост' class='addpostsubmit'>
             </form>

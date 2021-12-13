@@ -19,7 +19,6 @@ if (isset($_GET['deleteUserById'])) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html>
 <head>

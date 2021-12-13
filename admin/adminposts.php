@@ -33,7 +33,6 @@ if (isset($_GET['page'])) {
 $number = 50;
 ?>
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -61,14 +60,14 @@ $number = 50;
 
 
         <p class='label'>Список постов постранично и инвертировано <br> (<?=$number?> постов - одна страница)<a href='adminposts.php'> &#8634</a></p>
-        
         <?php 
             $ids = getPostIds();
+            echo "<p style='padding-left:3vh'><span>Страницы:</span></p>";
             echo "<ul class ='list'>";
             for ($i = 1; $i <= count($ids)/ 50 + 1; $i++) {
                 echo "<li class='menu'><a class='menu' href='adminposts.php?page=$i'>$i</a></li>";
             }
-            echo "</ul>";
+            echo "</ul><hr>";
             echo "<div class='list'>";
             if (!empty($ids)) {
                 krsort($ids);
@@ -98,26 +97,24 @@ $number = 50;
                     $countComments = count($comments);
                     }
             ?>
-
             <li class='list'>
-
-            <p class='list'><span>ID:</span><?= $post['id'] ?> ::: <span>Название:</span> <?= $post['name'] ?></p>
-            <p class='list'><span>Автор:</span>  <?= $post['author'] ?> </p>
-            <p class='list'><span>Рейтинг:</span> <?= $post['rating'] ?> ::: <span>Оценок:</span> <?=$evaluations?> </p>
-            <p class='list'> <span>Тэги:</span> 
-                <?php 
-                    if ($tags) {
-                        foreach ($tags as $tag) {
-                            $tagLink = substr($tag['tag'], 1);
-                            echo "<a class='menu' href='search.php?search=%23$tagLink'>{$tag['tag']}</a> ";
+                <p class='list'><span>ID:</span><?= $post['id'] ?> ::: <span>Название:</span> <?= $post['name'] ?></p>
+                <p class='list'><span>Автор:</span>  <?= $post['author'] ?> </p>
+                <p class='list'><span>Рейтинг:</span> <?= $post['rating'] ?> ::: <span>Оценок:</span> <?=$evaluations?> </p>
+                <p class='list'> <span>Тэги:</span> 
+                    <?php 
+                        if ($tags) {
+                            foreach ($tags as $tag) {
+                                $tagLink = substr($tag['tag'], 1);
+                                echo "<a class='menu' href='search.php?search=%23$tagLink'>{$tag['tag']}</a> ";
+                            }
+                        } else {
+                            echo "Нет тэгов";
                         }
-                    } else {
-                        echo "Нет тэгов";
-                    }
-                ?>
-            </p>
-            <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
-            <p class='list'> <span>Комментариев к посту:</span> <?= $countComments ?> </p>
+                    ?>
+                </p>
+                <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
+                <p class='list'> <span>Комментариев к посту:</span> <?= $countComments ?> </p>
             
                 <?php 
                     if ($countComments) {
@@ -126,27 +123,24 @@ $number = 50;
                 ?>
             <br>
             <li class='list'>
-            <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор(его E-mail):</span> <?= $comments[$j]['login'] ?></p>
-            <br>
-            <p class='list'>Содержание: <?= $comments[$j]['content'] ?></p>
-            <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>
+                <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор(его E-mail):</span> <?= $comments[$j]['login'] ?></p>
+                <br>
+                <p class='list'>Содержание: <?= $comments[$j]['content'] ?></p>
+                <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>
             </li>
+                <?php
 
-                    <?php
-
-                            }
-                        echo "</ul>";
                         }
-                    ?>
-            <hr>
+                    echo "</ul>";
+                    }
+                ?>
+                <hr>
             </li>
-        
-            <?php 
-                } 
-            echo "</ul>";
-            }
-            ?>
-
+        <?php 
+            } 
+        echo "</ul>";
+        }
+        ?>
         </div>
     </div>
 </div>

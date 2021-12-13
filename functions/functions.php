@@ -423,7 +423,8 @@ function getPostForViewById($id) {
         $sql = "SELECT id, name, author, login, date, content, rating FROM posts WHERE id = $id;";
         $stmt = $db->query($sql);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
-        $post['content'] = str_replace("<br />", "<p>", nl2br($post['content']));
+        $post['content'] = str_replace("<br />
+<br />","</p>\n<p>", nl2br(strip_tags($post['content'])));
         $post['date'] = date("d.m.Y",$post['date']) ." в ". date("H:i", $post['date']);
     } catch(PDOException $e) {
         $error = $e->getMessage();
@@ -574,12 +575,14 @@ function insertToPosts($name, $author, $login, $content) {
 
         $sql = "SELECT login_want_subscribe FROM subscriptions WHERE login = $login";
         $stmt = $db->query($sql);
-        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $toEmail = $result['login_want_subscribe'];
-            $message = "Новый пост от $author: http://blog.local/viewsinglepost.php?viewpostById=$id \n $name";
-            mail($toEmail, 'Новый пост', $message);
+        if ($stmt) {
+            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $toEmail = $result['login_want_subscribe'];
+                $message = "Новый пост от $author: http://blog.local/viewsinglepost.php?viewpostById=$id \n $name";
+                mail($toEmail, 'Новый пост', $message);
+            }
         }
-
+        
         $name = $db->quote($name);
         $author = $db->quote($author);
         $login = $db->quote($login);
