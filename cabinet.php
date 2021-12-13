@@ -34,7 +34,7 @@ if (isset($_GET['user'])) {
         }
         $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
         if ($login === $userLogin) {
-            $show = true;
+            header("Location: cabinet.php");
         }
         if ($userRights === 'superuser') {
             $show = true;
