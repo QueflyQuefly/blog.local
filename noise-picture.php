@@ -17,10 +17,10 @@ $length = strlen($integer);
 
 for ($j = 0; $j < $length; $j++){
     $angle = random_int(-45, 45);
-    $size = random_int(10, 20);
-    static $x = 5;
+    $size = random_int(12, 22);
+    static $x = 10;
     imageTtfText($img, $size, $angle, $x, 18, $black, $font, $integer[$j]);
-    $x +=20;
+    $x += 20;
 }
 
 header("Content-type: image/jpeg");

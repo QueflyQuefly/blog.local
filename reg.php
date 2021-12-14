@@ -5,6 +5,8 @@ require_once $functions;
 
 $error = '';
 $forAdmin = '';
+$email = '';
+$fio = '';
 
 if (!empty($_SESSION['user_id'])) {
     $user = getUserEmailFioRightsById($_SESSION['user_id']);
@@ -15,33 +17,30 @@ if (!empty($_SESSION['user_id'])) {
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $integer = clearInt($_POST['integer']);
-    $login = clearStr($_POST['login']);
+    $email = clearStr($_POST['email']);
     $fio = clearStr($_POST['fio']);
     $password = clearStr($_POST['password']);
     $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
-    if (!preg_match($regex, $login)) {
+    if (!preg_match($regex, $email)) {
         $error = "Неверный формат email";
         header("Location: reg.php?msg=$error");
-        exit;
     }   
-    if ($login !== '' && $fio !== '' && $password !== '') {
+    if ($email !== '' && $fio !== '' && $password !== '') {
         $password = password_hash($password, PASSWORD_BCRYPT);
         if ($integer == $_SESSION['integer']) {
             if (isset($_POST['add_admin'])) {
-                if (!createAdmin($login, $fio, $password)) {
+                if (!createAdmin($email, $fio, $password)) {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
                 } else {
                     header("Location: /");
                 } 
             } else {
-                if (!createUser($login, $fio, $password)) {
+                if (!createUser($email, $fio, $password)) {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
                 } else {
-                    $user = getUserIdAndFioByEmail($login);
-                    $userId = $user['id'];
-                    $_SESSION['user_id'] = $userId;
+                    $_SESSION['user_id'] = getUserIdByEmail($email);
                     header("Location: /");
                 } 
             }
@@ -75,11 +74,11 @@ if (isset($_GET['msg'])) {
             <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Регистрация</p>
             <form action='reg.php' method='post'>
-                <input type='login' name='login' required autofocus minlength="1" maxlength='50' placeholder='Введите email' class='text'value='@gmail.com'><br>
-                <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='ФИО или псевдоним' class='text'><br>
-                <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Введите пароль' class='text'><br>
+                <input type='email' name='email' required autofocus minlength="1" maxlength='50'  autocomplete="on" placeholder='Введите email' class='text' value="<?=$email?>"><br>
+                <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='ФИО или псевдоним' class='text' value="<?=$fio?>"><br>
+                <input type='password' name='password' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите пароль' class='text'><br>
                 <img src="noise-picture.php">
-                <input type='text' name='integer' required minlength="1" maxlength='20' autocomplete="new-password" placeholder='Введите код с картинки' class='text'><br>
+                <input type='text' name='integer' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
                 <?=$forAdmin?>
 
                 <div class='msg'>

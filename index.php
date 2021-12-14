@@ -5,8 +5,7 @@ $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
-$adminLink1 = '';
-$adminLink2 = '';
+$adminLink = '';
     
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
@@ -19,11 +18,10 @@ if (!empty($_SESSION['user_id'])) {
     $email = $user['email'];
     $fio = $user['fio'];
     $rights = $user['rights'];
-    $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
+    $label = "<a class='menu' href='cabinet.php'>Мой профиль</a>";
     $link = "<a class='menu' href='?exit'>Выйти</a>";
     if ($rights == 'superuser') {
-        $adminLink1 = "<a class='menu' href='reg.php'>Создать админа</a>";
-        $adminLink2 = "<a class='menu' href='admin/admin.php'>Админка</a>";
+        $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
     }
 } else {
     session_destroy();
@@ -59,8 +57,7 @@ $ids = getPostIds(10);
                 <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
                 <li class='menu'><?=$label?></li>
-                <li class='menu'><?=$adminLink1?></li>
-                <li class='menu'><?=$adminLink2?></li>
+                <li class='menu'><?=$adminLink?></li>
             </ul>
         </div>
     </div>
@@ -95,7 +92,7 @@ $ids = getPostIds(10);
                         if (!$post['rating']) {
                             echo "Нет оценок. Будьте первым!";
                         } else {
-                            echo "Рейтинг поста: " . $post['rating'];
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['countRatings'];
                         }     
                     ?> 
                 </p>
@@ -128,7 +125,7 @@ $ids = getPostIds(10);
                             if (!$post['rating']) {
                                 echo "Нет оценок. Будьте первым!";
                             } else {
-                                echo "Рейтинг поста: " . $post['rating'];
+                                echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['countRatings'];
                             }     
                         ?>  
                     </p>

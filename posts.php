@@ -14,7 +14,7 @@ if (isset($_GET['exit'])) {
 
 if (!empty($_SESSION['user_id'])) {
     $user = getUserEmailFioRightsById($_SESSION['user_id']);
-    $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
+    $label = "<a class='menu' href='cabinet.php'>Мой профиль</a>";
     $link = "<a class='menu' href='?exit'>Выйти</a>";
     if ($user['rights'] === 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
@@ -23,23 +23,20 @@ if (!empty($_SESSION['user_id'])) {
 
 $year = date("Y", time());
 $ids = getPostIds();
-$countIds = count($ids);
+$countIdsOfPosts = count($ids);
 if (!empty($_GET['number'])) {
-    $number = clearInt($_GET['number']);
-    if ($number <= 0 or $number >= $countIds) {
-        $number = 10;
+    $numberOfPosts = clearInt($_GET['number']);
+    if ($numberOfPosts < 1 or $numberOfPosts >= $countIdsOfPosts) {
+        $numberOfPosts = 10;
     }
 } else {
-    $number = $countIds;
-    if ($number > 10){
-        $number = 10;
+    $numberOfPosts = $countIdsOfPosts;
+    if ($numberOfPosts < 1 or $numberOfPosts > 10){
+        $numberOfPosts = 10;
     }
 }
-if (!empty($_GET['page'])) {
+if (!empty($_GET['page']) && $_GET['page'] >= 0 && $countIdsOfPosts != 0 && $_GET['page'] <= $countIdsOfPosts / $numberOfPosts + 1) {
     $page = clearInt($_GET['page']);
-    if ($page <= 0 or $page >= $countIds / $number + 1) {
-        $page = 1;
-    }
 } else {
     $page = 1;
 }
@@ -82,13 +79,13 @@ if (!empty($_GET['page'])) {
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
         <div class='singleposttext'>
             <label for='number'>Кол-во постов: <select id='number' class='select' name="number" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
-                <option value='<?=$number?>' selected><?=$number?></option>
+                <option value='<?=$numberOfPosts?>' selected><?=$numberOfPosts?></option>
                 <?php
                     $i = 1;
-                    echo $countIds / $page;
-                    while (($i <= $countIds / $page / 25) && ($i <= 4)) {
+                    echo $countIdsOfPosts / $page;
+                    while (($i <= $countIdsOfPosts / $page / 25) && ($i <= 4)) {
                         $interval = $i * 25;
-                        if ($interval != $number) {
+                        if ($interval != $numberOfPosts) {
                             echo "<option value='posts.php?number=$interval&page=$page'>$interval</option>";
                         }
                         $i++;
@@ -98,9 +95,9 @@ if (!empty($_GET['page'])) {
             <label for='page'>Страница: <select id='page' class='select' name="page" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
                 <option value='<?=$page?>' selected><?=$page?></option>
                 <?php
-                    for ($i = 1; $i < $countIds / $number + 1; $i++) {
+                    for ($i = 1; $i < $countIdsOfPosts / $numberOfPosts + 1; $i++) {
                         if ($i != $page) {
-                            echo "<option value='posts.php?number=$number&page=$i'>$i</option>";
+                            echo "<option value='posts.php?number=$numberOfPosts&page=$i'>$i</option>";
                         }
                     }
                 ?>
@@ -110,14 +107,14 @@ if (!empty($_GET['page'])) {
 
         <?php 
             if (empty($ids)) {
-                die("<p>Нет постов для отображения</p>");    
+                echo "<p>Нет постов для отображения</p>";    
             } else {
-                $countIds = $number * ($page - 1);
-                if ($countIds < 0) {
-                    $number += $countIds;
-                    $countIds = 0;
+                $countIdsOfPosts = $numberOfPosts * ($page - 1);
+                if ($countIdsOfPosts < 0) {
+                    $numberOfPosts += $countIdsOfPosts;
+                    $countIdsOfPosts = 0;
                 }
-                $ids = array_slice($ids, $countIds, $number);
+                $ids = array_slice($ids, $countIdsOfPosts, $numberOfPosts);
                 foreach ($ids as $id) {
                     $posts[] = getPostForIndexById($id);
                 }
@@ -140,7 +137,7 @@ if (!empty($_GET['page'])) {
                             if (!$post['rating']) {
                                 echo "Нет оценок. Будьте первым!";
                             } else {
-                                echo "Рейтинг поста: " . $post['rating'];
+                                echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['countRatings'];
                             }     
                         ?>  
                     </p>

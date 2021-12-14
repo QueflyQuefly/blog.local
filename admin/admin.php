@@ -13,11 +13,14 @@ if (!empty($_SESSION['user_id'])) {
     $rights = false;
 }
 if (isset($_POST['view'])) {
-    if ($_POST['view'] === 'viewposts') {
+    if ($_POST['view'] === 'viewPosts') {
         header("Location: adminposts.php");
     }
-    if ($_POST['view'] === 'viewusers') {
+    if ($_POST['view'] === 'viewUsers') {
         header("Location: adminusers.php");
+    }
+    if ($_POST['view'] === 'addAdmin') {
+        header("Location: reg.php");
     }
 }
 
@@ -48,11 +51,14 @@ if (isset($_POST['view'])) {
             <form action='admin.php'  method='post'>
 
                 <div class='radio'>
-                    <input type='radio' id='radio1' name='view' value='viewusers' class='radio'>
+                    <input type='radio' id='radio1' name='view' value='viewUsers' class='radio'>
                     <label for='radio1'>К управлению пользователями</label>
 
-                    <br><input type='radio' id='radio2' name='view' value='viewposts' class='radio'>
+                    <br><input type='radio' id='radio2' name='view' value='viewPosts' class='radio'>
                     <label for='radio2'>К управлению постами</label>
+
+                    <br><input type='radio' id='radio3' name='view' value='addAdmin' class='radio'>
+                    <label for='radio3'>Добавить администратора</label>
                 </div>
 
                 <br><div id='right'><input type='submit' value='Перейти' class='submit'></div>

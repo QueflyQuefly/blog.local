@@ -13,13 +13,7 @@ try {
     require_once "init_db.php";
 }
 
-if (!empty($_GET['number'])) {
-    $number = clearInt($_GET['number']);
-} else {
-    $number = 10;
-}
-
-$fio = [
+$user = [
     "names" => [0 => "Василий", 1 => "Даниил", 2 => "Иван", 3 => "Павел", 4 => "Александр", 5 => "Алексей", 6 => "Давид", 
                 7 => "Фёдор", 8 => 'Анатолий', 9 => "Вячеслав", 10 => "Кирилл", 11 => "Григорий", 12 => "Георгий"],
 
@@ -72,16 +66,33 @@ $texts = [
     12 => 'С давних времен люди не зная, что там за дальше, отправлялись в путешествие, их манила неизведанность, тайна, любопытство. И это было достаточно опасно, но несмотря на это, открывались новые города, страны, моря, океаны, материки. Сейчас современный человек знает многое, но отправляясь в путешествие, он по-прежнему открывает перед собой удивительный и неповторимый мир.',
 ];  
 
-$j = getLastPostId() + 1;
+if (!empty($_GET['number'])) {
+    $number = clearInt($_GET['number']);
+} else {
+    $number = 10;
+}
+$j = getLastUserId() + 1;
 for ($i = $j; $i < $j + $number; $i++) {
     try {
-
         $random1 = mt_rand(0, 12);
         $random2 = mt_rand(0, 12);
         $random3 = mt_rand(0, 12);
-        $author = $fio['names'][$random2] . " " . $fio['surnames'][$random3];
-        $author = $db->quote($author);
-        $login = "'$i@gmail.com'";
+        $randomDate = mt_rand(100000, 2628000);
+        $date = time() - $randomDate;
+
+        $password = password_hash($i, PASSWORD_BCRYPT);
+        $password = $db->quote($password);
+        $email = "'$i@gmail.com'";
+        $fio = $user['names'][$random2] . " " . $user['surnames'][$random3];
+        $fio = $db->quote($fio);
+
+        $sql = "INSERT INTO users (id, email, fio, pass_word, date_time, rights) 
+                VALUES($i, $email, $fio, $password, $date, 'user');";
+
+        if (!$db->exec($sql)) {
+            echo $sql;
+            $error = "Пользователь №$i не  создан";
+        }
 
         $zag = $zags1[$random1] . " " . $zags2[$random2];
         $zag = $db->quote($zag);
@@ -92,24 +103,24 @@ for ($i = $j; $i < $j + $number; $i++) {
         $tags = isNounForTag($text);
         $text = $db->quote($text);
 
-        $randomDate = mt_rand(100000, 2628000);
-        $date = time() - $randomDate;
-        $sql = "INSERT INTO posts (id, zag, user_id, date_time, content, rating) 
-                VALUES($i, $zag, $i, $date, $text, 0);";
+        $sql = "INSERT INTO posts (zag, user_id, date_time, content, rating) 
+                VALUES($zag, $i, $date, $text, 0);";
 
         if (!$db->exec($sql)) {
             echo $sql;
+            $error = "Пост от пользователя №$i не создан";
         }
-        
+        $postId = getLastPostId();
         if (!empty($tags)) {
             foreach ($tags as $tag) {
                 $tag = $db->quote($tag);
 
                 $sql = "INSERT INTO tag_posts (tag, post_id) 
-                        VALUES($tag, $i);";
+                        VALUES($tag, $postId);";
 
                 if (!$db->exec($sql)) {
                     echo $sql;
+                    $error = "Тэг $tag к посту №$postId не создан";
                 }
             }
         }
@@ -121,27 +132,19 @@ for ($i = $j; $i < $j + $number; $i++) {
             $commentContent = $texts[$random6];
             $commentContent = $db->quote($commentContent);
 
-            changePostRating($random5, $i, $random4);
+            changePostRating($random5, $postId, $random4);
 
             $randomLike = mt_rand(0, 1000);
             $sql = "INSERT INTO comments (post_id, user_id, date_time, content, rating) 
-                    VALUES($i, $random5, $dateOfComment, $commentContent, $randomLike);";
+                    VALUES($postId, $random5, $dateOfComment, $commentContent, $randomLike);";
 
             if (!$db->exec($sql)) {
                 echo $sql;
+                $error = "Комментарий к посту №$postId от пользователя №$random5 не создан";
             }
         }
-
-        $password = password_hash($i, PASSWORD_BCRYPT);
-        $password = $db->quote($password);
-        $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
-                VALUES($login, $author, $password, $date, 'user');";
-
-        if (!$db->exec($sql)) {
-            echo $sql;
-        }
     } catch (PDOException $e) {
-    echo $error = $e->getMessage();
+        $error = $e->getMessage();
     }
 }
 

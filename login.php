@@ -8,12 +8,11 @@ $ok = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $integer = clearInt($_POST['integer']);
-    $login = clearStr($_POST['login']);
+    $email = clearStr($_POST['email']);
     $password = clearStr($_POST['password']);
     if ($integer == $_SESSION['integer']) {
-        if (isUser($login, $password)) {
-            $user = getUserIdAndFioByEmail($login);
-            $_SESSION['user_id'] = $user['id'];
+        if (isUser($email, $password)) {
+            $_SESSION['user_id'] = getUserIdByEmail($email);
 
             if (isset($_SESSION['referrer'])) {
                 header("Location: {$_SESSION['referrer']}");
@@ -51,10 +50,10 @@ if (isset($_GET['msg'])) {
             <p class='label'>Вход</p>
 
             <form action='login.php' method='post'>
-                <input type='login' name='login' required minlength="1" maxlength='50' autofocus autocomplete="true" placeholder='Ваш логин' class='text'><br>
-                <input type='password' name='password' required minlength="1" maxlength='20' placeholder='Ваш пароль' class='text'><br>
+                <input type='email' name='email' required minlength="1" maxlength='50' autofocus autocomplete="on" placeholder='Ваш email' class='text'><br>
+                <input type='password' name='password' required minlength="1" maxlength='20' autocomplete="off" placeholder='Ваш пароль' class='text'><br>
                 <img src="noise-picture.php">
-                <input type='login' name='integer' required minlength="1" maxlength='20' placeholder='Введите код с картинки' class='text'><br>
+                <input type='login' name='integer' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
 
                 <div class='msg'>
                     <p class='error'><?=$error?></p>

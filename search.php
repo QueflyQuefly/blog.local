@@ -5,10 +5,8 @@ require_once $functions;
 
 $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
-$login = '';
-$fio = '';
 $search = '';
-$rights = '';
+$user['rights'] = '';
 $adminLink = '';
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
@@ -20,7 +18,7 @@ if (isset($_GET['exit'])) {
 
 if (!empty($_SESSION['user_id'])) {
     $user = getUserEmailFioRightsById($_SESSION['user_id']);
-    $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
+    $label = "<a class='menu' href='cabinet.php'>Мой профиль</a>";
     $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
     if ($user['rights'] === 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
@@ -156,7 +154,7 @@ $year = date("Y", time());
         <?php 
             if (empty($ids)) {
                 echo "<div class='searchdescription'><div class='smallposttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
-                if ($rights === 'superuser') {
+                if ($user['rights'] === 'superuser') {
                     echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
                 } else {
                     echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО</div>\n</div>"; 
@@ -168,12 +166,6 @@ $year = date("Y", time());
                     $comments = getCommentsByPostId($id);
                     $tags = getTagsToPostById($id);
                     $author = getUserEmailFioRightsById($post['user_id']);
-
-                    if (empty($posts)) {
-                        $countComments = 0;
-                    } else {
-                        $countComments = count($comments);
-                    }
         ?>
 
         <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
@@ -193,13 +185,11 @@ $year = date("Y", time());
                             }
                         ?>
                         </p>
-                    <p class='postdate'> Комментариев к посту: <?= $countComments ?>
+                    <p class='postdate'> Комментариев к посту: <?= $post['countComments'] ?>
                         <?php
-                            if ($rights === 'superuser') {
+                            if ($user['rights'] === 'superuser') {
                         ?>
-
-                        <object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object>
-
+                            <object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object>
                         <?php
                             }
                         ?>
@@ -225,12 +215,13 @@ $year = date("Y", time());
                     <p class='smallpostzagolovok'> Просмотр дополнительной информации по нажатию</p>
                     <p class='smallpostzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
                     <p class='smallpostzagolovok'> Категория: <?= $user['rights'] ?></p>
+                    
                     <?php
-                        if ($rights === 'superuser') {
+                        if ($user['rights'] === 'superuser') {
                     ?>
-                    <p class='smallpostzagolovok'>ID:<?= $user['id'] ?> </p>
-                    <p class='smallpostzagolovok'>Логин: <?= $user['login'] ?></p>
-                    <p class='postdate'><object><a class='list' href='search.php?search=<?=$search?>&deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
+                        <p class='smallpostzagolovok'>ID:<?= $user['id'] ?> </p>
+                        <p class='smallpostzagolovok'>Логин: <?= $user['login'] ?></p>
+                        <p class='postdate'><object><a class='list' href='search.php?search=<?=$search?>&deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
                     <?php
                         }
                     ?>

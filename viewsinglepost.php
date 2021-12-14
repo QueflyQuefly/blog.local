@@ -4,10 +4,8 @@ $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 $link = "<a class='menu' href='login.php'>Войти</a>";
 $label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
-$fio = '';
-$login = '';
+$userId = '';
 $adminLink = '';
-
 
 if (isset($_GET['viewPostById'])) {
     $postId = clearInt($_GET['viewPostById']);
@@ -17,7 +15,6 @@ if (isset($_GET['viewPostById'])) {
     $_SESSION['referrer'] = "viewsinglepost.php?viewPostById=$postId";
 
     $post = getPostForViewById($postId);
-    $postRating = $post['rating'];
     $postAuthorId = $post['user_id'];
     $postAuthor = getUserEmailFioRightsById($postAuthorId);
     $postAuthorFio = $postAuthor['fio'];
@@ -25,8 +22,6 @@ if (isset($_GET['viewPostById'])) {
     $tags = getTagsToPostById($postId);
 
     $comments = getCommentsByPostId($postId);
-
-    $countRatings = countRatingsByPostId($postId);
     
     $year = date("Y", time());
 } else{
@@ -42,12 +37,27 @@ if (isset($_GET['exit'])) {
 if (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
     $user = getUserEmailFioRightsById($userId);
-    $label = "<a class='menu' href='cabinet.php'>Перейти в личный кабинет</a>";
+    $label = "<a class='menu' href='cabinet.php'>Мой профиль</a>";
 
     $link = "<a class='menu' href='viewsinglepost.php?viewPostById=$postId&exit'>Выйти</a>";
     if ($user['rights'] === 'superuser') {
         $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
         $isAdmin = true;
+        
+        if (isset($_GET['deletePostById'])) {
+            $deletePostId = clearInt($_GET['deletePostById']);
+            if ($deletePostId !== '') {
+                deletePostById($deletePostId);
+                header("Location: /");
+            } 
+        }
+        if (isset($_GET['deleteCommentById'])) {
+            $deleteCommentId = clearInt($_GET['deleteCommentById']);
+            if ($deleteCommentId !== '') {
+                deleteCommentById($deleteCommentId);
+                header("Location: {$_SESSION['referrer']}");
+            } 
+        }
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -80,22 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     } else {
         header("Location: login.php");
-    }
-}
-if ($user['rights'] === 'superuser') {
-    if (isset($_GET['deletePostById'])) {
-        $deletePostId = clearInt($_GET['deletePostById']);
-        if ($deletePostId !== '') {
-            deletePostById($deletePostId);
-            header("Location: /");
-        } 
-    }
-    if (isset($_GET['deleteCommentById'])) {
-        $deleteCommentId = clearInt($_GET['deleteCommentById']);
-        if ($deleteCommentId !== '') {
-            deleteCommentById($deleteCommentId);
-            header("Location: {$_SESSION['referrer']}");
-        } 
     }
 }
 $year = date("Y", time());
@@ -137,8 +131,8 @@ $year = date("Y", time());
         <div id='singlepostauthor'>
             
             <?php
-                if ($countRatings) {
-                    echo "<p class='singlepostdate'>Рейтинг поста: $postRating из 5. Оценок: $countRatings</p>";
+                if (!empty($post['countRatings'])) {
+                    echo "<p class='singlepostdate'>Рейтинг поста: {$post['rating']} из 5. Оценок: {$post['countRatings']}</p>";
                 } else {
                     echo "<p class='singlepostdate'>Оценок 0. Будьте первым!</p>";
                 }

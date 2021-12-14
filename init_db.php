@@ -86,7 +86,7 @@ try {
 
         INSERT INTO users
         (email, fio, pass_word, date_time, rights) 
-        VALUES ('12345', 'Администратор', $password, $date, 'superuser')
+        VALUES ('admin@gmail.com', 'Администратор', $password, $date, 'superuser')
         ;";
 
     $db->exec($sql);

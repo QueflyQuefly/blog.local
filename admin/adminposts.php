@@ -45,22 +45,16 @@ $number = 50;
     <div class='viewlist'>
         <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
         
-        <div class='msg'>
-            <p class='error'>
-                <?php
-                    if ($rights !== "superuser") {
-                        echo "<p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>";
-                        exit;
-                    }
-                ?>
+        <?php
+        if ($rights !== "superuser") {
+        ?>
+            <div class='msg'>
+                <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>
+            </div>
+        <?php
+        } else {
+            echo "<p class='label'>Список постов постранично и инвертировано <br> ($number постов - одна страница)<a href='adminposts.php'> &#8634</a></p>";
 
-                <?=$error?>
-            </p>
-        </div>
-
-
-        <p class='label'>Список постов постранично и инвертировано <br> (<?=$number?> постов - одна страница)<a href='adminposts.php'> &#8634</a></p>
-        <?php 
             $ids = getPostIds();
             echo "<p style='padding-left:3vh'><span>Страницы:</span></p>";
             echo "<ul class ='list'>";
@@ -70,12 +64,12 @@ $number = 50;
             echo "</ul><hr>";
             echo "<div class='list'>";
             if (!empty($ids)) {
-                $countIds = $number * ($page - 1);
-                if ($countIds < 0) {
-                    $number += $countIds;
-                    $countIds = 0;
+                $countIdsOfPosts = $number * ($page - 1);
+                if ($countIdsOfPosts < 0) {
+                    $number += $countIdsOfPosts;
+                    $countIdsOfPosts = 0;
                 }
-                $ids = array_slice($ids, $countIds, $number);
+                $ids = array_slice($ids, $countIdsOfPosts, $number);
                 foreach ($ids as $id) {
                     $posts[] = getPostForIndexById($id);
                 }
@@ -85,9 +79,9 @@ $number = 50;
             } else {
                 echo "<ul class='list'>";
                 foreach ($posts as $post) {
-                    $tags = getTagsToPostById($posts[$i]['id']);
+                    $tags = getTagsToPostById($post['id']);
                     $comments = getCommentsByPostId($post['id']);
-                    $evaluations = countRatingsByPostId($post['id']);
+                    $evaluations = $post['countRatings'];
                     $author = getUserEmailFioRightsById($post['user_id']);
                     if (empty($posts) or $posts == false) {
                         $countComments = 0;
@@ -117,15 +111,15 @@ $number = 50;
                 <?php 
                     if ($countComments) {
                         echo "<ul class='list'>";
-                        for ($j = 0; $j <= $countComments -1; $j++) {
-                            $author = getUserEmailFioRightsById($comments[$j]['user_id']);
+                        foreach ($comments as $comment) {
+                            $author = getUserEmailFioRightsById($comment['user_id']);
                 ?>
             <br>
             <li class='list'>
-                <p class='list'><span>ID:</span><?= $comments[$j]['id'] ?> ::: <span>Автор:</span> <?= $author['fio'] ?> <br> <span>E-mail автора:</span> <?= $author['email'] ?></p>
+                <p class='list'><span>ID:</span><?= $comment['id'] ?> ::: <span>Автор:</span> <?= $author['fio'] ?> <br> <span>E-mail автора:</span> <?= $author['email'] ?></p>
                 <br>
-                <p class='list'>Содержание: <?= $comments[$j]['content'] ?></p>
-                <a class='list' href='adminposts.php?deleteCommentById=<?= $comments[$j]['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comments[$j]['id'] ?></a>
+                <p class='list'>Содержание: <?= $comment['content'] ?></p>
+                <a class='list' href='adminposts.php?deleteCommentById=<?= $comment['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comment['id'] ?></a>
             </li>
                 <?php
 
@@ -136,8 +130,9 @@ $number = 50;
                 <hr>
             </li>
         <?php 
-            } 
-        echo "</ul>";
+                } echo "</ul>";
+            }
+            echo "</div>";
         }
         ?>
         </div>

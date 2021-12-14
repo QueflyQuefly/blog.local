@@ -18,28 +18,80 @@ function clearInt($int) {
 function clearStr($str) {
     return trim(strip_tags($str));
 }
+function toProcessPostForIndex($post) {
+    $post['zag'] = strip_tags($post['zag']);
+    $post['zag'] = mb_substr($post['zag'], 0, 100);
+    if (mb_strlen($post['zag'], 'utf-8') > 99) {
+        $post['zag'] = $post['zag'] . "&hellip;";
+    }
+
+    $post['content'] = strip_tags($post['content']);
+    $post['content'] = mb_substr($post['content'], 0, 300);
+    if (mb_strlen($post['content'], 'utf-8') > 299) {
+        $post['content'] = $post['content'] . "&hellip;";
+    }
+
+    $post['zag_small'] = strip_tags($post['zag']);
+    $post['zag_small'] = mb_substr($post['zag_small'], 0, 45);
+    if (mb_strlen($post['zag_small'], 'utf-8') > 44) {
+        $post['zag_small'] = $post['zag_small'] . "&hellip;";
+    }
+
+    $post['content_small'] = strip_tags($post['content']);
+    $post['content_small'] = mb_substr($post['content_small'], 0, 200);
+    if (mb_strlen($post['content_small'], 'utf-8') > 199) {
+        $post['content_small'] = $post['content_small'] . "&hellip;";
+    }
+
+    $post['date_time'] = date("d.m.Y",$post['date_time']) ." в ". date("H:i", $post['date_time']);
+
+    return $post;
+}
+function toProcessPostForView($post) {
+    $post['content'] = str_replace("<br />
+<br />","</p>\n<p>", nl2br($post['content']));
+    $post['date_time'] = date("d.m.Y",$post['date_time']) ." в ". date("H:i", $post['date_time']);
+
+    return $post;
+}
 /* general functions */
 
 
 /* functions for table users */
 define('RIGHTS_USER', 'user');
 define('RIGHTS_SUPERUSER', 'superuser');
-function getUserIdAndFioByEmail($email) {
+function getLastUserId() {
     global $db, $error;
+    $userId = 0;
+    try {
+        $sql = "SELECT id FROM users ORDER BY id DESC LIMIT 1;";
+        $stmt = $db->query($sql);
+        if (!$stmt) {
+            return 0;
+        }
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userId = $result['id'];
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $userId;
+}
+function getUserIdByEmail($email) {
+    global $db, $error;
+    $id = null;
     try {
         $email = $db->quote($email);
 
-        $sql = "SELECT id, fio FROM users WHERE email=$email";
+        $sql = "SELECT id FROM users WHERE email = $email;";
         $stmt = $db->query($sql);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!empty($result)) {
-            return $result;
-        } else {
-            return null;
+        if ($stmt !== false) {
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $id = $result['id'];
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
+    return $id;
 }
 function getUsersIds() {
     global $db, $error;
@@ -59,7 +111,7 @@ function isUser($email, $password) {
     global $db, $error;
     $users = []; 
     try {
-        $sql = "SELECT email, fio, pass_word FROM users";
+        $sql = "SELECT email, fio, pass_word FROM users;";
         $stmt = $db->query($sql);
     
         while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -86,10 +138,14 @@ function createUser($email, $fio, $password) {
         $fio = $db->quote($fio);
         $date = time();
         $password = $db->quote($password);
+        $rights = $db->quote(RIGHTS_USER);
 
         $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
-        VALUES($email, $fio, $password, $date, 'user');";
-        $db->exec($sql);
+                VALUES ($email, $fio, $password, $date, $rights);";
+        if (!$db->exec($sql)) {
+            return false;
+            echo $sql;
+        }
 
     } catch (PDOException $e) {
         $error = $e->getMessage();
@@ -103,15 +159,12 @@ function isEmailUnique($email) {
         $sql = "SELECT email FROM users;";
         $stmt = $db->query($sql);
         while($data = $stmt->fetch(PDO::FETCH_ASSOC)){
-            $emails[] = $data;
+            if ($email == $data['email']) {
+                return false; //если есть совпадения, то логин не является уникальным
+            }
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
-    }
-    foreach ($emails as $value) {
-        if ($email == $value['email']) {
-            return false; //если есть совпадения, то логин не является уникальным
-        }
     }
     return true;
 }
@@ -162,7 +215,7 @@ function getUserEmailFioRightsById($userId){
     }
     return $user;
 }
-function createAdmin($email, $fio, $password){
+function createAdmin($email, $fio, $password) {
     global $db, $error;
     try {
         if (!isEmailUnique($email)) {
@@ -170,19 +223,18 @@ function createAdmin($email, $fio, $password){
         }
         $email = $db->quote($email);
         $fio = $db->quote($fio);
-        $password = password_hash($password, PASSWORD_DEFAULT);
+        $date = time();
         $password = $db->quote($password);
+        $rights = $db->quote(RIGHTS_SUPERUSER);
 
-        $sql = "INSERT INTO users(email, fio, pass_word, rights) 
-                VALUES ($email, $fio, $password, RIGHTS_SUPERUSER);";
-        if ($db->exec($sql)) {
-            return true;
-        } else {
-            return false;
-        }
+        $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
+                VALUES($email, $fio, $password, $date, $rights);";
+        $db->exec($sql);
+
     } catch (PDOException $e) {
-        $error = $e->getMessage();  
+        $error = $e->getMessage();
     }
+    return true;
 }
 function deleteUserById($id) {
     global $db, $error;
@@ -242,64 +294,36 @@ function getPostIds($numberIds = false) {
     }
     return $ids;
 }
-function getPostForIndexById($id) {
+function getPostById($id) {
     global $db, $error;
     $post = [];
     try {
-        $sql = "SELECT zag, user_id, date_time, content, rating FROM posts WHERE id = $id;";
+        $sql = "SELECT id, zag, user_id, date_time, content, rating FROM posts WHERE id = $id;";
         $stmt = $db->query($sql);
 
         if ($stmt == false) {
-            return false;
+            return $post;
         }
-
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $post['id'] = $id;
-        $post['zag'] = strip_tags($post['zag']);
-        $post['zag'] = mb_substr($post['zag'], 0, 100);
-        if (mb_strlen($post['zag'], 'utf-8') > 99) {
-            $post['zag'] = $post['zag'] . "&hellip;";
-        }
-
-        $post['content'] = strip_tags($post['content']);
-        $post['content'] = mb_substr($post['content'], 0, 300);
-        if (mb_strlen($post['content'], 'utf-8') > 299) {
-            $post['content'] = $post['content'] . "&hellip;";
-        }
-
-        $post['zag_small'] = strip_tags($post['zag']);
-        $post['zag_small'] = mb_substr($post['zag_small'], 0, 45);
-        if (mb_strlen($post['zag_small'], 'utf-8') > 44) {
-            $post['zag_small'] = $post['zag_small'] . "&hellip;";
-        }
-
-        $post['content_small'] = strip_tags($post['content']);
-        $post['content_small'] = mb_substr($post['content_small'], 0, 200);
-        if (mb_strlen($post['content_small'], 'utf-8') > 199) {
-            $post['content_small'] = $post['content_small'] . "&hellip;";
-        }
-
-        $post['date_time'] = date("d.m.Y",$post['date_time']) ." в ". date("H:i", $post['date_time']);
-        
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
     return $post;
 }
-function getPostForViewById($id) {
-    global $db, $error;
-    try {
-        $id = clearInt($id);
-        $sql = "SELECT id, zag, user_id, date_time, content, rating FROM posts WHERE id = $id;";
-        $stmt = $db->query($sql);
-        $post = $stmt->fetch(PDO::FETCH_ASSOC);
-        $post['content'] = str_replace("<br />
-<br />","</p>\n<p>", nl2br($post['content']));
-        $post['date_time'] = date("d.m.Y",$post['date_time']) ." в ". date("H:i", $post['date_time']);
-    } catch(PDOException $e) {
-        $error = $e->getMessage();
-    }
+function getPostForIndexById($postId) {
+    $post = [];
+    $post = getPostById($postId);
+    $post = toProcessPostForIndex($post);
+    $post['countComments'] = countCommentsByPostId($postId);
+    $post['countRatings'] = countRatingsByPostId($postId);
+    return $post;
+}
+function getPostForViewById($postId) {
+    $post = [];
+    $post = getPostById($postId);
+    $post = toProcessPostForView($post);
+    $post['countComments'] = countCommentsByPostId($postId);
+    $post['countRatings'] = countRatingsByPostId($postId);
     return $post;
 }
 function getMoreTalkedPostIds() {
@@ -316,10 +340,10 @@ function getMoreTalkedPostIds() {
         }
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $postId = $row['post_id'];
-            $sql = "SELECT COUNT(*) as count FROM comments WHERE date_time >= $dateWeekAgo AND post_id = $postId;";
+            $sql = "SELECT COUNT(*) as countComments FROM comments WHERE date_time >= $dateWeekAgo AND post_id = $postId;";
             $st = $db->query($sql);
             while ($r = $st->fetch(PDO::FETCH_ASSOC)) {
-                $rows[$postId] = $r['count'];
+                $rows[$postId] = $r['countComments'];
             }
         }
         for ($i = 0; $i < 3; $i++) {
@@ -380,6 +404,9 @@ function getPostsByUserId($user_id) {
             return false;
         }
         while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $post = toProcessPostForIndex($post);
+            $post['countComments'] = countCommentsByPostId($post['id']);
+            $post['countRatings'] = countRatingsByPostId($post['id']);
             $posts[] = $post;
         }
     } catch(PDOException $e) {
@@ -429,6 +456,23 @@ function deletePostById($id) {
 
 
 /* functions for table comments */
+function countCommentsByPostId($postId) {
+    global $db, $error;
+    $countComments = [];
+    try {
+        $postId = clearInt($postId);
+        $sql = "SELECT COUNT(*) as countComments FROM comments WHERE post_id = $postId;";
+        $stmt = $db->query($sql);
+        if ($stmt == false) {
+            return $countComments;
+        }
+        $result = $stmt->fetch(PDO::FETCH_ASSOC); 
+        $countComments = $result['countComments'];
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $countComments;
+}
 function getCommentsByPostId($postId) {
     global $db, $error;
     $comments = [];
@@ -452,10 +496,10 @@ function getCommentById($id) {
     $comment = [];
     try {
         $id = clearInt($id);
-        $sql = "SELECT post_id, user_id, date_time, content, rating FROM comments WHERE id = $id;";// LIMIT 30
+        $sql = "SELECT post_id, user_id, date_time, content, rating FROM comments WHERE id = $id;";
         $stmt = $db->query($sql);
         if ($stmt == false) {
-            return false;
+            return $comment;
         }
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $comment = $result;
@@ -475,7 +519,7 @@ function insertComments($postId, $commentAuthorId, $commentDate, $commentContent
         $content = trim(strip_tags($content));
 
         $sql = "INSERT INTO comments (post_id, user_id, date_time, content, rating) 
-        VALUES($postId, $authorId, $date, $content, 0)";
+        VALUES($postId, $authorId, $date, $content, 0);";
         if (!$db->exec($sql)) {
             return false;
         }
@@ -510,7 +554,7 @@ function getLikedCommentsIdsByUserId($userId) {
         $sql = "SELECT com_id FROM rating_comments WHERE user_id = $userId;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt == false) {
-            return false;
+            return $commentsIds;
         }
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $commentsIds[] = $result['com_id'];
@@ -588,7 +632,7 @@ function isUserChangesPostRating($userId, $postId){
             return false;
         }
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($result) {
+        if (!empty($result)) {
             return true;
         }
     } catch (PDOException $e) {
@@ -600,13 +644,13 @@ function countRatingsByPostId($id) {
     global $db, $error;
     $countRatings = 0;
     try {
-        $sql = "SELECT COUNT(*) as count FROM rating_posts WHERE post_id=$id;";
+        $sql = "SELECT COUNT(*) as countRatingsOfPosts FROM rating_posts WHERE post_id=$id;";
         $stmt = $db->query($sql);
         if(!$stmt) {
-            return 0;
+            return $countRatings;
         }
         $countRatings = $stmt->fetch(PDO::FETCH_ASSOC);
-        $countRatings = $countRatings['count'];
+        $countRatings = $countRatings['countRatingsOfPosts'];
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
@@ -703,22 +747,19 @@ function addTagsToPost($tag, $postId) {
 }
 function getTagsToPostById($postId) {
     global $db, $error;
+    $tags = [];
     try {
         $postId = clearInt($postId);
 
-        $sql = "SELECT id, tag FROM tag_posts WHERE post_id=$postId";
+        $sql = "SELECT id, tag FROM tag_posts WHERE post_id=$postId;";
         $stmt = $db->query($sql);
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $tags[] = $result;
         }
-        if (!empty($tags)) {
-            return $tags;
-        } else {
-            return null;
-        }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
+    return $tags;
 }
 /* functions for table tag_posts */
 
@@ -814,12 +855,16 @@ function searchPostsByNameAndAuthor($searchword) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $posts[] = $result;
             }
+            if (empty($posts)) {
+                return $results;
+            }
             foreach ($posts as $post) {
                 $zag = mb_strtolower($post['zag']);
                 if (strpos($zag, $searchword) !== false) {
                     $results[] = $post['id'];
                 }
                 $user = getUserEmailFioRightsById($post['user_id']);
+                var_dump($user);
                 $fio = mb_strtolower($user['fio']);
                 if (strpos($fio, $searchword) !== false) {
                     $results[] = $post['id'];

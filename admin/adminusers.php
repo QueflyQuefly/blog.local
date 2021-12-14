@@ -31,16 +31,15 @@ if (isset($_GET['deleteUserById'])) {
     <div class='viewlist'>
         <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
         
-        <div class='msg'>
-            <p class='error'>
-                <?php
-                    if ($rights !== "superuser") {
-                        echo "<p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>";
-                        exit;
-                    }
-                ?>
-            </p>
-        </div>
+        <?php
+            if ($rights !== "superuser") {
+        ?>
+            <div class='msg'>
+                <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>
+            </div>
+        <?php
+            } else {
+        ?>
 
         <p class='label'>Список всех пользователей <a href='adminusers.php'> &#8634</a></p>
 
@@ -68,12 +67,12 @@ if (isset($_GET['deleteUserById'])) {
             </li>
         
 
-            <?php 
+        <?php 
                 } echo "</ul>";
             }
-            ?>
-
-        </div>
+            echo "</div>";
+        }
+        ?>
     </div>
 </div>
 </body>

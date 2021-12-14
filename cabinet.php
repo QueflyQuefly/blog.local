@@ -3,11 +3,9 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 $link = "<a class='menu' href='login.php'>Войти</a>";
-$login = '';
-$fio = '';
 $adminLink = '';
 $msg = '';
-$showLinksToDelete = false;
+$show = false;
 $linkToChange = false;
 if (isset($_GET['user'])) {
     $userId = clearInt($_GET['user']);
@@ -69,28 +67,28 @@ if ($show === true) {
         } 
     }
 }
-if (isset($_POST['login']) && isset($_POST['fio']) && isset($_POST['password'])) {
+if (isset($_POST['email']) && isset($_POST['fio']) && isset($_POST['password'])) {
     $id = $_SESSION['user_id'];
-    $login = clearStr($_POST['login']);
+    $email = clearStr($_POST['email']);
     $fio = clearStr($_POST['fio']);
     $password = clearStr($_POST['password']);
     $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
-    if (!preg_match($regex, $login)) {
+    if (!preg_match($regex, $email)) {
         $msg = "Неверный формат email";
         header("Location: cabinet.php?changeinfo&msg=$msg");
         exit;
     }   
-    if ($login && $fio && $password) {
+    if ($email && $fio && $password) {
         $password = password_hash($password, PASSWORD_BCRYPT);
-        if (!updateUser($id, $login, $fio, $password)) {
+        if (!updateUser($id, $email, $fio, $password)) {
             $msg = "Пользователь с таким email уже зарегистрирован";
             header("Location: cabinet.php?changeinfo&msg=$msg"); 
         } else {
             $msg = "Изменения сохранены";
             header("Location: cabinet.php?msg=$msg");
         } 
-    } elseif ($login && $fio) {
-        if (!updateUser($id, $login, $fio)) {
+    } elseif ($email && $fio) {
+        if (!updateUser($id, $email, $fio)) {
             $msg = "Пользователь с таким email уже зарегистрирован";
             header("Location: cabinet.php?changeinfo&msg=$msg"); 
         } else {
@@ -148,7 +146,7 @@ $year = date("Y", time());
                         echo "E-mail: " . $user['email'];
                     }
                     if ($linkToChange) {
-                        echo "<a class='list' style='font-size:13pt' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
+                        echo "<a class='list' style='font-size:13pt; width:40vh' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
                     }
                     if (isset($_GET['changeinfo'])) {
                         echo <<< EOD
@@ -175,9 +173,9 @@ EOD;
                     }
                     if (isset($_GET['user']) && !empty($_SESSION['user_id'])) {
                         if (!isSubscribedUser($sessionUser['email'], $user['email'])) {
-                            echo "<a class='list' title='Подписаться' style='font-size:13pt' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a>";
+                            echo "<a class='list' title='Подписаться' style='font-size:13pt; width:40vh' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a>";
                         } else {
-                            echo "<a class='list' title='Отменить подписку' style='font-size:13pt' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a>";
+                            echo "<a class='list' title='Отменить подписку' style='font-size:13pt; width:40vh' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a>";
                         }
                     }
                 ?>
@@ -190,30 +188,19 @@ EOD;
                 } else {
                     $countPosts = count($posts);
                 }
-                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список постов &copy; $fio (всего $countPosts):</p></div>";
+                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список постов &copy; ${user['fio']} (всего $countPosts):</p></div>";
                 if (empty($posts) or $posts == false) {
                     echo "<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>"; 
                 } else {
                     echo "<ul class='list'>";
-                    $num = count($posts) - 1;
-                    for ($i= $num; $i>=0; $i--) {
-                        $post = $posts[$i];
-                        $comments = getCommentsByPostId($post['id']);
-                        if (empty($posts) or $posts == false) {
-                            $countComments = 0;
-                        } else {
-                        $countComments = count($comments);
-                        }
-                        $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
-
-
+                    foreach ($posts as $post) {
             ?>
         <div class='viewsmallposts'>
             <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
                 <div class='smallpost'>
                     <div class='smallposttext'>
                         <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
-                        <p class='postdate'> &copy; <?= $post['date_time'] ?> Рейтинг поста: <?=$post['rating']?></p>
+                        <p class='postdate'> &copy; <?= $post['date_time'] ?> Рейтинг: <?=$post['rating']?>, оценок: <?= $post['countRatings']?></p>
                         <?php
                             if ($show) {
                         ?>
@@ -221,7 +208,7 @@ EOD;
                         <?php
                             }
                         ?>
-                        <p class='postdate'>Комментариев к посту: <?= $countComments ?> </p>
+                        <p class='postdate'>Комментариев к посту: <?= $post['countComments'] ?> </p>
                     </div>
 
                     <div class='smallpostimage'>
@@ -243,7 +230,7 @@ EOD;
                 } else {
                 $countComments = count($comments);
                 }
-                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список комментариев &copy; $fio (всего $countComments):</p></div>";
+                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список комментариев &copy; ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
                     echo "<ul class='list'>";
                     for ($i = 0; $i <= $countComments -1; $i++) {
@@ -258,7 +245,7 @@ EOD;
                         <p class='commentcontent'><?=$content?></p>
                         <p class='commentcontent'>
                             <?php
-                                if ($showLinksToDelete) {
+                                if ($show) {
                             ?> 
                                 <object><a class='menu' href='cabinet.php?deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
                             <?php
@@ -281,15 +268,11 @@ EOD;
                         
         <?php 
             $postsLikeIds = getLikedPostsIdsByUserId($userId);
-            if (empty($postsLikeIds)) {
-                $countPostsLike = 0;
-            } else {
-                $countPostsLike = count($postsLikeIds);
-            }
-            echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Оценённые посты  &copy; $fio (всего $countPostsLike):</p></div>";
-            if ($countPostsLike) {
-                for ($j = 0; $j <= $countPostsLike -1; $j++) {
-                    $post = getPostForViewById($postsLikeIds[$j]['post_id']);
+            $countPostsLikeIds = count($postsLikeIds);
+            echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Оценённые посты  &copy; ${user['fio']} (всего $countPostsLikeIds):</p></div>";
+            if (!empty($postsLikeIds)) {
+                foreach ($postsLikeIds as $postLikeId) {
+                    $post = getPostForViewById($postLikeId['post_id']);
                     $authorOfPost = getUserEmailFioRightsById($post['user_id']);
                     $fioOfAuthor = $authorOfPost['fio']; 
         ?>
@@ -301,7 +284,7 @@ EOD;
                     <div class='smallposttext'>
                         <p class='smallpostzagolovok'><?=$post['zag']?></p>
                         <p class='postdate'><?=$post['date_time']. " &copy; " . $fioOfAuthor?></p>
-                        <p class='postrating'>Рейтинг поста: <?=$post['rating']?></p>
+                        <p class='postrating'>Рейтинг: <?=$post['rating']?>, оценок: <?= $post['countRatings']?></p>
                     </div>
 
                     <div class='smallpostimage'>
@@ -331,7 +314,7 @@ EOD;
                 } else {
                     $countComments = count($commentsLike);
                 }
-                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Понравившиеся комментарии &copy; $fio (всего $countComments):</p></div>";
+                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Понравившиеся комментарии &copy; ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
                     for ($i = 0; $i <= $countComments -1; $i++) {
                         $commentAuthor = getUserEmailFioRightsById($commentsLike[$i]['user_id']);
