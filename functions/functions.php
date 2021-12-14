@@ -198,8 +198,6 @@ function updateUser($id, $email, $fio, $password = false) {
 function getUserEmailFioRightsById($userId){
     global $db, $error;
     $userId = clearInt($userId);
-    $login = '';
-    $fio = '';
     $user = [];
     try {
         $sql = "SELECT email, fio, rights FROM users WHERE id = $userId;";

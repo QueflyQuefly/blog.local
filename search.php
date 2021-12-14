@@ -3,11 +3,6 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
-$link = "<a class='menu' href='login.php'>Войти</a>";
-$label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
-$search = '';
-$user['rights'] = '';
-$adminLink = '';
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (isset($_GET['exit'])) {
@@ -15,16 +10,6 @@ if (isset($_GET['exit'])) {
     $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
     header("Location: $uri");
 }
-
-if (!empty($_SESSION['user_id'])) {
-    $user = getUserEmailFioRightsById($_SESSION['user_id']);
-    $label = "<a class='menu' href='cabinet.php'>Мой профиль</a>";
-    $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-    if ($user['rights'] === 'superuser') {
-        $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
-    }
-}
-
 if (!empty($_GET['search'])) {
     $search = clearStr($_GET['search']);
     if ($search) {
@@ -126,10 +111,19 @@ $year = date("Y", time());
         </div>
         <div class="menu">
             <ul class='menu'>
-                <li class='menu'><?=$link?></li>
+                <?php
+                    if (empty($_SESSION['user_id'])) {
+                        echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
+                    } else {
+                        $user = getUserEmailFioRightsById($_SESSION['user_id']);
+                        echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
+                        echo "<li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>";
+                        if ($user['rights'] === 'superuser') {
+                            echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
+                        }
+                    }
+                ?>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
-                <li class='menu'><?=$label?></li>
-                <li class='menu'><?=$adminLink?></li>
             </ul>
         </div>
     </div>

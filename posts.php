@@ -3,22 +3,10 @@ $start = microtime(true);
 session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
-$link = "<a class='menu' href='login.php'>Войти</a>";
-$label = "<a class='menu' href='login.php'>Вы не авторизованы</a>";
-$adminLink = '';
-    
+
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
     header("Location: /");
-} 
-
-if (!empty($_SESSION['user_id'])) {
-    $user = getUserEmailFioRightsById($_SESSION['user_id']);
-    $label = "<a class='menu' href='cabinet.php'>Мой профиль</a>";
-    $link = "<a class='menu' href='?exit'>Выйти</a>";
-    if ($user['rights'] === 'superuser') {
-        $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
-    }
 }
 
 $year = date("Y", time());
@@ -64,11 +52,20 @@ if (!empty($_GET['page']) && $_GET['page'] >= 0 && $countIdsOfPosts != 0 && $_GE
         </div>
         <div class="menu">
             <ul class='menu'>
-                <li class='menu'><?=$link?></li>
+                <?php
+                    if (empty($_SESSION['user_id'])) {
+                        echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
+                    } else {
+                        $user = getUserEmailFioRightsById($_SESSION['user_id']);
+                        echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
+                        echo "<li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>";
+                        if ($user['rights'] === 'superuser') {
+                            echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
+                        }
+                    }
+                ?>
                 <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
-                <li class='menu'><?=$label?></li>
-                <li class='menu'><?=$adminLink?></li>
             </ul>
         </div>
     </div>

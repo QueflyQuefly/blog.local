@@ -2,11 +2,7 @@
 session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
-$link = "<a class='menu' href='login.php'>Войти</a>";
-$adminLink = '';
-$msg = '';
-$show = false;
-$linkToChange = false;
+
 if (isset($_GET['user'])) {
     $userId = clearInt($_GET['user']);
     $user = getUserEmailFioRightsById($userId);
@@ -29,29 +25,24 @@ if (isset($_GET['user'])) {
             header("Location: cabinet.php");
         }
         if ($sessionUser['rights'] === 'superuser') {
-            $show = true;
+            $showInfoAndLinksToDelete = true;
         }
     }
 } elseif (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
     $user = getUserEmailFioRightsById($userId);
-    $show = true;
-    $linkToChange = true;
-    $link = "<a class='menu' href='index.php?exit'>Выйти</a>";
+    $showInfoAndLinksToDelete = true;
+    $linkToChangeUserInfo = true;
     $_SESSION['referrer'] = 'cabinet.php';
-    if ($user['rights'] === 'superuser') {
-        $adminLink = "<a class='menu' href='admin/admin.php'>Админка</a>";
-    }
-}
- else {
+} else {
     header("Location: login.php");
 }
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
-    $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
+    $uri = str_replace('exit', '', $_SERVER['REQUEST_URI']);
     header("Location: $uri");
 }
-if ($show === true) {
+if ($showInfoAndLinksToDelete === true) {
     if (isset($_GET['deletePostById'])) {
         $deletePostId = clearInt($_GET['deletePostById']);
         if ($deletePostId !== '') {
@@ -126,10 +117,18 @@ $year = date("Y", time());
         </div>
         <div class="menu">
             <ul class='menu'>
-                <li class='menu'><?=$link?></li>
+                <?php
+                    if (empty($_SESSION['user_id'])) {
+                        echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
+                    } else {
+                        echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
+                        if ($user['rights'] === 'superuser') {
+                            echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
+                        }
+                    }
+                ?>
                 <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
-                <li class='menu'><?=$adminLink?></li>
             </ul>
         </div>
     </div>
@@ -142,32 +141,36 @@ $year = date("Y", time());
                 Профиль пользователя <br> 
                 ФИО: <?=$user['fio']?><br> 
                 <?php
-                    if ($show) {
+                    if (!empty($showInfoAndLinksToDelete)) {
                         echo "E-mail: " . $user['email'];
                     }
-                    if ($linkToChange) {
-                        echo "<a class='list' style='font-size:13pt; width:40vh' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
+                    if (!empty($linkToChangeUserInfo)) {
+                        if (!isset($_GET['changeinfo'])) {
+                            echo "<a class='list' style='font-size:13pt; width:40vh' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
+                        } else {
+                            echo "<a class='list' style='font-size:13pt; width:40vh' title='Отмена' href='cabinet.php'>Отмена</a>\n";
+                        }
                     }
                     if (isset($_GET['changeinfo'])) {
-                        echo <<< EOD
+                    ?>
                         <div class='container'>
                             <div class='center'>
                                 <div class='form'>
                                     <form action='cabinet.php' method='post'>
-                                        <input type='login' name='login' required autofocus minlength="1" maxlength='50' placeholder='Введите новый email' class='text' value='$login'><br>
-                                        <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='Новый псевдоним' class='text' value='$fio'><br>
+                                        <input type='email' name='email' required autofocus minlength="1" maxlength='50' placeholder='Введите новый email' class='text' value='<?=$user['email']?>'><br>
+                                        <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='Новый псевдоним' class='text' value='<?=$user['fio']?>'><br>
                                         <input type='password' name='password' minlength="0" maxlength='20' placeholder='Новый пароль; оставьте пустым, если не хотите менять' class='text'><br>
-                        
-                                        <div class='msg'>
-                                            <p class='error'>$msg</p>
-                                        </div>
-
+                                <?php
+                                    if (!empty($msg)) {
+                                        echo "<div class='msg'><p class='error'>$msg</p></div>";
+                                    }
+                                ?>
                                         <div id='right'><input type='submit' value='Сохранить' class='submit'></div>
                                     </form>
                                 </div>
                             </div>
                         </div>
-EOD;
+                    <?php
                     } elseif (!empty($msg)) {
                         echo "<p class='list' style='font-size:13pt'>$msg</p>";
                     }
@@ -202,13 +205,13 @@ EOD;
                         <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
                         <p class='postdate'> &copy; <?= $post['date_time'] ?> Рейтинг: <?=$post['rating']?>, оценок: <?= $post['countRatings']?></p>
                         <?php
-                            if ($show) {
+                            if (!empty($showInfoAndLinksToDelete)) {
                         ?>
                         <object><a class='list' href='cabinet.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
                         <?php
                             }
                         ?>
-                        <p class='postdate'>Комментариев к посту: <?= $post['countComments'] ?> </p>
+                        <p class='postdate'>Комментариев: <?= $post['countComments'] ?> </p>
                     </div>
 
                     <div class='smallpostimage'>
@@ -245,7 +248,7 @@ EOD;
                         <p class='commentcontent'><?=$content?></p>
                         <p class='commentcontent'>
                             <?php
-                                if ($show) {
+                                if (!empty($showInfoAndLinksToDelete)) {
                             ?> 
                                 <object><a class='menu' href='cabinet.php?deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
                             <?php
