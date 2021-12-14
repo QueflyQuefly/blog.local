@@ -1,8 +1,7 @@
 <?php
-$file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions', 'functions.php'));
-require_once $file_functions;
-
 session_start();
+$file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
+require_once $file_functions;
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 

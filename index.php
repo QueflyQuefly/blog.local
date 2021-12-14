@@ -43,12 +43,12 @@ $ids = getPostIds(10);
                     } else {
                         $user = getUserEmailFioRightsById($_SESSION['user_id']);
                         echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
-                        echo "<li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>";
                         if ($user['rights'] === 'superuser') {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
                 ?>
+                <li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>
                 <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
             </ul>

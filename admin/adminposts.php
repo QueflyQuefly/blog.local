@@ -1,9 +1,9 @@
 <?php
 session_start();
-$file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions', 'functions.php'));
+$file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $file_functions;
 
-$error = ''; $posts = [];
+$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (!empty($_SESSION['user_id'])) {
     $user = getUserEmailFioRightsById($_SESSION['user_id']);

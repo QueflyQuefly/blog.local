@@ -3,10 +3,11 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
+$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
+
 if (isset($_GET['user'])) {
     $userId = clearInt($_GET['user']);
     $user = getUserEmailFioRightsById($userId);
-    $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
     
     if (!empty($_SESSION['user_id'])) {
         $sessionUser = getUserEmailFioRightsById($_SESSION['user_id']);
@@ -39,22 +40,34 @@ if (isset($_GET['user'])) {
 }
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
-    $uri = str_replace('exit', '', $_SERVER['REQUEST_URI']);
+    $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
     header("Location: $uri");
 }
-if ($showInfoAndLinksToDelete === true) {
+if (!empty($showInfoAndLinksToDelete)) {
     if (isset($_GET['deletePostById'])) {
         $deletePostId = clearInt($_GET['deletePostById']);
         if ($deletePostId !== '') {
-            deletePostById($deletePostId);
-            header("Location: {$_SESSION['referrer']}");
+            if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
+                deletePostById($deletePostId);
+                $uri = str_replace("&deletePostById=$deletePostId", '', $_SERVER['REQUEST_URI']);
+                header("Location: $uri");
+            } else {
+                deletePostById($deletePostId);
+                header("Location: cabinet.php");
+            }
         } 
     }
     if (isset($_GET['deleteCommentById'])) {
         $deleteCommentId = clearInt($_GET['deleteCommentById']);
         if ($deleteCommentId !== '') {
-            deleteCommentById($deleteCommentId);
-            header("Location: {$_SESSION['referrer']}");
+            if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
+                deleteCommentById($deleteCommentId);
+                $uri = str_replace("&deleteCommentById=$deleteCommentId", '', $_SERVER['REQUEST_URI']);
+                header("Location: $uri");
+            } else {
+                deleteCommentById($deleteCommentId);
+                header("Location: cabinet.php");
+            }  
         } 
     }
 }
@@ -121,7 +134,11 @@ $year = date("Y", time());
                     if (empty($_SESSION['user_id'])) {
                         echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
                     } else {
-                        echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
+                        if ($userId === $_SESSION['user_id']) {
+                            echo "<li class='menu'><a class='menu' href='index.php?exit'>Выйти</a></li>";
+                        } else {
+                            echo "<li class='menu'><a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a></li>";
+                        }
                         if ($user['rights'] === 'superuser') {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
@@ -206,10 +223,16 @@ $year = date("Y", time());
                         <p class='postdate'> &copy; <?= $post['date_time'] ?> Рейтинг: <?=$post['rating']?>, оценок: <?= $post['countRatings']?></p>
                         <?php
                             if (!empty($showInfoAndLinksToDelete)) {
+                                if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
                         ?>
-                        <object><a class='list' href='cabinet.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
+                        <object><a class='list' href='<?=$_SERVER['REQUEST_URI']?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
                         <?php
-                            }
+                                } else {
+                                    ?>
+                                    <object><a class='list' href='cabinet.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
+                                    <?php
+                                }
+                            } 
                         ?>
                         <p class='postdate'>Комментариев: <?= $post['countComments'] ?> </p>
                     </div>
@@ -247,10 +270,22 @@ $year = date("Y", time());
                     <div class='commentcontent'>
                         <p class='commentcontent'><?=$content?></p>
                         <p class='commentcontent'>
+                        <?php
+                            if (!empty($showInfoAndLinksToDelete)) {
+                                if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
+                        ?>
+                        <object><a class='menu' href='<?=$_SERVER['REQUEST_URI']?>&deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
+                        <?php
+                                } else {
+                                    ?>
+                                    <object><a class='menu' href='cabinet.php?deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
+                                    <?php
+                                }
+                            } 
+                        ?>
                             <?php
                                 if (!empty($showInfoAndLinksToDelete)) {
                             ?> 
-                                <object><a class='menu' href='cabinet.php?deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
                             <?php
                                 }
                             ?>

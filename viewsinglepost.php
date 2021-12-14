@@ -110,13 +110,13 @@ $year = date("Y", time());
                     if (empty($_SESSION['user_id'])) {
                         echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
                     } else {
-                        echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
-                        echo "<li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>";
+                        echo "<li class='menu'><a class='menu' href='&exit'>Выйти</a></li>";
                         if ($user['rights'] === 'superuser') {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
                 ?>
+                <li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>
                 <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
                 <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
             </ul>
@@ -138,7 +138,7 @@ $year = date("Y", time());
                     echo "<p class='singlepostdate'>Оценок 0. Будьте первым!</p>";
                 }
                 
-                if (!isUserChangesPostRating($userId, $postId)) {
+                if (empty($userId) or !isUserChangesPostRating($userId, $postId)) {
             ?>
             <div class="rating-area">
                 <form action='<?=$_SERVER['REQUEST_URI']?>' method='post'>

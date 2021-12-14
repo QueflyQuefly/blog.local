@@ -1,21 +1,19 @@
 <?php
 session_start(); 
-$_SESSION['referrer'] = 'addpost.php';
-$ok = '';
-$error = '';
-
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
-$size = 4096000; //max size of upload image
+$_SESSION['referrer'] = 'addpost.php';
 
-if (empty($_SESSION['user_id'])) {
-    header("Location: login.php");
-} else {
+$maxSizeOfUploadImage = 4096000; // 4 megabytes
+
+if (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
     $user = getUserEmailFioRightsById($userId);
     $email = $user['email'];
     $fio = $user['fio'];
+} else {
+    header("Location: login.php");
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -31,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     header("Location: addpost.php?msg=$error");
                     break;
                 case UPLOAD_ERR_FORM_SIZE:
-                    $error = "Превышено значение $size байт";
+                    $error = "Превышено значение $maxSizeOfUploadImage байт";
                     header("Location: addpost.php?msg=$error");
                     break;
                 case UPLOAD_ERR_PARTIAL:
@@ -103,8 +101,20 @@ if (isset($_GET['msg'])) {
         <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
         
         <div class='msg'>
-            <p class='ok'><?=$ok?></p>
-            <p class='error'><?=$error?></p>
+            <p class='ok'>
+                <?php
+                    if (!empty($ok)) {
+                        echo $ok;
+                    }
+                ?>
+            </p>
+            <p class='error'>
+                <?php
+                    if (!empty($error)) {
+                        echo $error;
+                    }
+                ?>
+            </p>
         </div>
 
         <p class='label'>Форма добавления поста:</p>
@@ -114,8 +124,8 @@ if (isset($_GET['msg'])) {
                 <label id='input' for='file_img' class='addpost'>Заголовок: </label>
                 <input type='text' title='Заголовок' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostZag' placeholder="Добавьте заголовок поста. Количество символов: от 20 до 140">
                 
-                <br> <input type="hidden" name="MAX_FILE_SIZE" value="<?=$size?>"> <br>
-                <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$size?> байт</label>
+                <br> <input type="hidden" name="MAX_FILE_SIZE" value="<?=$maxSizeOfUploadImage?>"> <br>
+                <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$maxSizeOfUploadImage?> байт</label>
                 <input class='addpostimg' type='file' name='addPostImg' id='file_img' > <!-- required -->
                 
                 <br><textarea class='text' title='Содержание' required minlength="1" maxlength='4000' spellcheck="true"  wrap='hard' name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='content'></textarea><br>
