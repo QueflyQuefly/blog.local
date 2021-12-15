@@ -132,7 +132,9 @@ for ($i = $j; $i < $j + $number; $i++) {
             $commentContent = $texts[$random6];
             $commentContent = $db->quote($commentContent);
 
-            changePostRating($random5, $postId, $random4);
+            if (!isUserChangesPostRating($random5, $postId)) {
+                changePostRating($random5, $postId, $random4);
+            }
 
             $randomLike = mt_rand(0, 1000);
             $sql = "INSERT INTO comments (post_id, user_id, date_time, content, rating) 
@@ -141,6 +143,9 @@ for ($i = $j; $i < $j + $number; $i++) {
             if (!$db->exec($sql)) {
                 echo $sql;
                 $error = "Комментарий к посту №$postId от пользователя №$random5 не создан";
+            }
+            if (!isUserChangedCommentRating($random5, $random5)) {
+                changeCommentRating('like', $random5, $postId, $random5);
             }
         }
     } catch (PDOException $e) {

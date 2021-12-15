@@ -247,7 +247,7 @@ $year = date("Y", time());
                 <div class='like'>
                     <?php
                         $countLikes = $comments[$i]['rating'];
-                        if (!isUserChangesCommentRating($userId, $comments[$i]['id'])) {
+                        if (empty($userId) or !isUserChangedCommentRating($userId, $comments[$i]['id'])) {
                             $name = 'like';
                         } else {
                             $name = 'unlike';

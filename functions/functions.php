@@ -656,7 +656,7 @@ function countRatingsByPostId($id) {
 }
 function getLikedPostsIdsByUserId($userId) {
     global $db, $error;
-    $posts = [];
+    $postIds = [];
     try {
         $userId = clearInt($userId);
         $sql = "SELECT post_id FROM rating_posts WHERE user_id = $userId;";// LIMIT 30
@@ -665,12 +665,13 @@ function getLikedPostsIdsByUserId($userId) {
             return false;
         }
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $posts[] = $result;
+            $postIds[] = $result['post_id'];
         }
+        $postIds = array_unique($postIds);
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $posts;   
+    return $postIds;   
 }
 /* functions for table rating_posts */
 
@@ -708,7 +709,7 @@ function changeCommentRating($rating, $comId, $postId, $userId){
     }
     return true;
 }
-function isUserChangesCommentRating($userId, $comId){
+function isUserChangedCommentRating($userId, $comId){
     global $db, $error;
     try {
         $userId = clearInt($userId);

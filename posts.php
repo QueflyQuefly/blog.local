@@ -4,9 +4,11 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
+$_SESSION['referrer'] = "posts.php";
+
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
-    header("Location: /");
+    header("Location: posts.php");
 }
 
 $year = date("Y", time());

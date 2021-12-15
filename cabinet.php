@@ -1,4 +1,5 @@
 <?php
+$start = microtime(true);
 session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
@@ -22,7 +23,7 @@ if (isset($_GET['user'])) {
             header("Location: $uri");
         }
         $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-        if ($userId === $_SESSION['user_id']) {
+        if ($userId == $_SESSION['user_id']) {
             header("Location: cabinet.php");
         }
         if ($sessionUser['rights'] === 'superuser') {
@@ -153,54 +154,53 @@ $year = date("Y", time());
 
 <div class='allwithoutmenu'>
     <div class='content'>
-        <div id='singlepostzagolovok'>
-            <p class='singlepostzagolovok'>
-                Профиль пользователя <br> 
-                ФИО: <?=$user['fio']?><br> 
+        <div id='desc'><p>Профиль пользователя - <?=$user['fio']?> </p>
+            <?php
+                if (!empty($showInfoAndLinksToDelete)) {
+                    echo "<p>E-mail: {$user['email']}</p>";
+                }
+                if (!empty($linkToChangeUserInfo)) {
+                    if (!isset($_GET['changeinfo'])) {
+                        echo "<a class='menu' style='font-size:13pt; margin-left:30vh' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
+                    } else {
+                        echo "<a class='menu' style='font-size:13pt; margin-left:30vh' title='Отмена' href='cabinet.php'>Отмена</a>\n";
+                    }
+                }
+                echo "<p>";
+                if (isset($_GET['user']) && !empty($_SESSION['user_id'])) {
+                    if (!isSubscribedUser($sessionUser['email'], $user['email'])) {
+                        echo "<a class='menu' title='Подписаться' style='font-size:14pt' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a>";
+                    } else {
+                        echo "<a class='menu' title='Отменить подписку' style='font-size:14pt' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a>";
+                    }
+                }
+                echo "</p>";
+            ?>
+        </div>
+        
+        <?php
+            if (isset($_GET['changeinfo'])) {
+            ?>
+            <div class='viewcomment'>
+                <div class='form'>
+                    <form action='cabinet.php' method='post'>
+                        <input type='email' name='email' required autofocus minlength="1" maxlength='50' autocomplete="on" placeholder='Введите новый email' class='text' value='<?=$user['email']?>'><br>
+                        <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='Новый псевдоним' class='text' value='<?=$user['fio']?>'><br>
+                        <input type='password' name='password' minlength="0" maxlength='20' autocomplete="new-password" placeholder='Новый пароль; оставьте пустым, если не хотите менять' class='text'><br>
                 <?php
-                    if (!empty($showInfoAndLinksToDelete)) {
-                        echo "E-mail: " . $user['email'];
-                    }
-                    if (!empty($linkToChangeUserInfo)) {
-                        if (!isset($_GET['changeinfo'])) {
-                            echo "<a class='list' style='font-size:13pt; width:40vh' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
-                        } else {
-                            echo "<a class='list' style='font-size:13pt; width:40vh' title='Отмена' href='cabinet.php'>Отмена</a>\n";
-                        }
-                    }
-                    if (isset($_GET['changeinfo'])) {
-                    ?>
-                        <div class='container'>
-                            <div class='center'>
-                                <div class='form'>
-                                    <form action='cabinet.php' method='post'>
-                                        <input type='email' name='email' required autofocus minlength="1" maxlength='50' placeholder='Введите новый email' class='text' value='<?=$user['email']?>'><br>
-                                        <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="true" placeholder='Новый псевдоним' class='text' value='<?=$user['fio']?>'><br>
-                                        <input type='password' name='password' minlength="0" maxlength='20' placeholder='Новый пароль; оставьте пустым, если не хотите менять' class='text'><br>
-                                <?php
-                                    if (!empty($msg)) {
-                                        echo "<div class='msg'><p class='error'>$msg</p></div>";
-                                    }
-                                ?>
-                                        <div id='right'><input type='submit' value='Сохранить' class='submit'></div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    <?php
-                    } elseif (!empty($msg)) {
-                        echo "<p class='list' style='font-size:13pt'>$msg</p>";
-                    }
-                    if (isset($_GET['user']) && !empty($_SESSION['user_id'])) {
-                        if (!isSubscribedUser($sessionUser['email'], $user['email'])) {
-                            echo "<a class='list' title='Подписаться' style='font-size:13pt; width:40vh' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a>";
-                        } else {
-                            echo "<a class='list' title='Отменить подписку' style='font-size:13pt; width:40vh' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a>";
-                        }
+                    if (!empty($msg)) {
+                        echo "<div class='msg'><p class='error'>$msg</p></div>";
                     }
                 ?>
-            </p>
-        </div>
+                        <div id='right'><input type='submit' style='margin-left:5vh' value='Сохранить' class='submit'></div>
+                    </form>
+                </div>
+            </div>
+            <?php
+                } elseif (!empty($msg)) {
+                    echo "<p class='list' style='font-size:13pt'>$msg</p>";
+                }
+            ?>
             <?php 
                 $posts = getPostsByUserId($userId);
                 if (empty($posts) or $posts == false) {
@@ -283,12 +283,6 @@ $year = date("Y", time());
                                 }
                             } 
                         ?>
-                            <?php
-                                if (!empty($showInfoAndLinksToDelete)) {
-                            ?> 
-                            <?php
-                                }
-                            ?>
                         </p>
                     </div>
                 </div>
@@ -310,7 +304,7 @@ $year = date("Y", time());
             echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Оценённые посты  &copy; ${user['fio']} (всего $countPostsLikeIds):</p></div>";
             if (!empty($postsLikeIds)) {
                 foreach ($postsLikeIds as $postLikeId) {
-                    $post = getPostForViewById($postLikeId['post_id']);
+                    $post = getPostForViewById($postLikeId);
                     $authorOfPost = getUserEmailFioRightsById($post['user_id']);
                     $fioOfAuthor = $authorOfPost['fio']; 
         ?>
@@ -382,7 +376,7 @@ $year = date("Y", time());
     </div>
 
     <footer class='bottom'>
-        <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+        <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
     </footer>
 </div>
 </body>
