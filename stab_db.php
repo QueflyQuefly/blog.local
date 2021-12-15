@@ -1,7 +1,7 @@
 <?php
 $start = microtime(true);
 
-set_time_limit(6000);
+@set_time_limit(6000);
 require_once 'dbconfig.php';
 
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';

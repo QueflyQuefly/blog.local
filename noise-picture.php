@@ -2,7 +2,6 @@
 session_start();
 $font = __DIR__ . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'georgia.ttf';
 $img = imageCreateTrueColor(160, 25);
-imageAntiAlias($img, true);
 
 $grey = imageColorAllocate($img, 192, 192, 192);
 $black = imageColorAllocate($img, 90, 90, 90);

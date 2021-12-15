@@ -89,7 +89,10 @@ try {
         VALUES ('admin@gmail.com', 'Администратор', $password, $date, 'superuser')
         ;";
 
-    $db->exec($sql);
+    if (!$db->exec($sql)) {
+        echo $sql;
+        echo $error = "База данных не создана";
+    }
 } catch(PDOException $e) {
     echo $error = $e->getMessage();
 }
