@@ -70,24 +70,15 @@ $number = 50;
                     $countIdsOfPosts = 0;
                 }
                 $ids = array_slice($ids, $countIdsOfPosts, $number);
-                foreach ($ids as $id) {
-                    $posts[] = getPostForIndexById($id);
-                }
-            }
-            if (empty($posts)) {
-                echo "<p class='error'>Нет постов для отображения</p>"; 
-            } else {
-                echo "<ul class='list'>";
-                foreach ($posts as $post) {
-                    $tags = getTagsToPostById($post['id']);
-                    $comments = getCommentsByPostId($post['id']);
-                    $evaluations = $post['countRatings'];
-                    $author = getUserEmailFioRightsById($post['user_id']);
-                    if (empty($posts) or $posts == false) {
-                        $countComments = 0;
-                    } else {
-                    $countComments = count($comments);
-                    }
+                if (empty($ids)) {
+                    echo "<p class='error'>Нет постов для отображения</p>"; 
+                } else {
+                    echo "<ul class='list'>";
+                    foreach ($ids as $id) {
+                        $post = getPostForIndexById($id);
+                        $tags = getTagsToPostById($post['id']);
+                        $evaluations = $post['countRatings'];
+                        $author = getUserEmailFioRightsById($post['user_id']);
             ?>
             <li class='list'>
                 <p class='list'><span>ID:</span><?= $post['id'] ?> ::: <span>Название:</span> <?= $post['zag'] ?></p>
@@ -106,35 +97,17 @@ $number = 50;
                     ?>
                 </p>
                 <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
-                <p class='list'> <span>Комментариев к посту:</span> <?= $countComments ?> </p>
-            
-                <?php 
-                    if ($countComments) {
-                        echo "<ul class='list'>";
-                        foreach ($comments as $comment) {
-                            $author = getUserEmailFioRightsById($comment['user_id']);
-                ?>
-            <br>
-            <li class='list'>
-                <p class='list'><span>ID:</span><?= $comment['id'] ?> ::: <span>Автор:</span> <?= $author['fio'] ?> <br> <span>E-mail автора:</span> <?= $author['email'] ?></p>
-                <br>
-                <p class='list'>Содержание: <?= $comment['content'] ?></p>
-                <a class='list' href='adminposts.php?deleteCommentById=<?= $comment['id'] ?>&byPostId=<?= $post['id'] ?>'> Удалить комментарий с ID=<?= $comment['id'] ?></a>
-            </li>
-                <?php
-
-                        }
-                    echo "</ul>";
-                    }
-                ?>
+                <p class='list'> <span>Комментариев к посту:</span> <?= $post['countComments'] ?> </p>
                 <hr>
             </li>
-        <?php 
-                } echo "</ul>";
+            <?php 
+                    }
+                    echo "</ul>";
+                }
+                echo "</div>";
             }
-            echo "</div>";
         }
-        ?>
+            ?>
         </div>
     </div>
 </div>
