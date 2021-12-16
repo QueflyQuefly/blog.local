@@ -311,6 +311,9 @@ function getPostById($id) {
 function getPostForIndexById($postId) {
     $post = [];
     $post = getPostById($postId);
+    if (empty($post)) {
+        return $post;
+    }
     $post = toProcessPostForIndex($post);
     $post['countComments'] = countCommentsByPostId($postId);
     $post['countRatings'] = countRatingsByPostId($postId);
@@ -319,6 +322,9 @@ function getPostForIndexById($postId) {
 function getPostForViewById($postId) {
     $post = [];
     $post = getPostById($postId);
+    if (empty($post)) {
+        return $post;
+    }
     $post = toProcessPostForView($post);
     $post['countComments'] = countCommentsByPostId($postId);
     $post['countRatings'] = countRatingsByPostId($postId);

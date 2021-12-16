@@ -11,6 +11,9 @@ if (isset($_GET['viewPostById'])) {
     $_SESSION['referrer'] = "viewsinglepost.php?viewPostById=$postId";
 
     $post = getPostForViewById($postId);
+    if (empty($post)) {
+        header("Location: /");
+    }
     $postAuthorId = $post['user_id'];
     $postAuthor = getUserEmailFioRightsById($postAuthorId);
     $postAuthorFio = $postAuthor['fio'];

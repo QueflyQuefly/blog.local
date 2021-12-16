@@ -1,3 +1,7 @@
+#404 Страница не найдена
+ErrorDocument 404 http://blog.local/index.php
+#500 Внутренняя ошибка сервера
+ErrorDocument 500 http://blog.local/index.php
 Options -Indexes
 AddDefaultCharset utf-8
 php_flag display_errors on
