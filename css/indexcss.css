@@ -507,7 +507,20 @@ select.select {
     background-position: left .7em top 50%, 0 0; 
     padding: .6em .8em .5em 1.4em; 
 }
-
+.link{
+    color: rgb(36, 57, 173);
+    padding: 5px;
+    text-decoration: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* font-style: italic; */
+}
+.link:hover{
+    color:darkslateblue;
+    text-decoration: underline;
+}
+.link:active{
+    text-decoration:currentColor;
+}
 p.error{
     /* position: absolute; */
     text-align:center;

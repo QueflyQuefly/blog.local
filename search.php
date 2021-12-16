@@ -5,6 +5,8 @@ require_once $functions;
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
+$search = '';
+
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
     $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
@@ -25,8 +27,14 @@ if (!empty($_GET['search'])) {
                 if ($result = searchPostsByNameAndAuthor($search)) {
                     $posts[] = $result;
                 }
-                if ($result = searchUsersByFioAndLogin($search, $user['rights'])) {
-                    $users[] = $result;
+                if(!empty($user)) {
+                    if ($result = searchUsersByFioAndLogin($search, $user['rights'])) {
+                        $users[] = $result;
+                    }
+                } else {
+                    if ($result = searchUsersByFioAndLogin($search)) {
+                        $users[] = $result;
+                    }
                 }
             }
         } else {
@@ -38,25 +46,30 @@ if (!empty($_GET['search'])) {
                 if ($result = searchPostsByNameAndAuthor($search)) {
                     $posts[] = $result;
                 }
-                if ($result = searchUsersByFioAndLogin($search, $user['rights'])) {
-                    $users[] = $result;
+                if(!empty($user)) {
+                    if ($result = searchUsersByFioAndLogin($search, $user['rights'])) {
+                        $users[] = $result;
+                    }
+                } else {
+                    if ($result = searchUsersByFioAndLogin($search)) {
+                        $users[] = $result;
+                    }
                 }
             }
         }
         if (!empty($posts[0])) {
-            foreach ($posts as $post) {
-                foreach ($post as $post_id) {
-                    $idsnotsort[] = $post_id;
-                }
+            $posts = $posts[0];
+            foreach ($posts as $postId) {
+                $idsnotsort[] = $postId;
             }
             $idsnotsort = array_slice($idsnotsort, 0 , 30);
             $ids = array_unique($idsnotsort);
+            krsort($ids);
         } 
         if (!empty($users[0])) {
+            $users = $users[0];
             foreach ($users as $user) {
-                foreach ($user as $u) {
-                    $userids[$u['id']] = $u;
-                }
+                $userids[$user['id']] = $user;
             }
             $userids = array_slice($userids, 0 , 30);
         } elseif (empty($posts[0]) && empty($users[0])) {
@@ -138,7 +151,7 @@ $year = date("Y", time());
 
         <div class='search'>
             <form class='search' action='<?=$_SERVER['PHP_SELF']?>' method='get'>
-                <input class='text' type='text' id='search' required autofocus minlength="1" maxlength="100" placeholder='Найти...' name='search' value='<?=$search?>'>
+                <input class='text' type='text' id='search' required autofocus autocomplete="on" minlength="1" maxlength="100" placeholder='Найти...' name='search' value='<?=$search?>'>
                 <button type="submit">&#x2315</button>
             </form>
         </div> 
@@ -148,7 +161,7 @@ $year = date("Y", time());
         <?php 
             if (empty($ids)) {
                 echo "<div class='searchdescription'><div class='smallposttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
-                if ($user['rights'] === 'superuser') {
+                if (!empty($user) && $user['rights'] === 'superuser') {
                     echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
                 } else {
                     echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО</div>\n</div>"; 
@@ -181,7 +194,7 @@ $year = date("Y", time());
                         </p>
                     <p class='postdate'> Комментариев к посту: <?= $post['countComments'] ?>
                         <?php
-                            if ($user['rights'] === 'superuser') {
+                            if (!empty($user) && $user['rights'] === 'superuser') {
                         ?>
                             <object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object>
                         <?php

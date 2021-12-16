@@ -13,12 +13,12 @@ if (isset($_GET['user'])) {
     if (!empty($_SESSION['user_id'])) {
         $sessionUser = getUserEmailFioRightsById($_SESSION['user_id']);
         if (isset($_GET['subscribe'])) {
-            toSubscribeUser($sessionUser['email'], $user['email']);
+            toSubscribeUser($_SESSION['user_id'], $userId);
             $uri = str_replace('&subscribe', '', $_SERVER['REQUEST_URI']);
             header("Location: $uri");
         }
         if (isset($_GET['unsubscribe'])) {
-            toUnsubscribeUser($sessionUser['email'], $user['email']);
+            toUnsubscribeUser($_SESSION['user_id'], $userId);
             $uri = str_replace('&unsubscribe', '', $_SERVER['REQUEST_URI']);
             header("Location: $uri");
         }
@@ -76,30 +76,25 @@ if (isset($_POST['email']) && isset($_POST['fio']) && isset($_POST['password']))
     $id = $_SESSION['user_id'];
     $email = clearStr($_POST['email']);
     $fio = clearStr($_POST['fio']);
-    $password = clearStr($_POST['password']);
+    $password = $_POST['password'];
     $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
     if (!preg_match($regex, $email)) {
         $msg = "Неверный формат email";
         header("Location: cabinet.php?changeinfo&msg=$msg");
-        exit;
     }   
-    if ($email && $fio && $password) {
-        $password = password_hash($password, PASSWORD_BCRYPT);
+    if ($email && $fio) {
+        if ($password != '') {
+            $password = password_hash($password, PASSWORD_BCRYPT);
+        } else {
+            $password = false;
+        }
         if (!updateUser($id, $email, $fio, $password)) {
             $msg = "Пользователь с таким email уже зарегистрирован";
             header("Location: cabinet.php?changeinfo&msg=$msg"); 
         } else {
             $msg = "Изменения сохранены";
             header("Location: cabinet.php?msg=$msg");
-        } 
-    } elseif ($email && $fio) {
-        if (!updateUser($id, $email, $fio)) {
-            $msg = "Пользователь с таким email уже зарегистрирован";
-            header("Location: cabinet.php?changeinfo&msg=$msg"); 
-        } else {
-            $msg = "Изменения сохранены";
-            header("Location: cabinet.php?msg=$msg");
-        } 
+        }
     } else { 
         $msg = "Заполните все поля";
         header("Location: cabinet.php?changeinfo&msg=$msg");
@@ -161,20 +156,18 @@ $year = date("Y", time());
                 }
                 if (!empty($linkToChangeUserInfo)) {
                     if (!isset($_GET['changeinfo'])) {
-                        echo "<a class='menu' style='font-size:13pt; margin-left:30vh' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
+                        echo "<a class='link' style='font-size:13pt; margin-left:30vh' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
                     } else {
-                        echo "<a class='menu' style='font-size:13pt; margin-left:30vh' title='Отмена' href='cabinet.php'>Отмена</a>\n";
+                        echo "<a class='link' style='font-size:13pt; margin-left:30vh' title='Отмена' href='cabinet.php'>Отмена</a>\n";
                     }
                 }
-                echo "<p>";
                 if (isset($_GET['user']) && !empty($_SESSION['user_id'])) {
-                    if (!isSubscribedUser($sessionUser['email'], $user['email'])) {
-                        echo "<a class='menu' title='Подписаться' style='font-size:14pt' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a>";
+                    if (!isSubscribedUser($_SESSION['user_id'], $userId)) {
+                        echo "<p><a class='link' title='Подписаться' style='font-size:14pt' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a></p>";
                     } else {
-                        echo "<a class='menu' title='Отменить подписку' style='font-size:14pt' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a>";
+                        echo "<p><a class='link' title='Отменить подписку' style='font-size:14pt' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a></p>";
                     }
                 }
-                echo "</p>";
             ?>
         </div>
         

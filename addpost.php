@@ -49,20 +49,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     header("Location: addpost.php?msg=$error");
             }
         } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-            $regex = "/#\w+/um";
-            preg_match_all($regex, $content, $tags);
-            $content = preg_replace($regex,' ', $content);
             
             insertToPosts($zag, $userId, $content);
 
             $lastPostId = getLastPostId();
+
+            $regex = "/#\w+/um";
+            $allText = $zag . " " . $content;
+            preg_match_all($regex, $allText, $tags);
 
             $tags = $tags[0];
             foreach ($tags as $tag) {
                 addTagsToPost($tag, $lastPostId);
             }
 
-            /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . getLastPostId() . ".jpg"); */
+            /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
             
             $msg =  "Пост добавлен";
             header("Location: addpost.php?msg=$msg");

@@ -183,7 +183,7 @@ $year = date("Y", time());
                     if ($tags) {
                         foreach ($tags as $tag) {
                             $tagLink = substr($tag['tag'], 1);
-                            echo "<a class='menu' href='search.php?search=%23$tagLink'>{$tag['tag']}</a> ";
+                            echo "<a class='link' href='search.php?search=%23$tagLink'>{$tag['tag']}</a> ";
                         }
                     } else {
                         echo "Нет тэгов";

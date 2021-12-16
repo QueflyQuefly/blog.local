@@ -3,7 +3,7 @@ require_once 'dbconfig.php';
 try {
     $db = new PDO("mysql:host=$host", $username, $password);
 
-    $password = password_hash('12345', PASSWORD_BCRYPT);
+    $password = password_hash('1', PASSWORD_BCRYPT);
     $password = $db->quote($password);
     $date = time();
 
@@ -86,7 +86,7 @@ try {
 
         INSERT INTO users
         (email, fio, pass_word, date_time, rights) 
-        VALUES ('admin@gmail.com', 'Администратор', $password, $date, 'superuser')
+        VALUES ('1@1.1', 'Администратор', $password, $date, 'superuser')
         ;";
 
     if (!$db->exec($sql)) {

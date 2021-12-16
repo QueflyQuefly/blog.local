@@ -21,6 +21,9 @@ if (isset($_POST['view'])) {
     if ($_POST['view'] === 'addAdmin') {
         header("Location: reg.php");
     }
+    if ($_POST['view'] === 'viewStab') {
+        header("Location: /stab_db.php");
+    }
 }
 
 ?>
@@ -58,6 +61,9 @@ if (isset($_POST['view'])) {
 
                     <br><input type='radio' id='radio3' name='view' value='addAdmin' class='radio'>
                     <label for='radio3'>Добавить администратора</label>
+
+                    <br><input type='radio' id='radio4' name='view' value='viewStab' class='radio'>
+                    <label for='radio4'>Стаб БД</label>
                 </div>
 
                 <br><div id='right'><input type='submit' value='Перейти' class='submit'></div>

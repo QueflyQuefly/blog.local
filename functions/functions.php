@@ -168,9 +168,10 @@ function isEmailUnique($email) {
     }
     return true;
 }
-function updateUser($id, $email, $fio, $password = false) {
+function updateUser($id, $email, $fio, $password) {
     global $db, $error;
     try {
+        $id = clearInt($id);
         $user = getUserEmailFioRightsById($id);
         $unchangedEmail = $user['email'];
         if ($unchangedEmail != $email) {
@@ -178,15 +179,14 @@ function updateUser($id, $email, $fio, $password = false) {
                 return false;
             }
         }
-        $id = clearInt($id);
         $email = $db->quote($email);
         $fio = $db->quote($fio);
-        $password = $db->quote($password);
 
         $sql = "UPDATE users SET email = $email, fio = $fio WHERE id = $id;";
         $db->exec($sql);
 
         if ($password !== false) {
+            $password = $db->quote($password);
             $sql = "UPDATE users SET pass_word = $password WHERE id = $id;";
             $db->exec($sql);
         }
@@ -365,7 +365,6 @@ function insertToPosts($zag, $userId, $content) {
         $zag = $db->quote($zag);
         $userId = clearInt($userId);
         $user = getUserEmailFioRightsById($userId);
-        $email = $user['email'];
         $fio = $user['fio'];
         $content = $db->quote($content);
         $rating = 0;
@@ -375,13 +374,16 @@ function insertToPosts($zag, $userId, $content) {
         if (!$db->exec($sql)) {
             return false;
         }
-        $sql = "SELECT email_want_subscribe FROM subscriptions WHERE email = $email";
+        $sql = "SELECT user_id_want_subscribe FROM subscriptions WHERE user_id = $userId";
         $stmt = $db->query($sql);
         if ($stmt) {
             $id = getLastPostId();
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $toEmail = $result['email_want_subscribe'];
-                $message = "Новый пост от $fio: http://blog.local/viewsinglepost.php?viewpostById=$id \n $zag";
+                $toUser = getUserEmailFioRightsById($result['user_id_want_subscribe']);
+                $toEmail = $toUser['email'];
+                $message = "$fio опубликовал новый пост: \n $zag \n http://blog.local/viewsinglepost.php?viewpostById=$id \n
+                Это письмо отправлено вам, потому что вы подписаны на этого автора \n
+                Отписаться: http://blog.local/cabinet.php?user=$userId&unsubscribe - необходимо прежде войти";
                 mail($toEmail, 'Новый пост', $message);
             }
         }
@@ -863,7 +865,6 @@ function searchPostsByNameAndAuthor($searchword) {
                     $results[] = $post['id'];
                 }
                 $user = getUserEmailFioRightsById($post['user_id']);
-                var_dump($user);
                 $fio = mb_strtolower($user['fio']);
                 if (strpos($fio, $searchword) !== false) {
                     $results[] = $post['id'];
@@ -916,11 +917,11 @@ function searchUsersByFioAndLogin($searchword, $rights = RIGHTS_USER) {
                     $results[$i]['id'] = $user['id'];
                     $results[$i]['fio'] = $user['fio'];
                     $results[$i]['rights'] = $user['rights'];
-                    if ($rights == 'superuser') { //email отображается только для администраторов
+                    if ($rights === 'superuser') { //email отображается только для администраторов
                         $results[$i]['email'] = $user['email'];
                     }
                 }
-                if ($rights == 'superuser') { //поиск по email только для администраторов
+                if ($rights === 'superuser') { //поиск по email только для администраторов
                     $email = mb_strtolower($user['email']);
                     if (strpos($email, $searchword) !== false) {
                         $results[$i]['id'] = $user['id'];
