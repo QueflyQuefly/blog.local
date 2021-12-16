@@ -62,12 +62,9 @@ $ids = getPostIds(10);
 
         <?php 
             if (empty($ids)) {
-                die("<p>Нет постов для отображения</p>");    
+                echo "<p>Нет постов для отображения</p>";    
             } else {
-                foreach ($ids as $id) {
-                    $posts[] = getPostForIndexById($id);
-                }
-                $post = $posts[0];
+                $post = getPostForIndexById($ids[0]);
                 $authorOfPost = getUserEmailFioRightsById($post['user_id']);
                 $fioOfAuthor = $authorOfPost['fio']; 
         ?>
@@ -97,9 +94,10 @@ $ids = getPostIds(10);
         </a>
 
         <?php
-            array_shift($posts);
+            array_shift($ids);
 
-            foreach ($posts as $post) {
+            foreach ($ids as $id) {
+                $post = getPostForIndexById($id);
                 $authorOfPost = getUserEmailFioRightsById($post['user_id']);
                 $fioOfAuthor = $authorOfPost['fio'];  
         ?>
@@ -136,9 +134,9 @@ $ids = getPostIds(10);
         <?php
                 }
             }
-            echo "<p class='center'><a class='submit' href='posts.php'>Посмотреть ещё</a></p>";
             $moreTalkedPostIds = getMoreTalkedPostIds();
             if (!empty($moreTalkedPostIds)) {
+                echo "<p class='center'><a class='submit' href='posts.php'>Посмотреть ещё</a></p>";
                 echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
                 
                 foreach ($moreTalkedPostIds as $postId) {

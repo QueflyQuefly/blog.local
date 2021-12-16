@@ -17,12 +17,12 @@ $countIdsOfPosts = count($ids);
 if (!empty($_GET['number'])) {
     $numberOfPosts = clearInt($_GET['number']);
     if ($numberOfPosts < 1 or $numberOfPosts >= $countIdsOfPosts) {
-        $numberOfPosts = 10;
+        $numberOfPosts = 25;
     }
 } else {
     $numberOfPosts = $countIdsOfPosts;
-    if ($numberOfPosts < 1 or $numberOfPosts > 10){
-        $numberOfPosts = 10;
+    if ($numberOfPosts < 1 or $numberOfPosts > 25){
+        $numberOfPosts = 25;
     }
 }
 if (!empty($_GET['page']) && $_GET['page'] >= 0 && $countIdsOfPosts != 0 && $_GET['page'] <= $countIdsOfPosts / $numberOfPosts + 1) {
@@ -78,25 +78,31 @@ if (!empty($_GET['page']) && $_GET['page'] >= 0 && $countIdsOfPosts != 0 && $_GE
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
         <div class='singleposttext'>
             <label for='number'>Кол-во постов: <select id='number' class='select' name="number" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
-                <option value='<?=$numberOfPosts?>' selected><?=$numberOfPosts?></option>
                 <?php
                     $i = 1;
-                    echo $countIdsOfPosts / $page;
-                    while (($i <= $countIdsOfPosts / $page / 25) && ($i <= 4)) {
+                    while (($i <= $countIdsOfPosts / $page / 25 + 1) && ($i <= 4)) {
                         $interval = $i * 25;
                         if ($interval != $numberOfPosts) {
                             echo "<option value='posts.php?number=$interval&page=$page'>$interval</option>";
+                        } else {
+                            echo "<option value='$numberOfPosts' selected>$numberOfPosts</option>";
                         }
                         $i++;
                     }
                 ?>
             </select>
             <label for='page'>Страница: <select id='page' class='select' name="page" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
-                <option value='<?=$page?>' selected><?=$page?></option>
                 <?php
-                    for ($i = 1; $i < $countIdsOfPosts / $numberOfPosts + 1; $i++) {
+                    if ($page > 3) {
+                        $j = $page - 3;
+                    } else {
+                        $j = 1;
+                    }
+                    for ($i = $j; $i < $countIdsOfPosts / $numberOfPosts + 1 && $i <= $page + 3; $i++) {
                         if ($i != $page) {
                             echo "<option value='posts.php?number=$numberOfPosts&page=$i'>$i</option>";
+                        } else {
+                            echo "<option value='$page' selected>$page</option>";
                         }
                     }
                 ?>
@@ -108,16 +114,9 @@ if (!empty($_GET['page']) && $_GET['page'] >= 0 && $countIdsOfPosts != 0 && $_GE
             if (empty($ids)) {
                 echo "<p>Нет постов для отображения</p>";    
             } else {
-                $countIdsOfPosts = $numberOfPosts * ($page - 1);
-                if ($countIdsOfPosts < 0) {
-                    $numberOfPosts += $countIdsOfPosts;
-                    $countIdsOfPosts = 0;
-                }
-                $ids = array_slice($ids, $countIdsOfPosts, $numberOfPosts);
+                $ids = array_slice($ids, $page * $numberOfPosts - $numberOfPosts, $numberOfPosts);
                 foreach ($ids as $id) {
-                    $posts[] = getPostForIndexById($id);
-                }
-                foreach ($posts as $post) {
+                    $post = getPostForIndexById($id);
                     $authorOfPost = getUserEmailFioRightsById($post['user_id']);
                     $fioOfAuthor = $authorOfPost['fio'];
         ?>

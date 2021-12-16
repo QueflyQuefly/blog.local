@@ -17,15 +17,15 @@ if (!empty($_GET['search'])) {
     if ($search) {
         if (strpos($search, ' ') !== false) {
             if ($result = searchPostsByContent($search)) {
-                $posts[] = $result;
+                $postsIds[] = $result;
             }
             if (strpos($search, '#') !== false) {
                 if ($result = searchPostsByTag($search)) {
-                    $posts[] = $result;
+                    $postsIds[] = $result;
                 }
             } else {
                 if ($result = searchPostsByNameAndAuthor($search)) {
-                    $posts[] = $result;
+                    $postsIds[] = $result;
                 }
                 if(!empty($user)) {
                     if ($result = searchUsersByFioAndLogin($search, $user['rights'])) {
@@ -40,11 +40,11 @@ if (!empty($_GET['search'])) {
         } else {
             if (strpos($search, '#') !== false) {
                 if ($result = searchPostsByTag($search)) {
-                    $posts[] = $result;
+                    $postsIds[] = $result;
                 }
             } else {
                 if ($result = searchPostsByNameAndAuthor($search)) {
-                    $posts[] = $result;
+                    $postsIds[] = $result;
                 }
                 if(!empty($user)) {
                     if ($result = searchUsersByFioAndLogin($search, $user['rights'])) {
@@ -57,22 +57,23 @@ if (!empty($_GET['search'])) {
                 }
             }
         }
-        if (!empty($posts[0])) {
-            $posts = $posts[0];
-            foreach ($posts as $postId) {
-                $idsnotsort[] = $postId;
+        if (!empty($postsIds[0])) {
+            $postsIds = $postsIds[0];
+            foreach ($postsIds as $postId) {
+                $idsNotSorted[] = $postId;
             }
-            $idsnotsort = array_slice($idsnotsort, 0 , 30);
-            $ids = array_unique($idsnotsort);
+            $idsNotSorted = array_slice($idsNotSorted, -30 , 30);
+            $ids = array_unique($idsNotSorted);
             krsort($ids);
         } 
         if (!empty($users[0])) {
             $users = $users[0];
             foreach ($users as $user) {
-                $userids[$user['id']] = $user;
+                $users[$user['id']] = $user;
             }
-            $userids = array_slice($userids, 0 , 30);
-        } elseif (empty($posts[0]) && empty($users[0])) {
+            $users = array_slice($users, -30 , 30);
+            krsort($users);
+        } elseif (empty($postsIds[0]) && empty($users[0])) {
             $error = "<div class='singleposttext'><p class='error'>Ничего не найдено</p></div>\n";
         }
     } else {
@@ -211,9 +212,9 @@ $year = date("Y", time());
         <?php 
                 }
             }
-            if (!empty($userids)) {
+            if (!empty($users)) {
                 echo "<div class='singleposttext'><p class='center'>Результаты поиска (пользователи): </p>\n</div>"; 
-                foreach ($userids as $user) {
+                foreach ($users as $user) {
         ?>
 
         <a class='post' href='cabinet.php?user=<?=$user['id']?>'>

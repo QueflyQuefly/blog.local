@@ -101,8 +101,8 @@ if (!empty($_SESSION['user_id'])) {
                 $zag = $db->quote($zag);
 
                 $text = $texts[$random3] . "<br />
-        <br />" . $texts[$random2] . "<br />
-        <br />" . $texts[$random1];
+<br />" . $texts[$random2] . "<br />
+<br />" . $texts[$random1];
                 $tags = isNounForTag($text);
                 $text = $db->quote($text);
 
