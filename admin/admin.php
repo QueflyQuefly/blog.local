@@ -6,8 +6,7 @@ require_once $file_functions;
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getUserEmailFioRightsById($_SESSION['user_id']);
-    $rights = $user['rights'];
+    $rights = getUserInfoById($_SESSION['user_id'], 'rights');
 } else {
     $rights = false;
 }

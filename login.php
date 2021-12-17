@@ -6,12 +6,12 @@ require_once $functions;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $variableOfCaptcha = clearInt($_POST['variableOfCaptcha']);
     $email = clearStr($_POST['email']);
-    $password = clearStr($_POST['password']);
+    $password = $_POST['password'];
     if ($variableOfCaptcha == $_SESSION['variableOfCaptcha']) {
         if (isUser($email, $password)) {
             $_SESSION['user_id'] = getUserIdByEmail($email);
 
-            if (isset($_SESSION['referrer'])) {
+            if (!empty($_SESSION['referrer'])) {
                 header("Location: {$_SESSION['referrer']}");
             } else {
                 header("Location: /");

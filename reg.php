@@ -4,8 +4,7 @@ $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getUserEmailFioRightsById($_SESSION['user_id']);
-    $rights = $user['rights'];
+    $rights = getUserInfoById($_SESSION['user_id'], 'rights');
     if ($rights === 'superuser') {
         $forAdmin = "<label><input type='checkbox' name='add_admin' class='center'>Зарегистрировать как админа</label>";
     }
@@ -24,14 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $password = password_hash($password, PASSWORD_BCRYPT);
         if ($variableOfCaptcha == $_SESSION['variableOfCaptcha']) {
             if (isset($_POST['add_admin'])) {
-                if (!createAdmin($email, $fio, $password)) {
+                if (!addAdmin($email, $fio, $password)) {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
                 } else {
                     header("Location: /");
                 } 
             } else {
-                if (!createUser($email, $fio, $password)) {
+                if (!addUser($email, $fio, $password)) {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
                 } else {

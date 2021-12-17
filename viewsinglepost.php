@@ -12,8 +12,6 @@ if (!empty($_GET['viewPostById'])) {
         header("Location: /");
     }
     $postAuthorId = $post['user_id'];
-    $postAuthor = getUserEmailFioRightsById($postAuthorId);
-    $postAuthorFio = $postAuthor['fio'];
 
     $tags = getTagsToPostById($postId);
 
@@ -32,9 +30,9 @@ if (isset($_GET['exit'])) {
 
 if (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
-    $user = getUserEmailFioRightsById($userId);
+    $userRights = getUserInfoById($userId, 'rights');
 
-    if ($user['rights'] === 'superuser') {
+    if ($userRights === 'superuser') {
         $isAdmin = true;
         
         if (isset($_GET['deletePostById'])) {
@@ -111,7 +109,7 @@ $year = date("Y", time());
                         echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
                     } else {
                         echo "<li class='menu'><a class='menu' href='&exit'>Выйти</a></li>";
-                        if ($user['rights'] === 'superuser') {
+                        if ($userRights === 'superuser') {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -138,7 +136,7 @@ $year = date("Y", time());
                     echo "<p class='singlepostdate'>Оценок 0. Будьте первым!</p>";
                 }
                 
-                if (empty($userId) or !isUserChangesPostRating($userId, $postId)) {
+                if (empty($userId) || !isUserChangesPostRating($userId, $postId)) {
             ?>
             <div class="rating-area">
                 <form action='<?=$_SERVER['REQUEST_URI']?>' method='post'>
@@ -167,7 +165,7 @@ $year = date("Y", time());
 
 
         <div id='singlepostauthor'>
-            <p class='singlepostauthor'><a class='menu' title='Перейти в профиль пользвателя' href='cabinet.php?user=<?=$postAuthorId?>'><?=$postAuthorFio?></a></p>
+            <p class='singlepostauthor'><a class='menu' title='Перейти в профиль пользвателя' href='cabinet.php?user=<?=$postAuthorId?>'><?=$post['author']?></a></p>
             <p class='singlepostdate'><?=$post['date_time']?></p>
         </div>
 
@@ -194,7 +192,7 @@ $year = date("Y", time());
             <?php
                 if (!empty($isAdmin)) {
             ?>
-            <object><a class='list' href='viewsinglepost.php?viewPostById=<?=$postId?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
+            <object><a class='list' href='viewsinglepost.php?viewPostById=<?=$postId?>&deletePostById=<?= $postId ?>'> Удалить пост с ID=<?= $postId ?></a></object><br>
             <?php
                 }
             ?>
@@ -226,11 +224,11 @@ $year = date("Y", time());
                 for ($i = count($comments)-1; $i >= 0; $i--) {
                     $content = nl2br(strip_tags($comments[$i]['content']));
                     $authorComId = $comments[$i]['user_id'];
-                    $author = getUserEmailFioRightsById($authorComId);
+                    $author = getUserInfoById($authorComId);
                     $date = date("d.m.Y",$comments[$i]['date_time']) ." в ". date("H:i", $comments[$i]['date_time']);
             ?>
 
-            <div class='viewcomment' id='comment<?= $comments[$i]['id'] ?>'>
+            <div class='viewcomment' id='comment<?= $comments[$i]['com_id'] ?>'>
                 <p class='commentauthor'><a class='menu' href='cabinet.php?user=<?=$authorComId?>'><?=$author['fio']?></a><div class='commentdate'><?=$date?></div></p>
                 <div class='commentcontent'>
                     <p class='commentcontent'><?=$content?></p> 
@@ -238,7 +236,7 @@ $year = date("Y", time());
                         <?php
                             if (!empty($isAdmin)) {
                         ?> 
-                            <object><a class='menu' href='viewsinglepost.php?viewPostById=<?=$postId?>&deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
+                            <object><a class='menu' href='viewsinglepost.php?viewPostById=<?=$postId?>&deleteCommentById=<?= $comments[$i]['com_id'] ?>'> Удалить комментарий</a></object>
                         <?php
                             }
                         ?>
@@ -247,16 +245,16 @@ $year = date("Y", time());
                 <div class='like'>
                     <?php
                         $countLikes = $comments[$i]['rating'];
-                        if (empty($userId) or !isUserChangedCommentRating($userId, $comments[$i]['id'])) {
+                        if (empty($userId) || !isUserChangedCommentRating($userId, $comments[$i]['com_id'])) {
                             $name = 'like';
                         } else {
                             $name = 'unlike';
                         }
                     ?>
                     
-                    <form action='viewsinglepost.php?viewPostById=<?=$postId?>#comment<?=$comments[$i]['id']?>' method='post'>
-                        <label class='like' title="Нравится" for='like<?=$comments[$i]['id']?>'><span class='like'>&#9825; </span><?=$countLikes?></label>
-                        <input type="submit" class='like' id="like<?=$comments[$i]['id']?>" name="<?= $name ?>" value="<?=$comments[$i]['id']?>">
+                    <form action='viewsinglepost.php?viewPostById=<?=$postId?>#comment<?=$comments[$i]['com_id']?>' method='post'>
+                        <label class='like' title="Нравится" for='like<?=$comments[$i]['com_id']?>'><span class='like'>&#9825; </span><?=$countLikes?></label>
+                        <input type="submit" class='like' id="like<?=$comments[$i]['com_id']?>" name="<?= $name ?>" value="<?=$comments[$i]['com_id']?>">
                     </form>
 
                 </div>

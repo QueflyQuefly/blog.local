@@ -6,8 +6,10 @@ require_once $functions;
     
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
-    session_destroy();
     header("Location: /");
+}
+if(!empty($_SESSION['referrer'])) {
+    unset($_SESSION['referrer']);
 }
 
 $year = date("Y", time());
@@ -39,11 +41,10 @@ $postIds = getPostIds(10);
                 <?php
                     if (empty($_SESSION['user_id'])) {
                         echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
-                        session_destroy();
                     } else {
-                        $user = getUserEmailFioRightsById($_SESSION['user_id']);
+                        $rights = getUserInfoById($_SESSION['user_id'], 'rights');
                         echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
-                        if ($user['rights'] === 'superuser') {
+                        if ($rights === 'superuser') {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -65,11 +66,10 @@ $postIds = getPostIds(10);
                 echo "<p>Нет постов для отображения</p>";    
             } else {
                 $post = getPostForIndexById($postIds[0]);
-                $authorOfPost = getUserEmailFioRightsById($post['user_id']);
-                $fioOfAuthor = $authorOfPost['fio']; 
+                $fioOfAuthor = getUserInfoById($post['user_id'], 'fio');
         ?>
 
-        <a class='onepost' href="viewsinglepost.php?viewPostById=<?=$post['id']?>">
+        <a class='onepost' href="viewsinglepost.php?viewPostById=<?=$post['post_id']?>">
         <div class='viewonepost'>
             
             <div class='oneposttext'>
@@ -88,7 +88,7 @@ $postIds = getPostIds(10);
                 </p>
             </div>
             <div class='onepostimage'>
-                <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='onepostimage'>
+                <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка' class='onepostimage'>
             </div>
         </div>
         </a>
@@ -98,19 +98,17 @@ $postIds = getPostIds(10);
 
             foreach ($postIds as $postId) {
                 $post = getPostForIndexById($postId);
-                $authorOfPost = getUserEmailFioRightsById($post['user_id']);
-                $fioOfAuthor = $authorOfPost['fio'];  
         ?>
 
         <div class='viewsmallposts'>
 
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['id']?>'>
+            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
             <div class='smallpost'>
 
                  <div class='smallposttext'>
                     <p class='smallpostzagolovok'><?=$post['zag_small']?></p>
                     <p class='smallpostcontent'><?=$post['content_small']?></p>
-                    <p class='postdate'><?=$post['date_time']. " &copy; " . $fioOfAuthor?></p>
+                    <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
                     <p class='postrating'>
                         <?php
                             if (!$post['rating']) {
@@ -123,7 +121,7 @@ $postIds = getPostIds(10);
                 </div>
 
                 <div class='smallpostimage'>
-                    <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка' class='smallpostimage'>
                 </div>
                
             </div>
@@ -141,13 +139,12 @@ $postIds = getPostIds(10);
                 
                 foreach ($moreTalkedPostIds as $postId) {
                     $post = getPostForIndexById($postId);
-                    $authorOfPost = getUserEmailFioRightsById($post['user_id']);
-                    $fioOfAuthor = $authorOfPost['fio']; 
+                    $fioOfAuthor = getUserInfoById($post['user_id'], 'fio');
         ?>
 
         <div class='viewsmallposts'>
 
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['id']?>'>
+            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
             <div class='smallpost'>
 
                 <div class='smallposttext'>
@@ -166,7 +163,7 @@ $postIds = getPostIds(10);
                 </div>
 
                 <div class='smallpostimage'>
-                    <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка' class='smallpostimage'>
                 </div>
                 
             </div>

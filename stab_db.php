@@ -72,8 +72,7 @@ if (!empty($_GET['number'])) {
     $number = 10;
 }
 if (!empty($_SESSION['user_id'])) {
-    $sessionUser = getUserEmailFioRightsById($_SESSION['user_id']);
-    if ($sessionUser['rights'] === 'superuser') {
+    if (getUserInfoById($_SESSION['user_id'], 'rights') === 'superuser') {
         $j = getLastUserId() + 1;
         for ($i = $j; $i < $j + $number; $i++) {
             try {
@@ -113,7 +112,7 @@ if (!empty($_SESSION['user_id'])) {
                     echo $sql;
                     $error = "Пост от пользователя №$i не создан";
                 }
-                $postId = getLastPostId();
+                $postId = $db->lastInsertId();
                 if (!empty($tags)) {
                     foreach ($tags as $tag) {
                         $tag = $db->quote($tag);

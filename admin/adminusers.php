@@ -6,8 +6,7 @@ require_once $file_functions;
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getUserEmailFioRightsById($_SESSION['user_id']);
-    $rights = $user['rights'];
+    $rights = getUserInfoById($_SESSION['user_id'], 'rights');
 } else {
     $rights = false;
 }
@@ -71,7 +70,7 @@ $number = 50;
                 echo "<ul class='list'>";
                 
                 foreach ($userIds as $userId) {
-                    $user = getUserEmailFioRightsById($userId);
+                    $user = getUserInfoById($userId);
                     $comments = getCommentsByUserId($userId);
                     $countComments = count($comments);
             ?>

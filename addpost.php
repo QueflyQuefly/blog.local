@@ -9,7 +9,7 @@ $maxSizeOfUploadImage = 4096000; // 4 megabytes
 
 if (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
-    $user = getUserEmailFioRightsById($userId);
+    $user = getUserInfoById($userId);
     $email = $user['email'];
     $fio = $user['fio'];
 } else {
@@ -50,18 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
             
-            insertToPosts($zag, $userId, $content);
-
-            $lastPostId = getLastPostId();
-
-            $regex = "/#\w+/um";
-            $allText = $zag . " " . $content;
-            preg_match_all($regex, $allText, $tags);
-
-            $tags = $tags[0];
-            foreach ($tags as $tag) {
-                addTagsToPost($tag, $lastPostId);
-            }
+            addPost($zag, $userId, $content);
 
             /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
             

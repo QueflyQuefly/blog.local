@@ -6,8 +6,7 @@ require_once $file_functions;
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (!empty($_SESSION['user_id'])) {
-    $user = getUserEmailFioRightsById($_SESSION['user_id']);
-    $rights = $user['rights'];
+    $rights = getUserInfoById($_SESSION['user_id'], 'rights');
 } else {
     $rights = false;
 }
@@ -76,13 +75,12 @@ $number = 50;
                     echo "<ul class='list'>";
                     foreach ($postIds as $postId) {
                         $post = getPostForIndexById($postId);
-                        $tags = getTagsToPostById($post['id']);
+                        $tags = getTagsToPostById($post['post_id']);
                         $evaluations = $post['countRatings'];
-                        $author = getUserEmailFioRightsById($post['user_id']);
             ?>
             <li class='list'>
-                <p class='list'><span>ID:</span><?= $post['id'] ?> ::: <span>Название:</span> <?= $post['zag'] ?></p>
-                <p class='list'><span>Автор:</span> <?= $author['fio'] ?> </p>
+                <p class='list'><span>ID:</span><?= $post['post_id'] ?> ::: <span>Название:</span> <?= $post['zag'] ?></p>
+                <p class='list'><span>Автор:</span> <?= $post['author'] ?> </p>
                 <p class='list'><span>Рейтинг:</span> <?= $post['rating'] ?> ::: <span>Оценок:</span> <?=$evaluations?> </p>
                 <p class='list'> <span>Тэги:</span> 
                     <?php 
@@ -96,7 +94,7 @@ $number = 50;
                         }
                     ?>
                 </p>
-                <a class='list' href='adminposts.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a>
+                <a class='list' href='adminposts.php?deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a>
                 <p class='list'> <span>Комментариев к посту:</span> <?= $post['countComments'] ?> </p>
                 <hr>
             </li>

@@ -13,36 +13,37 @@ try {
 
         CREATE TABLE users
         (
-        id INT AUTO_INCREMENT,
+        user_id INT AUTO_INCREMENT,
         email VARCHAR(50),
         fio VARCHAR(50),
         pass_word CHAR(60),
         date_time INT,
         rights VARCHAR(20),
-        PRIMARY KEY (id)
-        );
-
-        CREATE TABLE comments
-        (
-        id INT AUTO_INCREMENT,
-        post_id INT,
-        user_id INT,
-        date_time INT,
-        content TEXT,
-        rating INT,
-        PRIMARY KEY (id)
+        PRIMARY KEY (user_id)
         );
 
 
         CREATE TABLE posts
         (
-        id INT AUTO_INCREMENT,
+        post_id INT AUTO_INCREMENT,
         zag TEXT,
         user_id INT,
         date_time INT,
         content TEXT,
         rating DOUBLE,
-        PRIMARY KEY (id)
+        PRIMARY KEY (post_id)
+        );
+
+
+        CREATE TABLE comments
+        (
+        com_id INT AUTO_INCREMENT,
+        post_id INT,
+        user_id INT,
+        date_time INT,
+        content TEXT,
+        rating INT,
+        PRIMARY KEY (com_id)
         );
 
 

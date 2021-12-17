@@ -8,10 +8,10 @@ $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (isset($_GET['user'])) {
     $userId = clearInt($_GET['user']);
-    $user = getUserEmailFioRightsById($userId);
+    $user = getUserInfoById($userId);
     
     if (!empty($_SESSION['user_id'])) {
-        $sessionUser = getUserEmailFioRightsById($_SESSION['user_id']);
+        $sessionUser = getUserInfoById($_SESSION['user_id']);
         if (isset($_GET['subscribe'])) {
             toSubscribeUser($_SESSION['user_id'], $userId);
             $uri = str_replace('&subscribe', '', $_SERVER['REQUEST_URI']);
@@ -32,7 +32,7 @@ if (isset($_GET['user'])) {
     }
 } elseif (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
-    $user = getUserEmailFioRightsById($userId);
+    $user = getUserInfoById($userId);
     $showInfoAndLinksToDelete = true;
     $linkToChangeUserInfo = true;
     $_SESSION['referrer'] = 'cabinet.php';
@@ -196,20 +196,20 @@ $year = date("Y", time());
             ?>
             <?php 
                 $posts = getPostsByUserId($userId);
-                if (empty($posts) or $posts == false) {
+                if (empty($posts)) {
                     $countPosts = 0; 
                 } else {
                     $countPosts = count($posts);
                 }
-                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список постов &copy; ${user['fio']} (всего $countPosts):</p></div>";
-                if (empty($posts) or $posts == false) {
+                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список постов &copy; {$user['fio']} (всего $countPosts):</p></div>";
+                if (empty($posts)) {
                     echo "<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>"; 
                 } else {
                     echo "<ul class='list'>";
                     foreach ($posts as $post) {
             ?>
         <div class='viewsmallposts'>
-            <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['id'] ?>'>
+            <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                 <div class='smallpost'>
                     <div class='smallposttext'>
                         <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
@@ -218,11 +218,11 @@ $year = date("Y", time());
                             if (!empty($showInfoAndLinksToDelete)) {
                                 if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
                         ?>
-                        <object><a class='list' href='<?=$_SERVER['REQUEST_URI']?>&deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
+                        <object><a class='list' href='<?=$_SERVER['REQUEST_URI']?>&deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a></object><br>
                         <?php
                                 } else {
                                     ?>
-                                    <object><a class='list' href='cabinet.php?deletePostById=<?= $post['id'] ?>'> Удалить пост с ID=<?= $post['id'] ?></a></object><br>
+                                    <object><a class='list' href='cabinet.php?deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a></object><br>
                                     <?php
                                 }
                             } 
@@ -231,7 +231,7 @@ $year = date("Y", time());
                     </div>
 
                     <div class='smallpostimage'>
-                        <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                        <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка' class='smallpostimage'>
                     </div>
                 </div>
             </a>
@@ -244,7 +244,7 @@ $year = date("Y", time());
             
             <?php 
                 $comments = getCommentsByUserId($userId);
-                if (empty($comments) or $comments == false) {
+                if (empty($comments) || $comments == false) {
                     $countComments = 0;
                 } else {
                 $countComments = count($comments);
@@ -252,14 +252,14 @@ $year = date("Y", time());
                 echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список комментариев &copy; ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
                     echo "<ul class='list'>";
-                    for ($i = 0; $i <= $countComments -1; $i++) {
-                        $content = nl2br($comments[$i]['content']);
-                        $date = date("d.m.Y",$comments[$i]['date_time']) ." в ". date("H:i", $comments[$i]['date_time']);
+                    foreach ($comments as $comment) {
+                        $content = nl2br($comment['content']);
+                        $date = date("d.m.Y", $comment['date_time']) ." в ". date("H:i", $comment['date_time']);
             ?>
 
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$comments[$i]['post_id']?>#comment<?=$comments[$i]['id']?>'>
-                <div class='viewcomment' id='comment<?= $comments[$i]['id'] ?>'>
-                    <p class='commentauthor'><?=$user['fio']?><div class='commentdate'><?=$date?></div></p>
+            <a class='post' href='viewsinglepost.php?viewPostById=<?= $comment['post_id'] ?>#comment<?= $comment['com_id'] ?>'>
+                <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
+                    <p class='commentauthor'><?=$user['fio']?><div class='commentdate'><?= $date ?></div></p>
                     <div class='commentcontent'>
                         <p class='commentcontent'><?=$content?></p>
                         <p class='commentcontent'>
@@ -267,11 +267,11 @@ $year = date("Y", time());
                             if (!empty($showInfoAndLinksToDelete)) {
                                 if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
                         ?>
-                        <object><a class='menu' href='<?=$_SERVER['REQUEST_URI']?>&deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
+                        <object><a class='link' href='<?=$_SERVER['REQUEST_URI']?>&deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
                         <?php
                                 } else {
                                     ?>
-                                    <object><a class='menu' href='cabinet.php?deleteCommentById=<?= $comments[$i]['id'] ?>'> Удалить комментарий</a></object>
+                                    <object><a class='link' href='cabinet.php?deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
                                     <?php
                                 }
                             } 
@@ -298,22 +298,20 @@ $year = date("Y", time());
             if (!empty($postsLikeIds)) {
                 foreach ($postsLikeIds as $postLikeId) {
                     $post = getPostForViewById($postLikeId);
-                    $authorOfPost = getUserEmailFioRightsById($post['user_id']);
-                    $fioOfAuthor = $authorOfPost['fio']; 
         ?>
 
         <div class='viewsmallposts'>
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['id']?>'>
+            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
                 <div class='smallpost'>
 
                     <div class='smallposttext'>
-                        <p class='smallpostzagolovok'><?=$post['zag']?></p>
-                        <p class='postdate'><?=$post['date_time']. " &copy; " . $fioOfAuthor?></p>
-                        <p class='postrating'>Рейтинг: <?=$post['rating']?>, оценок: <?= $post['countRatings']?></p>
+                        <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
+                        <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
+                        <p class='postrating'>Рейтинг: <?= $post['rating'] ?>, оценок: <?= $post['countRatings'] ?></p>
                     </div>
 
                     <div class='smallpostimage'>
-                        <img src='images/PostImgId<?=$post['id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                        <img src='images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка' class='smallpostimage'>
                     </div>
                 
                 </div>
@@ -341,14 +339,13 @@ $year = date("Y", time());
                 }
                 echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Понравившиеся комментарии &copy; ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
-                    for ($i = 0; $i <= $countComments -1; $i++) {
-                        $commentAuthor = getUserEmailFioRightsById($commentsLike[$i]['user_id']);
-                        $fioOfCommentAuthor = $commentAuthor['fio'];
-                        $content = nl2br($commentsLike[$i]['content']);
-                        $date = date("d.m.Y", $commentsLike[$i]['date_time']) ." в ". date("H:i", $commentsLike[$i]['date_time']);
+                    foreach ($commentsLike as $commentLike) {
+                        $fioOfAuthor = getUserInfoById($commentLike['user_id'], 'fio');
+                        $content = nl2br($commentLike['content']);
+                        $date = date("d.m.Y", $commentLike['date_time']) ." в ". date("H:i", $commentLike['date_time']);
             ?>
 
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$commentsLike[$i]['post_id']?>#comment<?=$commentsLike[$i]['id']?>'>
+            <a class='post' href='viewsinglepost.php?viewPostById=<?=$commentLike['post_id']?>#comment<?=$commentLike['com_id']?>'>
                 <div class='viewcomment' id='comment'>
                     <p class='commentauthor'><?=$fioOfCommentAuthor?><div class='commentdate'><?=$date?></div></p>
                     <div class='commentcontent'>
