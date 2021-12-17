@@ -3,11 +3,8 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
-if (isset($_GET['viewPostById'])) {
+if (!empty($_GET['viewPostById'])) {
     $postId = clearInt($_GET['viewPostById']);
-    if (empty($postId)) {
-        header("Location: /");
-    }
     $_SESSION['referrer'] = "viewsinglepost.php?viewPostById=$postId";
 
     $post = getPostForViewById($postId);
@@ -175,7 +172,7 @@ $year = date("Y", time());
         </div>
 
         <div class='singlepostimage'>
-            <img src='images/PostImgId<?=$id?>.jpg' alt='Картинка' class='singlepostimg'>
+            <img src='images/PostImgId<?=$postId?>.jpg' alt='Картинка' class='singlepostimg'>
         </div>
 
         <div class='singleposttext'>

@@ -1,16 +1,14 @@
 <?php
 session_start();
+$variableOfCaptcha = random_int(1000000, 9999999);
+$_SESSION['variableOfCaptcha'] = $variableOfCaptcha;
+$variableOfCaptcha = (string) $variableOfCaptcha;
+
 $font = __DIR__ . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'georgia.ttf';
 $img = imageCreateTrueColor(160, 25);
-
 $grey = imageColorAllocate($img, 192, 192, 192);
 $black = imageColorAllocate($img, 90, 90, 90);
-
 imageFill($img, 0, 0, $grey);
-
-
-$variableOfCaptcha = (string) random_int(1000000, 9999999);
-$_SESSION['variableOfCaptcha'] = $variableOfCaptcha;
 
 $length = strlen($variableOfCaptcha);
 

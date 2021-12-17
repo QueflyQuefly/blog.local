@@ -18,6 +18,12 @@ if (isset($_GET['deleteUserById'])) {
         header("Location: adminusers.php");
     }
 }
+if (isset($_GET['page'])) {
+    $page = clearInt($_GET['page']);
+} else {
+    $page = 1;
+}
+$number = 50;
 ?>
 
 <!DOCTYPE html>
@@ -47,13 +53,27 @@ if (isset($_GET['deleteUserById'])) {
         <div class='list'>
             <?php 
                 $userIds = getUsersIds();
-                if (empty($userIds)) {
-                    echo "<p class='error'>Нет пользователей</p>"; 
-                } else {
-                    echo "<ul class='list'>";
-                    
-                    foreach ($userIds as $userId) {
-                        $user = getUserEmailFioRightsById($userId);
+                echo "<p style='padding-left:3vh'><span>Страницы:</span></p>";
+                echo "<ul class ='list'>";
+                for ($i = 1; $i <= count($userIds)/ 50 + 1; $i++) {
+                    echo "<li class='menu'><a class='menu' href='adminusers.php?page=$i'>$i</a></li>";
+                }
+                echo "</ul><hr>";
+
+                $countIdsOfUsers = $number * ($page - 1);
+                if ($countIdsOfUsers < 0) {
+                    $number += $countIdsOfUsers;
+                    $countIdsOfUsers = 0;
+                }
+                $userIds = array_slice($userIds, $countIdsOfUsers, $number);
+
+                echo "<div class='list'>";
+                echo "<ul class='list'>";
+                
+                foreach ($userIds as $userId) {
+                    $user = getUserEmailFioRightsById($userId);
+                    $comments = getCommentsByUserId($userId);
+                    $countComments = count($comments);
             ?>
 
             
@@ -61,19 +81,21 @@ if (isset($_GET['deleteUserById'])) {
             <li class='list'>
 
                 <p class='list'>ID:<?= $userId ?> ::: ФИО(псевдоним): <?= $user['fio'] ?>   ::: Категория: <?= $user['rights'] ?>
-                <br>Логин: <?= $user['email'] ?></p>
+                    <br>E-mail: <?= $user['email'] ?>
+                    <br>Комментариев: <?= $countComments ?>
+                    <br><a class='link' href='/cabinet.php?user=<?=$userId?>'>Перейти в профиль пользователя</a>
+                </p>
                 <a class='list' href='adminusers.php?deleteUserById=<?= $userId ?> '> Удалить <?= $user['rights'] ?> -а</a>
                 <hr>
 
             </li>
         
 
-        <?php 
+            <?php 
                 } echo "</ul>";
             }
-            echo "</div>";
-        }
-        ?>
+            ?>
+        </div>  
     </div>
 </div>
 </body>

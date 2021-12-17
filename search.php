@@ -63,8 +63,8 @@ if (!empty($_GET['search'])) {
                 $idsNotSorted[] = $postId;
             }
             $idsNotSorted = array_slice($idsNotSorted, -30 , 30);
-            $ids = array_unique($idsNotSorted);
-            krsort($ids);
+            $userIds = array_unique($idsNotSorted);
+            krsort($userIds);
         } 
         if (!empty($users[0])) {
             $users = $users[0];
@@ -160,7 +160,7 @@ $year = date("Y", time());
 
     <div class='viewsmallposts'>
         <?php 
-            if (empty($ids)) {
+            if (empty($userIds)) {
                 echo "<div class='searchdescription'><div class='smallposttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
                 if (!empty($user) && $user['rights'] === 'superuser') {
                     echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
@@ -169,7 +169,7 @@ $year = date("Y", time());
                 }
             } else {
                 echo "<div class='singleposttext'><p class='center'>Результаты поиска (посты): </p>\n</div>"; 
-                foreach ($ids as $id) {
+                foreach ($userIds as $id) {
                     $post = getPostForIndexById($id);
                     $comments = getCommentsByPostId($id);
                     $tags = getTagsToPostById($id);

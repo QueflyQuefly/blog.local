@@ -3,9 +3,6 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
-$error = '';
-$ok = '';
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $variableOfCaptcha = clearInt($_POST['variableOfCaptcha']);
     $email = clearStr($_POST['email']);
@@ -56,8 +53,13 @@ if (isset($_GET['msg'])) {
                 <input type='login' name='variableOfCaptcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
 
                 <div class='msg'>
-                    <p class='error'><?=$error?></p>
-                    <p class='ok'><?=$ok?></p>
+                <p class='error'>
+                        <?php
+                            if (!empty($error)) {
+                                echo $error;
+                            }
+                        ?>
+                    </p>
                 </div>
 
                 <div id='left'><a class='button' href='reg.php'><div class='button'>Создать аккаунт</div></a></div>

@@ -55,27 +55,27 @@ $number = 50;
         } else {
             echo "<p class='label'>Список постов постранично и инвертировано <br> ($number постов - одна страница)<a href='adminposts.php'> &#8634</a></p>";
 
-            $ids = getPostIds();
+            $postIds = getPostIds();
             echo "<p style='padding-left:3vh'><span>Страницы:</span></p>";
             echo "<ul class ='list'>";
-            for ($i = 1; $i <= count($ids)/ 50 + 1; $i++) {
+            for ($i = 1; $i <= count($postIds)/ 50 + 1; $i++) {
                 echo "<li class='menu'><a class='menu' href='adminposts.php?page=$i'>$i</a></li>";
             }
             echo "</ul><hr>";
             echo "<div class='list'>";
-            if (!empty($ids)) {
+            if (!empty($postIds)) {
                 $countIdsOfPosts = $number * ($page - 1);
                 if ($countIdsOfPosts < 0) {
                     $number += $countIdsOfPosts;
                     $countIdsOfPosts = 0;
                 }
-                $ids = array_slice($ids, $countIdsOfPosts, $number);
-                if (empty($ids)) {
+                $postIds = array_slice($postIds, $countIdsOfPosts, $number);
+                if (empty($postIds)) {
                     echo "<p class='error'>Нет постов для отображения</p>"; 
                 } else {
                     echo "<ul class='list'>";
-                    foreach ($ids as $id) {
-                        $post = getPostForIndexById($id);
+                    foreach ($postIds as $postId) {
+                        $post = getPostForIndexById($postId);
                         $tags = getTagsToPostById($post['id']);
                         $evaluations = $post['countRatings'];
                         $author = getUserEmailFioRightsById($post['user_id']);

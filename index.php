@@ -1,6 +1,7 @@
 <?php
 $start = microtime(true);
 session_start();
+$_SESSION['user_id'] = 1;
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
     
@@ -11,7 +12,7 @@ if (isset($_GET['exit'])) {
 }
 
 $year = date("Y", time());
-$ids = getPostIds(10);
+$postIds = getPostIds(10);
 ?>
 
 
@@ -61,10 +62,10 @@ $ids = getPostIds(10);
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
 
         <?php 
-            if (empty($ids)) {
+            if (empty($postIds)) {
                 echo "<p>Нет постов для отображения</p>";    
             } else {
-                $post = getPostForIndexById($ids[0]);
+                $post = getPostForIndexById($postIds[0]);
                 $authorOfPost = getUserEmailFioRightsById($post['user_id']);
                 $fioOfAuthor = $authorOfPost['fio']; 
         ?>
@@ -94,10 +95,10 @@ $ids = getPostIds(10);
         </a>
 
         <?php
-            array_shift($ids);
+            array_shift($postIds);
 
-            foreach ($ids as $id) {
-                $post = getPostForIndexById($id);
+            foreach ($postIds as $postId) {
+                $post = getPostForIndexById($postId);
                 $authorOfPost = getUserEmailFioRightsById($post['user_id']);
                 $fioOfAuthor = $authorOfPost['fio'];  
         ?>

@@ -12,8 +12,8 @@ if (isset($_GET['exit'])) {
 }
 
 $year = date("Y", time());
-$ids = getPostIds();
-$countIdsOfPosts = count($ids);
+$postIds = getPostIds();
+$countIdsOfPosts = count($postIds);
 if (!empty($_GET['number'])) {
     $numberOfPosts = clearInt($_GET['number']);
     if ($numberOfPosts < 1 or $numberOfPosts >= $countIdsOfPosts) {
@@ -111,12 +111,12 @@ if (!empty($_GET['page']) && $_GET['page'] >= 0 && $countIdsOfPosts != 0 && $_GE
 
 
         <?php 
-            if (empty($ids)) {
+            if (empty($postIds)) {
                 echo "<p>Нет постов для отображения</p>";    
             } else {
-                $ids = array_slice($ids, $page * $numberOfPosts - $numberOfPosts, $numberOfPosts);
-                foreach ($ids as $id) {
-                    $post = getPostForIndexById($id);
+                $postIds = array_slice($postIds, $page * $numberOfPosts - $numberOfPosts, $numberOfPosts);
+                foreach ($postIds as $postId) {
+                    $post = getPostForIndexById($postId);
                     $authorOfPost = getUserEmailFioRightsById($post['user_id']);
                     $fioOfAuthor = $authorOfPost['fio'];
         ?>
