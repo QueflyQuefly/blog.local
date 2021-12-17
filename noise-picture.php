@@ -9,16 +9,16 @@ $black = imageColorAllocate($img, 90, 90, 90);
 imageFill($img, 0, 0, $grey);
 
 
-$integer = (string) random_int(1000000, 9999999);
-$_SESSION['integer'] = $integer;
+$variableOfCaptcha = (string) random_int(1000000, 9999999);
+$_SESSION['variableOfCaptcha'] = $variableOfCaptcha;
 
-$length = strlen($integer);
+$length = strlen($variableOfCaptcha);
 
 for ($j = 0; $j < $length; $j++){
     $angle = random_int(-45, 45);
     $size = random_int(12, 22);
     static $x = 10;
-    imageTtfText($img, $size, $angle, $x, 18, $black, $font, $integer[$j]);
+    imageTtfText($img, $size, $angle, $x, 18, $black, $font, $variableOfCaptcha[$j]);
     $x += 20;
 }
 

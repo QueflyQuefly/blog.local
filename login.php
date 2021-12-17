@@ -7,10 +7,10 @@ $error = '';
 $ok = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $integer = clearInt($_POST['integer']);
+    $variableOfCaptcha = clearInt($_POST['variableOfCaptcha']);
     $email = clearStr($_POST['email']);
     $password = clearStr($_POST['password']);
-    if ($integer == $_SESSION['integer']) {
+    if ($variableOfCaptcha == $_SESSION['variableOfCaptcha']) {
         if (isUser($email, $password)) {
             $_SESSION['user_id'] = getUserIdByEmail($email);
 
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     } else {
         $error = "Неверно введен код с Captcha";
-        header("Location: reg.php?msg=$error");
+        header("Location: login.php?msg=$error");
     }
 }
 if (isset($_GET['msg'])) {
@@ -53,7 +53,7 @@ if (isset($_GET['msg'])) {
                 <input type='email' name='email' required minlength="1" maxlength='50' autofocus autocomplete="on" placeholder='Ваш email' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' autocomplete="off" placeholder='Ваш пароль' class='text'><br>
                 <img src="noise-picture.php">
-                <input type='login' name='integer' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
+                <input type='login' name='variableOfCaptcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
 
                 <div class='msg'>
                     <p class='error'><?=$error?></p>

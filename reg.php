@@ -11,7 +11,7 @@ if (!empty($_SESSION['user_id'])) {
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $integer = clearInt($_POST['integer']);
+    $variableOfCaptcha = clearInt($_POST['variableOfCaptcha']);
     $email = clearStr($_POST['email']);
     $fio = clearStr($_POST['fio']);
     $password = clearStr($_POST['password']);
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }   
     if ($email !== '' && $fio !== '' && $password !== '') {
         $password = password_hash($password, PASSWORD_BCRYPT);
-        if ($integer == $_SESSION['integer']) {
+        if ($variableOfCaptcha == $_SESSION['variableOfCaptcha']) {
             if (isset($_POST['add_admin'])) {
                 if (!createAdmin($email, $fio, $password)) {
                     $error = "Пользователь с таким email уже зарегистрирован";
@@ -73,7 +73,7 @@ if (isset($_GET['msg'])) {
                 <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='ФИО или псевдоним' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите пароль' class='text'><br>
                 <img src="noise-picture.php">
-                <input type='text' name='integer' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
+                <input type='text' name='variableOfCaptcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
                 <?php
                     if (!empty($forAdmin)) {
                         echo $forAdmin;
