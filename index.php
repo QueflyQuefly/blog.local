@@ -1,7 +1,6 @@
 <?php
 $start = microtime(true);
 session_start();
-$_SESSION['user_id'] = 1;
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
     
