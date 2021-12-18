@@ -12,7 +12,7 @@ if(!empty($_SESSION['referrer'])) {
     unset($_SESSION['referrer']);
 }
 $year = date("Y", time());
-$postIds = getPostIds(10);
+$posts = getPostsByNumber(10);
 ?>
 
 
@@ -60,10 +60,10 @@ $postIds = getPostIds(10);
         <div id='desc'><p>Наилучший источник информации по теме "Путешествия"</p></div>
 
         <?php 
-            if (empty($postIds)) {
+            if (empty($posts)) {
                 echo "<p>Нет постов для отображения</p>";    
             } else {
-                $post = getPostForIndexById(array_shift($postIds));
+                $post = toProcessPostForIndex(array_shift($posts));
         ?>
 
         <a class='onepost' href="viewsinglepost.php?viewPostById=<?=$post['post_id']?>">
@@ -79,7 +79,7 @@ $postIds = getPostIds(10);
                         if (!$post['rating']) {
                             echo "Нет оценок. Будьте первым!";
                         } else {
-                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['countRatings'];
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " ; //. $post['countRatings'];
                         }     
                     ?> 
                 </p>
@@ -91,8 +91,8 @@ $postIds = getPostIds(10);
         </a>
 
         <?php
-            foreach ($postIds as $postId) {
-                $post = getPostForIndexById($postId);
+                foreach ($posts as $post) {
+                    $post = toProcessPostForIndex($post)
         ?>
 
         <div class='viewsmallposts'>
@@ -109,7 +109,7 @@ $postIds = getPostIds(10);
                             if (!$post['rating']) {
                                 echo "Нет оценок. Будьте первым!";
                             } else {
-                                echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['countRatings'];
+                                echo "Рейтинг: " . $post['rating'] . ", оценок: " ; //. $post['countRatings'];
                             }     
                         ?>  
                     </p>
@@ -126,14 +126,12 @@ $postIds = getPostIds(10);
 
         <?php
                 }
+            echo "<p class='center'><a class='submit' href='posts.php'>Посмотреть ещё</a></p>";
             }
-            $moreTalkedPostIds = getMoreTalkedPostIds();
+            $moreTalkedPosts = getMoreTalkedPosts();
             if (!empty($moreTalkedPostIds)) {
-                echo "<p class='center'><a class='submit' href='posts.php'>Посмотреть ещё</a></p>";
                 echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
-                
-                foreach ($moreTalkedPostIds as $postId) {
-                    $post = getPostForIndexById($postId);
+                foreach ($moreTalkedPosts as $post) {
         ?>
 
         <div class='viewsmallposts'>

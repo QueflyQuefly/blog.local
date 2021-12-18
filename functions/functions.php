@@ -233,26 +233,34 @@ function deleteUserById($id) {
 
 
 /* functions for table posts */
-function getPostIds($numberIds = false) {
+function getPostsByNumber($numberOfPosts, $startId = false) {
     global $db, $error;
-    $ids = [];
+    $posts = [];
     try {
-        if (empty($numberIds)) {
-            $sql = "SELECT post_id FROM posts ORDER BY post_id DESC;";
+        $numberOfPosts = clearInt($numberOfPosts);
+        if (empty($startId)) {
+            $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, p.content, 
+                    p.rating, u.fio as author FROM posts p 
+                    JOIN users u ON p.user_id = u.user_id 
+                    ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
         } else {
-            $numberIds = clearInt($numberIds);
-            $sql = "SELECT post_id FROM posts ORDER BY post_id DESC LIMIT $numberIds;";
+            $startId = clearInt($startId);
+            $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, p.content, 
+                    p.rating, u.fio as author FROM posts p 
+                    JOIN users u ON p.user_id = u.user_id 
+                    WHERE p.post_id >= $startId
+                    ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
         }
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $ids[] = $row['post_id'];
+                $posts[] = $row;
             }
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $ids;
+    return $posts;
 }
 function getPostById($id) {
     global $db, $error;
@@ -260,7 +268,7 @@ function getPostById($id) {
     try {
         $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, p.content, 
                 p.rating, u.fio as author FROM posts p 
-                JOIN users u ON p.user_id = u.user_id WHERE post_id = $id;";
+                JOIN users u ON p.user_id = u.user_id WHERE p.post_id = $id;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -288,17 +296,22 @@ function getPostForViewById($postId) {
     }
     return $post;
 }
-function getMoreTalkedPostIds() {
+function getMoreTalkedPosts() {
     global $db, $error;
-    $ids = [];
+    $posts = [];
     try {
         $oneWeekInSeconds = 604800; //60 * 60 * 24 * 7
         $dateWeekAgo = time() - $oneWeekInSeconds;
-        $sql = "SELECT com_id, post_id FROM comments 
-                WHERE date_time >= $dateWeekAgo ORDER BY post_id DESC LIMIT 10;";
+        $sql = "SELECT c.post_id, p.zag, p.user_id, 
+                p.date_time, p.content, p.rating, u.fio as author 
+                FROM comments c 
+                JOIN posts p ON c.post_id = p.post_id
+                JOIN users u ON p.user_id = u.user_id 
+                WHERE c.date_time >= $dateWeekAgo ORDER BY c.post_id DESC LIMIT 10;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $postsNotSorted[] = $row;
                 $postId = $row['post_id'];
                 $sql = "SELECT COUNT(*) as count_comments FROM comments 
                         WHERE date_time >= $dateWeekAgo AND post_id = $postId;";
@@ -311,7 +324,11 @@ function getMoreTalkedPostIds() {
                 if (!empty($rows)) {
                     $maxId = array_search(max($rows), $rows);
                     if (!empty($maxId)) {
-                        $ids[] = $maxId;
+                        foreach ($postsNotSorted as $post) {
+                            if ($post['post_id'] == $maxId) {
+                                $posts[] = $post;
+                            }
+                        }
                         unset($rows[$maxId]);
                     }
                 }
@@ -320,7 +337,7 @@ function getMoreTalkedPostIds() {
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $ids;
+    return $posts;
 }
 function addPost($zag, $userId, $content) {
     global $db, $error;

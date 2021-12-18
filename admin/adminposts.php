@@ -54,7 +54,7 @@ $number = 50;
         } else {
             echo "<p class='label'>Список постов постранично и инвертировано <br> ($number постов - одна страница)<a href='adminposts.php'> &#8634</a></p>";
 
-            $postIds = getPostIds();
+            $postIds = getPostsByNumber(50);
             echo "<p style='padding-left:3vh'><span>Страницы:</span></p>";
             echo "<ul class ='list'>";
             for ($i = 1; $i <= count($postIds)/ 50 + 1; $i++) {
@@ -63,12 +63,12 @@ $number = 50;
             echo "</ul><hr>";
             echo "<div class='list'>";
             if (!empty($postIds)) {
-                $countIdsOfPosts = $number * ($page - 1);
-                if ($countIdsOfPosts < 0) {
-                    $number += $countIdsOfPosts;
-                    $countIdsOfPosts = 0;
+                $countPosts = $number * ($page - 1);
+                if ($countPosts < 0) {
+                    $number += $countPosts;
+                    $countPosts = 0;
                 }
-                $postIds = array_slice($postIds, $countIdsOfPosts, $number);
+                $postIds = array_slice($postIds, $countPosts, $number);
                 if (empty($postIds)) {
                     echo "<p class='error'>Нет постов для отображения</p>"; 
                 } else {
