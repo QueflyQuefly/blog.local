@@ -4,14 +4,13 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
     
-if (isset($_GET['exit'])) {
+if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
     $_SESSION['user_id'] = false;
     header("Location: /");
 }
 if(!empty($_SESSION['referrer'])) {
     unset($_SESSION['referrer']);
 }
-
 $year = date("Y", time());
 $postIds = getPostIds(10);
 ?>
@@ -42,9 +41,8 @@ $postIds = getPostIds(10);
                     if (empty($_SESSION['user_id'])) {
                         echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
                     } else {
-                        $rights = getUserInfoById($_SESSION['user_id'], 'rights');
                         echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
-                        if ($rights === 'superuser') {
+                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -65,8 +63,7 @@ $postIds = getPostIds(10);
             if (empty($postIds)) {
                 echo "<p>Нет постов для отображения</p>";    
             } else {
-                $post = getPostForIndexById($postIds[0]);
-                $fioOfAuthor = getUserInfoById($post['user_id'], 'fio');
+                $post = getPostForIndexById(array_shift($postIds));
         ?>
 
         <a class='onepost' href="viewsinglepost.php?viewPostById=<?=$post['post_id']?>">
@@ -75,7 +72,7 @@ $postIds = getPostIds(10);
             <div class='oneposttext'>
                 <p class='onepostzagolovok'><?=$post['zag']?></p>
                 <p class='onepostcontent'><?=$post['content']?></p>
-                <p class='postdate'><?=$post['date_time']. " &copy; " . $fioOfAuthor?></p>
+                <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
 
                 <p class='postrating'>
                     <?php
@@ -94,8 +91,6 @@ $postIds = getPostIds(10);
         </a>
 
         <?php
-            array_shift($postIds);
-
             foreach ($postIds as $postId) {
                 $post = getPostForIndexById($postId);
         ?>
@@ -139,7 +134,6 @@ $postIds = getPostIds(10);
                 
                 foreach ($moreTalkedPostIds as $postId) {
                     $post = getPostForIndexById($postId);
-                    $fioOfAuthor = getUserInfoById($post['user_id'], 'fio');
         ?>
 
         <div class='viewsmallposts'>
@@ -150,7 +144,7 @@ $postIds = getPostIds(10);
                 <div class='smallposttext'>
                     <p class='smallpostzagolovok'><?=$post['zag_small']?></p>
                     <p class='smallpostcontent'><?=$post['content_small']?></p>
-                    <p class='postdate'><?=$post['date_time']. " &copy; " . $fioOfAuthor?></p>
+                    <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
                     <p class='postrating'>
                         <?php
                             if (!$post['rating']) {

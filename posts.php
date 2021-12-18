@@ -59,7 +59,7 @@ if (!empty($_GET['page']) && $_GET['page'] >= 0 && $countIdsOfPosts != 0 && $_GE
                         echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
                     } else {
                         echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
-                        if (getUserInfoById($_SESSION['user_id'], 'rights') === 'superuser') {
+                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -78,30 +78,25 @@ if (!empty($_GET['page']) && $_GET['page'] >= 0 && $countIdsOfPosts != 0 && $_GE
         <div class='singleposttext'>
             <label for='number'>Кол-во постов: <select id='number' class='select' name="number" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
                 <?php
-                    $i = 1;
-                    while (($i <= $countIdsOfPosts / $page / 25 + 1) && ($i <= 4)) {
+                    for ($i = 1; $i <= 4; $i++) {
                         $interval = $i * 25;
                         if ($interval != $numberOfPosts) {
                             echo "<option value='posts.php?number=$interval&page=$page'>$interval</option>";
                         } else {
                             echo "<option value='$numberOfPosts' selected>$numberOfPosts</option>";
                         }
-                        $i++;
                     }
                 ?>
             </select>
             <label for='page'>Страница: <select id='page' class='select' name="page" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
                 <?php
-                    if ($page > 3) {
-                        $j = $page - 3;
-                    } else {
-                        $j = 1;
-                    }
-                    for ($i = $j; $i < $countIdsOfPosts / $numberOfPosts + 1 && $i <= $page + 3; $i++) {
-                        if ($i != $page) {
-                            echo "<option value='posts.php?number=$numberOfPosts&page=$i'>$i</option>";
-                        } else {
-                            echo "<option value='$page' selected>$page</option>";
+                    for ($i = $page - 3; $i <= $page + 3; $i++) {
+                        if ($i > 0) {
+                            if ($i != $page) {
+                                echo "<option value='posts.php?number=$numberOfPosts&page=$i'>$i</option>";
+                            } else {
+                                echo "<option value='$page' selected>$page</option>";
+                            }
                         }
                     }
                 ?>

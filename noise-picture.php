@@ -1,7 +1,7 @@
 <?php
 session_start();
 $variableOfCaptcha = random_int(1000000, 9999999);
-$_SESSION['variableOfCaptcha'] = $variableOfCaptcha;
+$_SESSION['variable_of_captcha'] = $variableOfCaptcha;
 $variableOfCaptcha = (string) $variableOfCaptcha;
 
 $font = __DIR__ . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'georgia.ttf';

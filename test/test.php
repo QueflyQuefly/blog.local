@@ -113,3 +113,12 @@ $sql = 'INSERT INTO users (login, fio, password, date, rights) VALUES ("278@gmai
 if (!$db->exec($sql)) {
     echo $sql;
 } */
+$searchwords = 'это';
+$sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, p.content, 
+p.rating, u.fio as author FROM posts p JOIN users u 
+ON p.user_id = u.user_id WHERE p.content LIKE '%$searchwords%';";// LIMIT 30
+$stmt = $db->query($sql);
+while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $results[] = $result;
+}
+var_dump($results);

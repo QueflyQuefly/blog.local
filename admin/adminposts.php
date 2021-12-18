@@ -5,8 +5,8 @@ require_once $file_functions;
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
-if (!empty($_SESSION['user_id'])) {
-    $rights = getUserInfoById($_SESSION['user_id'], 'rights');
+if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+    $rights = RIGHTS_SUPERUSER;
 } else {
     $rights = false;
 }

@@ -7,11 +7,10 @@ require_once $functions;
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 if (isset($_GET['user'])) {
-    $userId = clearInt($_GET['user']);
+    $userId = clearStr($_GET['user']);
     $user = getUserInfoById($userId);
     
     if (!empty($_SESSION['user_id'])) {
-        $sessionUser = getUserInfoById($_SESSION['user_id']);
         if (isset($_GET['subscribe'])) {
             toSubscribeUser($_SESSION['user_id'], $userId);
             $uri = str_replace('&subscribe', '', $_SERVER['REQUEST_URI']);
@@ -26,7 +25,7 @@ if (isset($_GET['user'])) {
         if ($userId == $_SESSION['user_id']) {
             header("Location: cabinet.php");
         }
-        if ($sessionUser['rights'] === 'superuser') {
+        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
             $showInfoAndLinksToDelete = true;
         }
     }
@@ -48,7 +47,7 @@ if (!empty($showInfoAndLinksToDelete)) {
     if (isset($_GET['deletePostById'])) {
         $deletePostId = clearInt($_GET['deletePostById']);
         if ($deletePostId !== '') {
-            if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
+            if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
                 deletePostById($deletePostId);
                 $uri = str_replace("&deletePostById=$deletePostId", '', $_SERVER['REQUEST_URI']);
                 header("Location: $uri");
@@ -61,7 +60,7 @@ if (!empty($showInfoAndLinksToDelete)) {
     if (isset($_GET['deleteCommentById'])) {
         $deleteCommentId = clearInt($_GET['deleteCommentById']);
         if ($deleteCommentId !== '') {
-            if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
+            if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
                 deleteCommentById($deleteCommentId);
                 $uri = str_replace("&deleteCommentById=$deleteCommentId", '', $_SERVER['REQUEST_URI']);
                 header("Location: $uri");
@@ -135,7 +134,7 @@ $year = date("Y", time());
                         } else {
                             echo "<li class='menu'><a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a></li>";
                         }
-                        if ($user['rights'] === 'superuser') {
+                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -153,6 +152,9 @@ $year = date("Y", time());
             <?php
                 if (!empty($showInfoAndLinksToDelete)) {
                     echo "<p>E-mail: {$user['email']}</p>";
+                }
+                if ($user['rights'] === RIGHTS_SUPERUSER) {
+                    echo "<p style='font-size: 13pt; color: green;'>Является администратором этого сайта</p>";
                 }
                 if (!empty($linkToChangeUserInfo)) {
                     if (!isset($_GET['changeinfo'])) {
@@ -216,7 +218,7 @@ $year = date("Y", time());
                         <p class='postdate'> &copy; <?= $post['date_time'] ?> Рейтинг: <?=$post['rating']?>, оценок: <?= $post['countRatings']?></p>
                         <?php
                             if (!empty($showInfoAndLinksToDelete)) {
-                                if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
+                                if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
                         ?>
                         <object><a class='list' href='<?=$_SERVER['REQUEST_URI']?>&deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a></object><br>
                         <?php
@@ -259,13 +261,13 @@ $year = date("Y", time());
 
             <a class='post' href='viewsinglepost.php?viewPostById=<?= $comment['post_id'] ?>#comment<?= $comment['com_id'] ?>'>
                 <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
-                    <p class='commentauthor'><?=$user['fio']?><div class='commentdate'><?= $date ?></div></p>
+                    <p class='commentauthor'><?= $comment['author'] ?><div class='commentdate'><?= $date ?></div></p>
                     <div class='commentcontent'>
                         <p class='commentcontent'><?=$content?></p>
                         <p class='commentcontent'>
                         <?php
                             if (!empty($showInfoAndLinksToDelete)) {
-                                if (!empty($sessionUser) && $sessionUser['rights'] === 'superuser') {
+                                if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
                         ?>
                         <object><a class='link' href='<?=$_SERVER['REQUEST_URI']?>&deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
                         <?php
@@ -340,14 +342,13 @@ $year = date("Y", time());
                 echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Понравившиеся комментарии &copy; ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
                     foreach ($commentsLike as $commentLike) {
-                        $fioOfAuthor = getUserInfoById($commentLike['user_id'], 'fio');
                         $content = nl2br($commentLike['content']);
                         $date = date("d.m.Y", $commentLike['date_time']) ." в ". date("H:i", $commentLike['date_time']);
             ?>
 
             <a class='post' href='viewsinglepost.php?viewPostById=<?=$commentLike['post_id']?>#comment<?=$commentLike['com_id']?>'>
                 <div class='viewcomment' id='comment'>
-                    <p class='commentauthor'><?=$fioOfCommentAuthor?><div class='commentdate'><?=$date?></div></p>
+                    <p class='commentauthor'><?=$commentLike['author']?><div class='commentdate'><?=$date?></div></p>
                     <div class='commentcontent'>
                         <p class='commentcontent'><?=$content?></p> 
                     </div>

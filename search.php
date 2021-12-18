@@ -6,8 +6,10 @@ require_once $functions;
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
 $search = '';
-if (!empty($_SESSION['user_id'])) {
-    $userRights = getUserInfoById($_SESSION['user_id'], 'rights');
+
+if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
+    $isSuperuser = true;
+    $userRights = RIGHTS_SUPERUSER;
 } else {
     $userRights = false;
 }
@@ -19,53 +21,38 @@ if (isset($_GET['exit'])) {
 if (!empty($_GET['search'])) {
     $search = clearStr($_GET['search']);
     if ($search) {
-        if (strpos($search, ' ') !== false) {
+        if (strpos($search, ' ') !== false && strpos($search, '#') == false) {
             if ($result = searchPostsByContent($search)) {
-                $postsIds[] = $result;
+                $posts = $result;
             }
-            if (strpos($search, '#') !== false) {
-                if ($result = searchPostsByTag($search)) {
-                    $postsIds[] = $result;
-                }
-            } else {
-                if ($result = searchPostsByZagAndAuthor($search)) {
-                    $postsIds[] = $result;
-                }
-                if ($result = searchUsersByFioAndEmail($search, $userRights)) {
-                    $users[] = $result;
-                }
+            if ($result = searchPostsByZagAndAuthor($search)) {
+                $posts = $result;
+            }
+            if ($result = searchUsersByFioAndEmail($search, $userRights)) {
+                $users = $result;
             }
         } else {
             if (strpos($search, '#') !== false) {
                 if ($result = searchPostsByTag($search)) {
-                    $postsIds[] = $result;
+                    $posts = $result;
                 }
             } else {
                 if ($result = searchPostsByZagAndAuthor($search)) {
-                    $postsIds[] = $result;
+                    $posts = $result;
                 }
                 if ($result = searchUsersByFioAndEmail($search, $userRights)) {
-                    $users[] = $result;
+                    $users = $result;
                 }
             }
         }
-        if (!empty($postsIds[0])) {
-            $postsIds = $postsIds[0];
-            foreach ($postsIds as $postId) {
-                $idsNotSorted[] = $postId;
-            }
-            $idsNotSorted = array_slice($idsNotSorted, -30 , 30);
-            $postsIds = array_unique($idsNotSorted);
-            krsort($postsIds);
+        if (!empty($posts)) {
+            $posts = array_slice($posts, -30 , 30);
+            krsort($posts);
         } 
-        if (!empty($users[0])) {
-            $users = $users[0];
-            foreach ($users as $user) {
-                $users[$user['user_id']] = $user;
-            }
+        if (!empty($users)) {
             $users = array_slice($users, -30 , 30);
             krsort($users);
-        } elseif (empty($postsIds[0]) && empty($users[0])) {
+        } elseif (empty($posts[0]) && empty($users[0])) {
             $error = "<div class='singleposttext'><p class='error'>Ничего не найдено</p></div>\n";
         }
     } else {
@@ -121,8 +108,8 @@ $year = date("Y", time());
                     if (empty($_SESSION['user_id'])) {
                         echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
                     } else {
-                        echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
-                        if ($userRights === 'superuser') {
+                        echo "<li class='menu'><a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a></li>";
+                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -142,7 +129,7 @@ $year = date("Y", time());
         </div>
 
         <div class='search'>
-            <form class='search' action='<?=$_SERVER['PHP_SELF']?>' method='get'>
+            <form class='search' action='search.php' method='get'>
                 <input class='text' type='text' id='search' required autofocus autocomplete="on" minlength="1" maxlength="100" placeholder='Найти...' name='search' value='<?=$search?>'>
                 <button type="submit">&#x2315</button>
             </form>
@@ -151,18 +138,17 @@ $year = date("Y", time());
 
     <div class='viewsmallposts'>
         <?php 
-            if (empty($userIds)) {
-                echo "<div class='searchdescription'><div class='smallposttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
-                if (!empty($userRights) && $userRights === 'superuser') {
-                    echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
-                } else {
-                    echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО</div>\n</div>"; 
-                }
+            echo "<div class='searchdescription'><div class='smallposttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
+            if (!empty($isSuperuser)) {
+                echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
             } else {
-                echo "<div class='singleposttext'><p class='center'>Результаты поиска (посты): </p>\n</div>"; 
-                foreach ($userIds as $id) {
-                    $post = getPostForIndexById($id);
-                    $tags = getTagsToPostById($id);
+                echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО</div>\n</div>"; 
+            }
+            if (!empty($posts)) {
+                $countPosts = count($posts);
+                echo "<div class='singleposttext'><p class='center'>Результаты поиска (посты, всего $countPosts): </p>\n</div>"; 
+                foreach ($posts as $post) {
+                    $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         ?>
 
         <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
@@ -170,21 +156,10 @@ $year = date("Y", time());
                 <div class='smallposttext'>
                     <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
                     <p class='smallpostauthor'><?= $post['date_time'] ?> &copy; <?= $post['author'] ?></p>
-                    <p class='postdate'>Тэги: 
+                    <p class='postdate'>Тэги: <?= $post['tag'] ?></p>
+                    <p class='postdate'> Комментариев к посту: <?= ""/* $post['count_comments'] */ ?>
                         <?php
-                            if ($tags) {
-                                foreach ($tags as $tag) {
-                                    $tagLink = substr($tag['tag'], 1);
-                                    echo "<object><a class='menu' href='search.php?search=%23$tagLink'> {$tag['tag']}</a> </object>\n  ";
-                                }
-                            } else {
-                                echo "Нет тэгов";
-                            }
-                        ?>
-                        </p>
-                    <p class='postdate'> Комментариев к посту: <?= $post['countComments'] ?>
-                        <?php
-                            if (!empty($userRights) && $userRights === 'superuser') {
+                            if (!empty($isSuperuser)) {
                         ?>
                             <object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a></object>
                         <?php
@@ -202,8 +177,10 @@ $year = date("Y", time());
                 }
             }
             if (!empty($users)) {
-                echo "<div class='singleposttext'><p class='center'>Результаты поиска (пользователи): </p>\n</div>"; 
+                $countUsers = count($users);
+                echo "<div class='singleposttext'><p class='center'>Результаты поиска (пользователи, всего $countUsers): </p>\n</div>"; 
                 foreach ($users as $user) {
+                    $user['date_time'] = date("d.m.Y в H:i", $user['date_time']);
         ?>
 
         <a class='post' href='cabinet.php?user=<?=$user['user_id']?>'>
@@ -211,13 +188,14 @@ $year = date("Y", time());
                 <div class='smallposttext'>
                     <p class='smallpostzagolovok'> Просмотр дополнительной информации по нажатию</p>
                     <p class='smallpostzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
-                    <p class='smallpostzagolovok'> Категория: <?= $user['rights'] ?></p>
-                    
+                    <p class='smallpostzagolovok'> Дата регистрации: <?= $user['date_time'] ?></p>
+
                     <?php
-                        if (!empty($userRights) && $userRights === 'superuser') {
+                        if (!empty($isSuperuser)) {
                     ?>
-                        <p class='smallpostzagolovok'>ID:<?= $user['user_id'] ?> </p>
-                        <p class='smallpostzagolovok'>Логин: <?= $user['email'] ?></p>
+                        <p class='smallpostzagolovok'> Категория: <?= $user['rights'] ?></p>
+                        <p class='smallpostzagolovok'>ID: <?= $user['user_id'] ?> </p>
+                        <p class='smallpostzagolovok'>E-mail: <?= $user['email'] ?></p>
                         <p class='postdate'><object><a class='list' href='search.php?search=<?=$search?>&deleteUserById=<?= $user['user_id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
                     <?php
                         }

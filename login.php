@@ -4,10 +4,10 @@ $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $variableOfCaptcha = clearInt($_POST['variableOfCaptcha']);
+    $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
     $email = clearStr($_POST['email']);
     $password = $_POST['password'];
-    if ($variableOfCaptcha == $_SESSION['variableOfCaptcha']) {
+    if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
         if (isUser($email, $password)) {
             $_SESSION['user_id'] = getUserIdByEmail($email);
 
@@ -50,7 +50,7 @@ if (isset($_GET['msg'])) {
                 <input type='email' name='email' required minlength="1" maxlength='50' autofocus autocomplete="on" placeholder='Ваш email' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' autocomplete="off" placeholder='Ваш пароль' class='text'><br>
                 <img src="noise-picture.php">
-                <input type='login' name='variableOfCaptcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
+                <input type='login' name='variable_of_captcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
 
                 <div class='msg'>
                 <p class='error'>

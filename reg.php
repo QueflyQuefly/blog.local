@@ -5,12 +5,12 @@ require_once $functions;
 
 if (!empty($_SESSION['user_id'])) {
     $rights = getUserInfoById($_SESSION['user_id'], 'rights');
-    if ($rights === 'superuser') {
+    if ($rights === RIGHTS_SUPERUSER) {
         $forAdmin = "<label><input type='checkbox' name='add_admin' class='center'>Зарегистрировать как админа</label>";
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $variableOfCaptcha = clearInt($_POST['variableOfCaptcha']);
+    $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
     $email = clearStr($_POST['email']);
     $fio = clearStr($_POST['fio']);
     $password = clearStr($_POST['password']);
@@ -21,9 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }   
     if ($email !== '' && $fio !== '' && $password !== '') {
         $password = password_hash($password, PASSWORD_BCRYPT);
-        if ($variableOfCaptcha == $_SESSION['variableOfCaptcha']) {
+        if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
             if (isset($_POST['add_admin'])) {
-                if (!addAdmin($email, $fio, $password)) {
+                if (!addUser($email, $fio, $password, RIGHTS_SUPERUSER)) {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
                 } else {
@@ -72,7 +72,7 @@ if (isset($_GET['msg'])) {
                 <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='ФИО или псевдоним' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите пароль' class='text'><br>
                 <img src="noise-picture.php">
-                <input type='text' name='variableOfCaptcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
+                <input type='text' name='variable_of_captcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
                 <?php
                     if (!empty($forAdmin)) {
                         echo $forAdmin;

@@ -30,9 +30,7 @@ if (isset($_GET['exit'])) {
 
 if (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
-    $userRights = getUserInfoById($userId, 'rights');
-
-    if ($userRights === 'superuser') {
+    if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
         $isAdmin = true;
         
         if (isset($_GET['deletePostById'])) {
@@ -109,7 +107,7 @@ $year = date("Y", time());
                         echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
                     } else {
                         echo "<li class='menu'><a class='menu' href='&exit'>Выйти</a></li>";
-                        if ($userRights === 'superuser') {
+                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
                             echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -221,22 +219,21 @@ $year = date("Y", time());
             <p class='center'>Комментарии к посту:</p>
             <?php
                 if (!empty($comments)) {
-                for ($i = count($comments)-1; $i >= 0; $i--) {
-                    $content = nl2br(strip_tags($comments[$i]['content']));
-                    $authorComId = $comments[$i]['user_id'];
-                    $author = getUserInfoById($authorComId);
-                    $date = date("d.m.Y",$comments[$i]['date_time']) ." в ". date("H:i", $comments[$i]['date_time']);
+                    krsort($comments);
+                foreach ($comments as $comment) {
+                    $content = nl2br(strip_tags($comment['content']));
+                    $date = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
-            <div class='viewcomment' id='comment<?= $comments[$i]['com_id'] ?>'>
-                <p class='commentauthor'><a class='menu' href='cabinet.php?user=<?=$authorComId?>'><?=$author['fio']?></a><div class='commentdate'><?=$date?></div></p>
+            <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
+                <p class='commentauthor'><a class='menu' href='cabinet.php?user=<?=$comment['user_id']?>'><?=$comment['author']?></a><div class='commentdate'><?=$date?></div></p>
                 <div class='commentcontent'>
                     <p class='commentcontent'><?=$content?></p> 
                     <p class='commentcontent'>
                         <?php
                             if (!empty($isAdmin)) {
                         ?> 
-                            <object><a class='menu' href='viewsinglepost.php?viewPostById=<?=$postId?>&deleteCommentById=<?= $comments[$i]['com_id'] ?>'> Удалить комментарий</a></object>
+                            <object><a class='menu' href='viewsinglepost.php?viewPostById=<?=$postId?>&deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
                         <?php
                             }
                         ?>
@@ -244,17 +241,17 @@ $year = date("Y", time());
                 </div>
                 <div class='like'>
                     <?php
-                        $countLikes = $comments[$i]['rating'];
-                        if (empty($userId) || !isUserChangedCommentRating($userId, $comments[$i]['com_id'])) {
+                        $countLikes = $comment['rating'];
+                        if (empty($userId) || !isUserChangedCommentRating($userId, $comment['com_id'])) {
                             $name = 'like';
                         } else {
                             $name = 'unlike';
                         }
                     ?>
                     
-                    <form action='viewsinglepost.php?viewPostById=<?=$postId?>#comment<?=$comments[$i]['com_id']?>' method='post'>
-                        <label class='like' title="Нравится" for='like<?=$comments[$i]['com_id']?>'><span class='like'>&#9825; </span><?=$countLikes?></label>
-                        <input type="submit" class='like' id="like<?=$comments[$i]['com_id']?>" name="<?= $name ?>" value="<?=$comments[$i]['com_id']?>">
+                    <form action='viewsinglepost.php?viewPostById=<?=$postId?>#comment<?=$comment['com_id']?>' method='post'>
+                        <label class='like' title="Нравится" for='like<?=$comment['com_id']?>'><span class='like'>&#9825; </span><?=$countLikes?></label>
+                        <input type="submit" class='like' id="like<?=$comment['com_id']?>" name="<?= $name ?>" value="<?=$comment['com_id']?>">
                     </form>
 
                 </div>
