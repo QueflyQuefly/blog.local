@@ -22,7 +22,7 @@ if (isset($_GET['page'])) {
 } else {
     $page = 1;
 }
-$number = 50;
+$numberOfUsers= 50;
 ?>
 
 <!DOCTYPE html>
@@ -47,44 +47,40 @@ $number = 50;
             } else {
         ?>
 
-        <p class='label'>Список всех пользователей <a href='adminusers.php'> &#8634</a></p>
+        <p class='label'>
+            Список всех пользователей <br>
+            (одна страница - <?= $numberOfUsers?> пользователей)
+            <a href='adminusers.php'> &#8634</a>
+        </p>
 
         <div class='list'>
             <?php 
-                $userIds = getUsersIds();
-                echo "<p style='padding-left:3vh'><span>Страницы:</span></p>";
+                $users = getUsersByNumber(50, $numberOfUsers* $page - $number);
+                echo "<p style='padding-left:3vmin'><span>Страницы:</span></p>";
                 echo "<ul class ='list'>";
-                for ($i = 1; $i <= count($userIds)/ 50 + 1; $i++) {
-                    echo "<li class='menu'><a class='menu' href='adminusers.php?page=$i'>$i</a></li>";
+                for ($i = $page - 3; $i <= $page + 3; $i++) {//обманываю пользователя, что есть ещё страницы
+                    if ($i > 0) {
+                        echo "<li><a class='menuLink' href='adminusers.php?page=$i'>$i</a></li>";
+                    }
                 }
                 echo "</ul><hr>";
-
-                $countIdsOfUsers = $number * ($page - 1);
-                if ($countIdsOfUsers < 0) {
-                    $number += $countIdsOfUsers;
-                    $countIdsOfUsers = 0;
-                }
-                $userIds = array_slice($userIds, $countIdsOfUsers, $number);
-
                 echo "<div class='list'>";
                 echo "<ul class='list'>";
                 
-                foreach ($userIds as $userId) {
-                    $user = getUserInfoById($userId);
-                    $comments = getCommentsByUserId($userId);
-                    $countComments = count($comments);
+                foreach ($users as $user) {
+                    $user['date_time'] = date("d.m.Y в H:i", $user['date_time']);
             ?>
 
             
 
             <li class='list'>
 
-                <p class='list'>ID:<?= $userId ?> ::: ФИО(псевдоним): <?= $user['fio'] ?>   ::: Категория: <?= $user['rights'] ?>
+                <p class='list'>ID:<?= $user['id'] ?> ::: ФИО(псевдоним): <?= $user['fio'] ?>   ::: Категория: <?= $user['rights'] ?>
                     <br>E-mail: <?= $user['email'] ?>
-                    <br>Комментариев: <?= $countComments ?>
-                    <br><a class='link' href='/cabinet.php?user=<?=$userId?>'>Перейти в профиль пользователя</a>
+                    <br>Дата регистрации: <?= $user['date_time'] ?>
+                    <br><a class='link' href='/cabinet.php?user=<?=$user['id']?>'>Перейти в профиль пользователя</a>
                 </p>
-                <a class='list' href='adminusers.php?deleteUserById=<?= $userId ?> '> Удалить <?= $user['rights'] ?> -а</a>
+                <a class='list' href='adminusers.php?deleteUserById=<?= $user['id'] ?> '> Удалить <?= $user['rights'] ?> -а</a>
                 <hr>
 
             </li>

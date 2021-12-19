@@ -13,15 +13,13 @@ if (isset($_GET['user'])) {
     if (!empty($_SESSION['user_id'])) {
         if (isset($_GET['subscribe'])) {
             toSubscribeUser($_SESSION['user_id'], $userId);
-            $uri = str_replace('&subscribe', '', $_SERVER['REQUEST_URI']);
-            header("Location: $uri");
+            header("Location: cabinet.php?user=$userId");
         }
         if (isset($_GET['unsubscribe'])) {
             toUnsubscribeUser($_SESSION['user_id'], $userId);
-            $uri = str_replace('&unsubscribe', '', $_SERVER['REQUEST_URI']);
-            header("Location: $uri");
+            header("Location: cabinet.php?user=$userId");
         }
-        $link = "<a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
+        $link = "<a class='menuLink' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
         if ($userId == $_SESSION['user_id']) {
             header("Location: cabinet.php");
         }
@@ -40,34 +38,21 @@ if (isset($_GET['user'])) {
 }
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
-    $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
-    header("Location: $uri");
+    header("Location: cabinet.php?user=$userId");
 }
 if (!empty($showInfoAndLinksToDelete)) {
     if (isset($_GET['deletePostById'])) {
         $deletePostId = clearInt($_GET['deletePostById']);
         if ($deletePostId !== '') {
-            if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
-                deletePostById($deletePostId);
-                $uri = str_replace("&deletePostById=$deletePostId", '', $_SERVER['REQUEST_URI']);
-                header("Location: $uri");
-            } else {
-                deletePostById($deletePostId);
-                header("Location: cabinet.php");
-            }
+            deletePostById($deletePostId);
+            header("Location: cabinet.php?user=$userId");
         } 
     }
     if (isset($_GET['deleteCommentById'])) {
         $deleteCommentId = clearInt($_GET['deleteCommentById']);
         if ($deleteCommentId !== '') {
-            if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
-                deleteCommentById($deleteCommentId);
-                $uri = str_replace("&deleteCommentById=$deleteCommentId", '', $_SERVER['REQUEST_URI']);
-                header("Location: $uri");
-            } else {
-                deleteCommentById($deleteCommentId);
-                header("Location: cabinet.php");
-            }  
+            deleteCommentById($deleteCommentId);
+            header("Location: cabinet.php?user=$userId");
         } 
     }
 }
@@ -113,34 +98,36 @@ $year = date("Y", time());
 <head>
     <meta charset='UTF-8'>
     <title>Кабинет - Просто блог</title>
-    <link rel='stylesheet' href='css/indexcss.css'>
+    <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
 <body>
 <nav>
     <div class='top'>
-        <div class="logo">
-            <a class="logo" title="На главную" href='/'><img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-            <div id='namelogo'>Просто Блог</div></a>
+        <div id="logo">
+            <a class="logo" title="На главную" href='/'>
+            <img id='imglogo' src='images/logo.jpg' alt='Лого'>
+            <div id='namelogo'>Просто Блог</div>
+            </а>
         </div>
-        <div class="menu">
-            <ul class='menu'>
+        <div id="menu">
+            <ul class='menuList'>
                 <?php
                     if (empty($_SESSION['user_id'])) {
-                        echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
+                        echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
                         if ($userId === $_SESSION['user_id']) {
-                            echo "<li class='menu'><a class='menu' href='index.php?exit'>Выйти</a></li>";
+                            echo "<li><a class='menuLink' href='index.php?exit'>Выйти</a></li>";
                         } else {
-                            echo "<li class='menu'><a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a></li>";
+                            echo "<li><a class='menuLink' href='cabinet.php?user=$userId&exit'>Выйти</a></li>";
                         }
                         if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-                            echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
+                            echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
                 ?>
-                <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
-                <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
+                <li><a class='menuLink' href='search.php'>Поиск</a></li>
+                <li><a class='menuLink' href='addpost.php'>Создать новый пост</a></li>
             </ul>
         </div>
     </div>
@@ -158,16 +145,20 @@ $year = date("Y", time());
                 }
                 if (!empty($linkToChangeUserInfo)) {
                     if (!isset($_GET['changeinfo'])) {
-                        echo "<a class='link' style='font-size:13pt; margin-left:30vh' title='Изменить параметры профиля' href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
+                        echo "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Изменить параметры профиля' 
+                                href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
                     } else {
-                        echo "<a class='link' style='font-size:13pt; margin-left:30vh' title='Отмена' href='cabinet.php'>Отмена</a>\n";
+                        echo "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Отмена' 
+                                href='cabinet.php'>Отмена</a>\n";
                     }
                 }
                 if (isset($_GET['user']) && !empty($_SESSION['user_id'])) {
                     if (!isSubscribedUser($_SESSION['user_id'], $userId)) {
-                        echo "<p><a class='link' title='Подписаться' style='font-size:14pt' href='{$_SERVER["REQUEST_URI"]}&subscribe'>Подписаться</a></p>";
+                        echo "<p><a class='link' title='Подписаться' style='font-size:14pt' 
+                                href='cabinet.php?user=$userId&subscribe'>Подписаться</a></p>";
                     } else {
-                        echo "<p><a class='link' title='Отменить подписку' style='font-size:14pt' href='{$_SERVER["REQUEST_URI"]}&unsubscribe'>Отменить подписку</a></p>";
+                        echo "<p><a class='link' title='Отменить подписку' style='font-size:14pt' 
+                                href='cabinet.php?user=$userId&unsubscribe'>Отменить подписку</a></p>";
                     }
                 }
             ?>
@@ -187,7 +178,7 @@ $year = date("Y", time());
                         echo "<div class='msg'><p class='error'>$msg</p></div>";
                     }
                 ?>
-                        <div id='right'><input type='submit' style='margin-left:5vh' value='Сохранить' class='submit'></div>
+                        <div id='right'><input type='submit' style='margin-left:5vmin' value='Сохранить' class='submit'></div>
                     </form>
                 </div>
             </div>
@@ -203,41 +194,50 @@ $year = date("Y", time());
                 } else {
                     $countPosts = count($posts);
                 }
-                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список постов &copy; {$user['fio']} (всего $countPosts):</p></div>";
+                echo "<div class='contentsinglepost'><p class='postzagolovok'>Список постов &copy; 
+                        {$user['fio']} (всего $countPosts):</p></div>";
                 if (empty($posts)) {
                     echo "<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>"; 
                 } else {
                     echo "<ul class='list'>";
                     foreach ($posts as $post) {
             ?>
-        <div class='viewsmallposts'>
-            <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
-                <div class='smallpost'>
-                    <div class='smallposttext'>
-                        <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
-                        <p class='postdate'> &copy; <?= $post['date_time'] ?> Рейтинг: <?=$post['rating']?>, оценок: <?= $post['countRatings']?></p>
-                        <?php
-                            if (!empty($showInfoAndLinksToDelete)) {
-                                if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
-                        ?>
-                        <object><a class='list' href='<?=$_SERVER['REQUEST_URI']?>&deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a></object><br>
-                        <?php
-                                } else {
-                                    ?>
-                                    <object><a class='list' href='cabinet.php?deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a></object><br>
-                                    <?php
-                                }
-                            } 
-                        ?>
-                        <p class='postdate'>Комментариев: <?= $post['countComments'] ?> </p>
-                    </div>
 
-                    <div class='smallpostimage'>
-                        <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка' class='smallpostimage'>
-                    </div>
+            <div class='viewpost'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
+                <div class='posttext'>
+                    <p class='postzagolovok'><?=$post['zag']?></p>
+                    <p class='postcontent'><?=$post['content']?></p>
+                    <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
+                    <p class='postrating'>
+                    <?php
+                        if (!$post['rating']) {
+                            echo "Нет оценок. Будьте первым!";
+                        } else {
+                            echo "Рейтинг поста: " . $post['rating'];
+                        }     
+                    ?>  
+                    </p>
                 </div>
-            </a>
-        </div>
+
+                <?php
+                    if (!empty($showInfoAndLinksToDelete)) {
+                ?>
+                    <object>
+                        <a class='list' href='cabinet.php?user=<?=$userId?>&deletePostById=<?= $post['post_id'] ?>'>
+                            Удалить пост с ID=<?= $post['post_id'] ?>
+                        </a>
+                    </object>
+                <?php
+                    } 
+                ?>
+
+                <div class='postimage'>
+                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
+                </div>
+                </a>
+            </div>
+
             <?php 
                     }
                 }
@@ -251,7 +251,8 @@ $year = date("Y", time());
                 } else {
                 $countComments = count($comments);
                 }
-                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Список комментариев &copy; ${user['fio']} (всего $countComments):</p></div>";
+                echo "<div class='contentsinglepost'><p class='postzagolovok'>Список комментариев &copy; 
+                        ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
                     echo "<ul class='list'>";
                     foreach ($comments as $comment) {
@@ -259,7 +260,7 @@ $year = date("Y", time());
                         $date = date("d.m.Y", $comment['date_time']) ." в ". date("H:i", $comment['date_time']);
             ?>
 
-            <a class='post' href='viewsinglepost.php?viewPostById=<?= $comment['post_id'] ?>#comment<?= $comment['com_id'] ?>'>
+            <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $comment['post_id'] ?>#comment<?= $comment['com_id'] ?>'>
                 <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
                     <p class='commentauthor'><?= $comment['author'] ?><div class='commentdate'><?= $date ?></div></p>
                     <div class='commentcontent'>
@@ -267,15 +268,13 @@ $year = date("Y", time());
                         <p class='commentcontent'>
                         <?php
                             if (!empty($showInfoAndLinksToDelete)) {
-                                if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
                         ?>
-                        <object><a class='link' href='<?=$_SERVER['REQUEST_URI']?>&deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
+                            <object>
+                                <a class='link' href='cabinet.php?user=<?=$userId?>&deleteCommentById=<?= $comment['com_id'] ?>'>
+                                    Удалить комментарий
+                                </a>
+                            </object>
                         <?php
-                                } else {
-                                    ?>
-                                    <object><a class='link' href='cabinet.php?deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
-                                    <?php
-                                }
                             } 
                         ?>
                         </p>
@@ -296,28 +295,46 @@ $year = date("Y", time());
         <?php 
             $postsLikeIds = getLikedPostsIdsByUserId($userId);
             $countPostsLikeIds = count($postsLikeIds);
-            echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Оценённые посты  &copy; ${user['fio']} (всего $countPostsLikeIds):</p></div>";
+            echo "<div class='contentsinglepost'><p class='postzagolovok'>Оценённые посты  &copy; ${user['fio']} (всего $countPostsLikeIds):</p></div>";
             if (!empty($postsLikeIds)) {
                 foreach ($postsLikeIds as $postLikeId) {
                     $post = getPostForViewById($postLikeId);
         ?>
 
-        <div class='viewsmallposts'>
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
-                <div class='smallpost'>
-
-                    <div class='smallposttext'>
-                        <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
-                        <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
-                        <p class='postrating'>Рейтинг: <?= $post['rating'] ?>, оценок: <?= $post['countRatings'] ?></p>
-                    </div>
-
-                    <div class='smallpostimage'>
-                        <img src='images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка' class='smallpostimage'>
-                    </div>
-                
+            <div class='viewpost'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
+                <div class='posttext'>
+                    <p class='postzagolovok'><?=$post['zag']?></p>
+                    <p class='postcontent'><?=$post['content']?></p>
+                    <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
+                    <p class='postrating'>
+                    <?php
+                        if (!$post['rating']) {
+                            echo "Нет оценок. Будьте первым!";
+                        } else {
+                            echo "Рейтинг поста: " . $post['rating'];
+                        }     
+                    ?>  
+                    </p>
                 </div>
-            </a>
+
+                <?php
+                    if (!empty($showInfoAndLinksToDelete)) {
+                ?>
+                    <object>
+                        <a class='list' href='cabinet.php?user=<?=$userId?>&deletePostById=<?= $post['post_id'] ?>'>
+                            Удалить пост с ID=<?= $post['post_id'] ?>
+                        </a>
+                    </object>
+                <?php
+                    } 
+                ?>
+
+                <div class='postimage'>
+                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
+                </div>
+                </a>
+            </div>
         </div>
 
         <?php
@@ -339,14 +356,14 @@ $year = date("Y", time());
                 } else {
                     $countComments = count($commentsLike);
                 }
-                echo "<div class='contentsinglepost'><p class='smallpostzagolovok'>Понравившиеся комментарии &copy; ${user['fio']} (всего $countComments):</p></div>";
+                echo "<div class='contentsinglepost'><p class='postzagolovok'>Понравившиеся комментарии &copy; ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
                     foreach ($commentsLike as $commentLike) {
                         $content = nl2br($commentLike['content']);
                         $date = date("d.m.Y", $commentLike['date_time']) ." в ". date("H:i", $commentLike['date_time']);
             ?>
 
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$commentLike['post_id']?>#comment<?=$commentLike['com_id']?>'>
+            <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$commentLike['post_id']?>#comment<?=$commentLike['com_id']?>'>
                 <div class='viewcomment' id='comment'>
                     <p class='commentauthor'><?=$commentLike['author']?><div class='commentdate'><?=$date?></div></p>
                     <div class='commentcontent'>
@@ -366,7 +383,7 @@ $year = date("Y", time());
         </div>
     </div>
 
-    <footer class='bottom'>
+    <footer>
         <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
     </footer>
 </div>

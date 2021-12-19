@@ -1,7 +1,7 @@
 *{
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    border-radius: 1vh;
+    border-radius: 1vmin;
 }
 html, body {
     width: 100%;
@@ -10,150 +10,150 @@ html, body {
     padding: 0;
     overflow: hidden;
 }
-div.container{
+.container{
     width: 40%;
     height: 100%;
     top: 0;
     left: 40%;
     margin:auto;
 }
-div.centerpost{
+.centerpost{
     width: 100%;
     height: 100%;
     position: relative;
     top: 0;
     left: 0;
 }
-div.form{
+.form{
     border: 1px solid lightgray;
-    height:75vh;
+    height:75vmin;
     width:80%;
     margin: 1% auto;
     overflow-y:auto;
     text-align:center;
 }
-div.msg{
+.msg{
     height:20%;
     width:50%;
     margin: -1% auto 2% auto;
     text-align:center;
 }
-a.logo{
+.logo{
     font-family: Georgia, 'Times New Roman', Times, serif;
     text-decoration: none;
     color: currentColor;
 }
-a.logo:hover{
+.logo:hover{
     text-decoration: none;
     color: currentColor;
 }
-a.logo:active{
+.logo:active{
     text-decoration: none;
     color: currentColor;
 }
-p.logo{
+.logo{
     font-family: Georgia, 'Times New Roman', Times, serif;
     font-size: 20pt;
     text-align:center;
 }
-p.label{
+.label{
     font-size: 17pt;
     text-align:center;
 }
-input.addpostname{
+.addpostname{
     background-color:white;
     color: black;
     font-family: 'Open Sans', sans-serif;
     text-align: left;
     font-size: 12pt;
     outline: none;
-    border: 0.3vh solid lightgray;
+    border: 0.3vmin solid lightgray;
     width: 80%;
-    padding: 1.5vh;
+    padding: 1.5vmin;
     padding-left: 2%;
     margin: 5px auto;
     transition: 400ms;
 }    
-input.addpostname:hover {
-    border:0.3vh solid gray;
+.addpostname:hover {
+    border:0.3vmin solid gray;
 }
-input.addpostname:focus {
-    border:0.3vh solid rgb(1, 90, 255);
+.addpostname:focus {
+    border:0.3vmin solid rgb(1, 90, 255);
 }
-input.addpostauthor{
+.addpostauthor{
     background-color:white;
     color: black;
     font-family: 'Open Sans', sans-serif;
     text-align: left;
     font-size: 12pt;
     outline: none;
-    border: 0.3vh solid lightgray;
+    border: 0.3vmin solid lightgray;
     width: 50%;
-    padding: 1.5vh;
+    padding: 1.5vmin;
     margin: 5px auto;
-    margin-right: 40vh;
+    margin-right: 40vmin;
     transition: 400ms;
 }    
-input.addpostauthor:hover {
-    border:0.3vh solid gray;
+.addpostauthor:hover {
+    border:0.3vmin solid gray;
 }
-input.addpostauthor:focus {
-    border:0.3vh solid rgb(1, 90, 255);
+.addpostauthor:focus {
+    border:0.3vmin solid rgb(1, 90, 255);
 }
-input.addpostimg{
+.addpostimg{
     background-color:white;
     color:lightcoral;
     font-family: 'Open Sans', sans-serif;
     text-align: left;
     font-size: 12pt;
     outline: none;
-    border: 0.3vh solid lightgray;
+    border: 0.3vmin solid lightgray;
     width: 80%;
     padding: 1%;
     margin: 5px auto;
     transition: 400ms;
 }    
-input.addpostimg:hover {
-    border:0.3vh solid gray;
+.addpostimg:hover {
+    border:0.3vmin solid gray;
     cursor:pointer;
 }
-input.addpostimg:focus {
-    border:0.3vh solid rgb(1, 90, 255);
+.addpostimg:focus {
+    border:0.3vmin solid rgb(1, 90, 255);
 }
-input.addpostsubmit{
+.addpostsubmit{
     padding: 8px 25px;
     background-color:rgb(1, 90, 255);
     color:white;
     border:0;
     font-size: 12pt;
 }
-input.addpostsubmit:hover{
+.addpostsubmit:hover{
     background-color:rgb(0, 18, 177);
     cursor: pointer;
 }
-textarea#content{
-    height:33vh;
-    width: 150vh;
+#content{
+    height:33vmin;
+    width: 150vmin;
     padding:1%;
     font-size: 12pt;
     resize: none;
 }
 /* messages */
-p.error{
+.error{
     text-align:center;
     font-size: 11pt;
     color:crimson;
     margin: 0;
     padding:0;
 }
-p.ok{
+.ok{
     text-align:center;
     font-size: 11pt;
     color:olivedrab;
     margin: 0;
     padding:0;
 }
-a.link{
+.link{
     color:darkslateblue;
     font-style: oblique;
     font-size: 13pt;

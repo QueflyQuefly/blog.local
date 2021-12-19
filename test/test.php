@@ -1,6 +1,6 @@
 <?php
 session_start();
-$file_functions = join(DIRECTORY_SEPARATOR, array(dirname(__DIR__), 'functions', 'functions.php'));
+$file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $file_functions;
 
 
@@ -113,7 +113,7 @@ $sql = 'INSERT INTO users (login, fio, password, date, rights) VALUES ("278@gmai
 if (!$db->exec($sql)) {
     echo $sql;
 } */
-$searchwords = 'это';
+/* $searchwords = 'это';
 $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, p.content, 
 p.rating, u.fio as author FROM posts p JOIN users u 
 ON p.user_id = u.user_id WHERE p.content LIKE '%$searchwords%';";// LIMIT 30
@@ -121,4 +121,17 @@ $stmt = $db->query($sql);
 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $results[] = $result;
 }
-var_dump($results);
+var_dump($results); */
+/* $posts = getMoreTalkedPosts();
+var_dump($posts); */
+$sql = "SELECT DISTINCT c.post_id, p.zag, 
+        p.date_time, p.content, p.rating, u.fio as author 
+        FROM comments c
+        JOIN posts p ON c.post_id = p.post_id
+        JOIN users u ON p.user_id = u.user_id 
+        WHERE c.date_time >= 60480 ORDER BY c.post_id DESC LIMIT 10;";
+$stmt = $db->query($sql);
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $posts[] = $row;
+}
+var_dump($posts);

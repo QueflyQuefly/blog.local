@@ -29,7 +29,7 @@ if (isset($_GET['page'])) {
 } else {
     $page = 1;
 }
-$number = 50;
+$numberOfPosts= 50;
 ?>
 
 <!DOCTYPE html>
@@ -52,50 +52,47 @@ $number = 50;
             </div>
         <?php
         } else {
-            echo "<p class='label'>Список постов постранично и инвертировано <br> ($number постов - одна страница)<a href='adminposts.php'> &#8634</a></p>";
+            echo "<p class='label'>Список постов постранично и инвертировано <br> ($numberOfPostsпостов - одна страница)
+                    <a href='adminposts.php'> &#8634</a></p>";
 
-            $postIds = getPostsByNumber(50);
-            echo "<p style='padding-left:3vh'><span>Страницы:</span></p>";
+            $posts = getPostsByNumber(50, $numberOfPosts* $page - $number);
+            echo "<p style='padding-left:3vmin'><span>Страницы:</span></p>";
             echo "<ul class ='list'>";
-            for ($i = 1; $i <= count($postIds)/ 50 + 1; $i++) {
-                echo "<li class='menu'><a class='menu' href='adminposts.php?page=$i'>$i</a></li>";
+            for ($i = $page - 3; $i <= $page + 3; $i++) {//обманываю пользователя, что есть ещё страницы
+                if ($i > 0) {
+                    echo "<li  class='menuLink'><a class='menuLink' href='adminposts.php?page=$i'>$i</a></li>";
+                }
             }
             echo "</ul><hr>";
             echo "<div class='list'>";
-            if (!empty($postIds)) {
-                $countPosts = $number * ($page - 1);
-                if ($countPosts < 0) {
-                    $number += $countPosts;
-                    $countPosts = 0;
-                }
-                $postIds = array_slice($postIds, $countPosts, $number);
-                if (empty($postIds)) {
+            if (!empty($posts)) {
+                if (empty($posts)) {
                     echo "<p class='error'>Нет постов для отображения</p>"; 
                 } else {
                     echo "<ul class='list'>";
-                    foreach ($postIds as $postId) {
-                        $post = getPostForIndexById($postId);
+                    foreach ($posts as $post) {
                         $tags = getTagsToPostById($post['post_id']);
-                        $evaluations = $post['countRatings'];
             ?>
             <li class='list'>
                 <p class='list'><span>ID:</span><?= $post['post_id'] ?> ::: <span>Название:</span> <?= $post['zag'] ?></p>
                 <p class='list'><span>Автор:</span> <?= $post['author'] ?> </p>
-                <p class='list'><span>Рейтинг:</span> <?= $post['rating'] ?> ::: <span>Оценок:</span> <?=$evaluations?> </p>
+                <p class='list'><span>Рейтинг:</span> <?= $post['rating'] ?> ::: <span>Оценок:</span> <?= ''//$evaluations?> </p>
                 <p class='list'> <span>Тэги:</span> 
                     <?php 
                         if ($tags) {
                             foreach ($tags as $tag) {
                                 $tagLink = substr($tag['tag'], 1);
-                                echo "<a class='menu' href='search.php?search=%23$tagLink'>{$tag['tag']}</a> ";
+                                echo "<a class='menuLink' href='search.php?search=%23$tagLink'>{$tag['tag']}</a> ";
                             }
                         } else {
                             echo "Нет тэгов";
                         }
                     ?>
                 </p>
-                <a class='list' href='adminposts.php?deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a>
-                <p class='list'> <span>Комментариев к посту:</span> <?= $post['countComments'] ?> </p>
+                <a class='list' href='adminposts.php?deletePostById=<?= $post['post_id'] ?>'>
+                    Удалить пост с ID=<?= $post['post_id'] ?>
+                </a>
+                <p class='list'> <span>Комментариев к посту:</span> <?= ''//$post['countComments'] ?> </p>
                 <hr>
             </li>
             <?php 

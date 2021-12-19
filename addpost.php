@@ -9,9 +9,6 @@ $maxSizeOfUploadImage = 4096000; // 4 megabytes
 
 if (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
-    $user = getUserInfoById($userId);
-    $email = $user['email'];
-    $fio = $user['fio'];
 } else {
     header("Location: login.php");
 }
@@ -83,7 +80,7 @@ if (isset($_GET['msg'])) {
 <head>
     <meta charset='UTF-8'>
     <title>Добавление поста - Просто Блог</title>
-    <link rel='stylesheet' href='css/addpostcss.css'>
+    <link rel='stylesheet' href='css/addpost.css'>
 </head>
 <body>
 <div class='content'>
@@ -111,13 +108,15 @@ if (isset($_GET['msg'])) {
         
         <div class='form'>
             <form action='addpost.php' method='post' enctype="multipart/form-data" id='addpost'>
-                <label id='input' for='file_img' class='addpost'>Заголовок: </label>
-                <input type='text' title='Заголовок' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostZag' placeholder="Добавьте заголовок поста. Количество символов: от 20 до 140">
+                <label id='input' for='addpostname' class='addpost'>Заголовок: </label>
+                <input type='text' id='addpostname' title='Заголовок' class='addpostname' required minlength="1" maxlength='140' autofocus name='addPostZag' placeholder="Добавьте заголовок поста. Количество символов: от 20 до 140">
                 
                 <br> <input type="hidden" name="MAX_FILE_SIZE" value="<?=$maxSizeOfUploadImage?>"> <br>
                 <label id='img' for='file_img' class='addpost'>Пожалуйста, добавьте картинку. Допускаются jpg весом до <?=$maxSizeOfUploadImage?> байт</label>
                 <input class='addpostimg' type='file' name='addPostImg' id='file_img' > <!-- required -->
-                
+                <br>
+                <br>
+                <label id='input' for='content' class='addpost'>Содержание поста: </label>
                 <br><textarea class='text' title='Содержание' required minlength="1" maxlength='4000' spellcheck="true"  wrap='hard' name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='content'></textarea><br>
                 
                 <input type='submit' value='Добавить пост' class='addpostsubmit'>

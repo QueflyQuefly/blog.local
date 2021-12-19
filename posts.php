@@ -8,7 +8,7 @@ $_SESSION['referrer'] = "posts.php";
 
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
-    header("Location: posts.php");
+    header("Location:posts.php?");
 }
 
 $year = date("Y", time());
@@ -38,33 +38,33 @@ if (!empty($_GET['page'])) {
 <head>
     <meta charset='UTF-8'>
     <title>Все посты - Просто блог</title>
-    <link rel='stylesheet' href='css/indexcss.css'>
+    <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
 <body>
     <nav>
     <div class='top'>
-        <div class="logo">
+        <div id="logo">
             <a class="logo" title="На главную" href='/'>
-                <img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-                <div id='namelogo'>Просто Блог</div>
-            </a>    
+            <img id='imglogo' src='images/logo.jpg' alt='Лого'>
+            <div id='namelogo'>Просто Блог</div>
+            </а>
         </div>
-        <div class="menu">
-            <ul class='menu'>
+        <div id="menu">
+            <ul class='menuList'>
                 <?php
                     if (empty($_SESSION['user_id'])) {
-                        echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
+                        echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
-                        echo "<li class='menu'><a class='menu' href='?exit'>Выйти</a></li>";
+                        echo "<li><a class='menuLink' href='?exit'>Выйти</a></li>";
                         if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-                            echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
+                            echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
                 ?>
-                <li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>
-                <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
-                <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
+                <li><a class='menuLink' href='cabinet.php'>Мой профиль</a></li>
+                <li><a class='menuLink' href='search.php'>Поиск</a></li>
+                <li><a class='menuLink' href='addpost.php'>Создать новый пост</a></li>
             </ul>
         </div>
     </div>
@@ -105,17 +105,17 @@ if (!empty($_GET['page'])) {
                 echo "<p>Нет постов для отображения</p>";    
             } else {
                 foreach ($posts as $post) {
-                    $post = toProcessPostForIndex($post);
+                    $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         ?>
 
-        <div class='viewsmallposts'>
+ 
 
-            <a class='post' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
-            <div class='smallpost'>
+            <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
+            <div class='post'>
 
-                 <div class='smallposttext'>
-                    <p class='smallpostzagolovok'><?=$post['zag_small']?></p>
-                    <p class='smallpostcontent'><?=$post['content_small']?></p>
+                 <div class='posttext'>
+                    <p class='postzagolovok'><?=$post['zag']?></p>
+                    <p class='postcontent'><?=$post['content']?></p>
                     <p class='postdate'><?=$post['date_time']. " " . $post['author']?></p>
                     <p class='postrating'>
                         <?php
@@ -128,8 +128,8 @@ if (!empty($_GET['page'])) {
                     </p>
                 </div>
 
-                <div class='smallpostimage'>
-                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                <div class='postimage'>
+                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
                 </div>
                
             </div>
@@ -144,7 +144,7 @@ if (!empty($_GET['page'])) {
 
     </div>
 
-    <footer class='bottom'>
+    <footer>
         <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
     </footer>
 </div>

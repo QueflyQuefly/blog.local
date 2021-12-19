@@ -59,7 +59,7 @@ if (isset($_GET['msg'])) {
 <head>
     <meta charset='UTF-8'>
     <title>Регистрация - Просто Блог</title>
-    <link rel='stylesheet' href='css/formcss.css'>
+    <link rel='stylesheet' href='css/form.css'>
 </head>
 <body>
 <div class='container'>

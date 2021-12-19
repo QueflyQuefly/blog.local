@@ -2,10 +2,8 @@
 session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
-
-$_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
-
 $search = '';
+$_SESSION['referrer'] = "search.php?search=$search";
 
 if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
     $isSuperuser = true;
@@ -15,8 +13,7 @@ if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUS
 }
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
-    $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
-    header("Location: $uri");
+    header("Location: search.php?search=$search");
 }
 if (!empty($_GET['search'])) {
     $search = clearStr($_GET['search']);
@@ -92,30 +89,32 @@ $year = date("Y", time());
 <head>
     <meta charset='UTF-8'>
     <title>Поиск - Просто блог</title>
-    <link rel='stylesheet' href='css/indexcss.css'>
+    <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
 <body>
 <nav>
     <div class='top'>
-        <div class="logo">
-            <a class="logo" title="На главную" href='/'><img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-            <div id='namelogo'>Просто Блог</div></а>
+        <div id="logo">
+            <a class="logo" title="На главную" href='/'>
+            <img id='imglogo' src='images/logo.jpg' alt='Лого'>
+            <div id='namelogo'>Просто Блог</div>
+            </а>
         </div>
-        <div class="menu">
-            <ul class='menu'>
+        <div id="menu">
+            <ul class='menuList'>
                 <?php
                     if (empty($_SESSION['user_id'])) {
-                        echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
+                        echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
-                        echo "<li class='menu'><a class='menu' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a></li>";
+                        echo "<li><a class='menuLink' href='search.php?search=$search&exit'>Выйти</a></li>";
                         if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-                            echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
+                            echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
                 ?>
-                <li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>
-                <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
+                <li><a class='menuLink' href='cabinet.php'>Мой профиль</a></li>
+                <li><a class='menuLink' href='addpost.php'>Создать новый пост</a></li>
             </ul>
         </div>
     </div>
@@ -136,13 +135,13 @@ $year = date("Y", time());
         </div> 
     </div>
 
-    <div class='viewsmallposts'>
+    <div class='viewposts'>
         <?php 
-            echo "<div class='searchdescription'><div class='smallposttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
+            echo "<div class='searchdescription'><div class='posttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
             if (!empty($isSuperuser)) {
-                echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
+                echo "<div class='posttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
             } else {
-                echo "<div class='smallposttext'>Поиск автора осуществляется по ФИО</div>\n</div>"; 
+                echo "<div class='posttext'>Поиск автора осуществляется по ФИО</div>\n</div>"; 
             }
             if (!empty($posts)) {
                 $countPosts = count($posts);
@@ -151,11 +150,11 @@ $year = date("Y", time());
                     $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         ?>
 
-        <a class='post' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
-            <div class='smallpost'>
-                <div class='smallposttext'>
-                    <p class='smallpostzagolovok'><?= $post['zag'] ?></p>
-                    <p class='smallpostauthor'><?= $post['date_time'] ?> &copy; <?= $post['author'] ?></p>
+        <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
+            <div class='post'>
+                <div class='posttext'>
+                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='postauthor'><?= $post['date_time'] ?> &copy; <?= $post['author'] ?></p>
                     <p class='postdate'>Тэги: <?= $post['tag'] ?></p>
                     <p class='postdate'> Комментариев к посту: <?= ""/* $post['count_comments'] */ ?>
                         <?php
@@ -167,8 +166,8 @@ $year = date("Y", time());
                         ?>
                     </p>
                 </div>
-                <div class='smallpostimage'>
-                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка' class='smallpostimage'>
+                <div class='postimage'>
+                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
                 </div>
             </div>
         </a>
@@ -183,19 +182,19 @@ $year = date("Y", time());
                     $user['date_time'] = date("d.m.Y в H:i", $user['date_time']);
         ?>
 
-        <a class='post' href='cabinet.php?user=<?=$user['user_id']?>'>
-            <div class='smallpost'>
-                <div class='smallposttext'>
-                    <p class='smallpostzagolovok'> Просмотр дополнительной информации по нажатию</p>
-                    <p class='smallpostzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
-                    <p class='smallpostzagolovok'> Дата регистрации: <?= $user['date_time'] ?></p>
+        <a class='postLink' href='cabinet.php?user=<?=$user['user_id']?>'>
+            <div class='post'>
+                <div class='posttext'>
+                    <p class='postzagolovok'> Просмотр дополнительной информации по нажатию</p>
+                    <p class='postzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
+                    <p class='postzagolovok'> Дата регистрации: <?= $user['date_time'] ?></p>
 
                     <?php
                         if (!empty($isSuperuser)) {
                     ?>
-                        <p class='smallpostzagolovok'> Категория: <?= $user['rights'] ?></p>
-                        <p class='smallpostzagolovok'>ID: <?= $user['user_id'] ?> </p>
-                        <p class='smallpostzagolovok'>E-mail: <?= $user['email'] ?></p>
+                        <p class='postzagolovok'> Категория: <?= $user['rights'] ?></p>
+                        <p class='postzagolovok'>ID: <?= $user['user_id'] ?> </p>
+                        <p class='postzagolovok'>E-mail: <?= $user['email'] ?></p>
                         <p class='postdate'><object><a class='list' href='search.php?search=<?=$search?>&deleteUserById=<?= $user['user_id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
                     <?php
                         }
@@ -213,9 +212,9 @@ $year = date("Y", time());
         ?>
     </div>
 
-    <footer class='bottom'>
-        <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
-    </footer>
 </div>
+<footer>
+    <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+</footer>
 </body>
 </html>

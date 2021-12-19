@@ -67,14 +67,14 @@ $texts = [
 ];  
 
 if (!empty($_GET['number'])) {
-    $number = clearInt($_GET['number']);
+    $numberOfLoopIterations = clearInt($_GET['number']);
 } else {
-    $number = 10;
+    $numberOfLoopIterations = 10;
 }
 if (!empty($_SESSION['user_id'])) {
     if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
         $j = $db->lastInsertId() + 1;
-        for ($i = $j; $i < $j + $number; $i++) {
+        for ($i = $j; $i < $j + $numberOfLoopIterations; $i++) {
             try {
                 $random1 = mt_rand(0, 12);
                 $random2 = mt_rand(0, 12);
@@ -132,7 +132,7 @@ if (!empty($_SESSION['user_id'])) {
                     }
                 }
                 for ($m = 0; $m <= $random3; $m++) {
-                    $random4 = mt_rand($j, $j + $number - 1);
+                    $random4 = mt_rand($j, $j + $numberOfLoopIterations - 1);
                     $randomUser = $random4 . "@gmail.com";
                     $randomUser = getUserIdByEmail($randomUser);
                     if (is_null($randomUser)) {
@@ -182,21 +182,21 @@ $year = date("Y", time());
 <head>
     <meta charset='UTF-8'>
     <title>Stab - Просто блог</title>
-    <link rel='stylesheet' href='css/indexcss.css'>
+    <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
 <body>
     <nav>
     <div class='top'>
-        <div class="logo">
+    <div id="logo">
             <a class="logo" title="На главную" href='/'>
-                <img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-                <div id='namelogo'>Просто Блог</div>
-            </a>
+            <img id='imglogo' src='images/logo.jpg' alt='Лого'>
+            <div id='namelogo'>Просто Блог</div>
+            </а>
         </div>
-        <div class='menu'>
-            <ul class='menu'>
-                <li class='menu'><a class='menu' href='/'>На главную</a></li>
+        <div id='menu'>
+            <ul class='menuList'>
+                <li><a class='menuLink' href='/'>На главную</a></li>
             </ul>
         </div>
     </div>
@@ -206,14 +206,14 @@ $year = date("Y", time());
         <div id='desc'><p>
             <?php
                 if (empty($errors)) {
-                    if ($number == 1) {
-                        echo "Подключение к БД: успешно</p><p>Создан $number новый пользователь, 
-                        $number новый пост и несколько(до 12) комментариев к каждому.<br>
+                    if ($numberOfLoopIterations == 1) {
+                        echo "Подключение к БД: успешно</p><p>Создан $numberOfLoopIterations новый пользователь, 
+                        $numberOfLoopIterations новый пост и несколько(до 12) комментариев к каждому.<br>
                         Создание 100 постов занимает примерно 15 секунд.<br>
                         Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
                     } else {
-                        echo "Подключение к БД: успешно</p><p>Создано $number новых пользователей, 
-                        $number новых постов и несколько(до 12) комментариев к каждому.<br>
+                        echo "Подключение к БД: успешно</p><p>Создано $numberOfLoopIterations новых пользователей, 
+                        $numberOfLoopIterations новых постов и несколько(до 12) комментариев к каждому.<br>
                         Создание 100 постов занимает примерно 15 секунд.<br>
                         Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
                     }
@@ -232,9 +232,9 @@ $year = date("Y", time());
             </form>
         </div>
     </div>
-    <footer class='bottom'>
-        <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
-    </footer>
 </div>
+<footer>
+    <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+</footer>
 </body>
 </html>

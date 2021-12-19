@@ -24,8 +24,7 @@ if (!empty($_GET['viewPostById'])) {
 
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
-    $uri = str_replace('&exit', '', $_SERVER['REQUEST_URI']);
-    header("Location: $uri");
+    header("Location: viewsinglepost.php?viewPostById=$postId");
 }
 
 if (!empty($_SESSION['user_id'])) {
@@ -90,31 +89,33 @@ $year = date("Y", time());
 <head>
     <meta charset='UTF-8'>
     <title>Пост - Просто блог</title>
-    <link rel='stylesheet' href='css/indexcss.css'>
+    <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
 <body>
 <nav>
     <div class='top'>
-        <div class="logo">
-            <a class="logo" title="На главную" href='/'><img id='logo' src='images/logo.jpg' alt='Лого' width='50' height='50'>
-            <div id='namelogo'>Просто Блог</div></a>
+        <div id="logo">
+            <a class="logo" title="На главную" href='/'>
+            <img id='imglogo' src='images/logo.jpg' alt='Лого'>
+            <div id='namelogo'>Просто Блог</div>
+            </а>
         </div>
-        <div class="menu">
-            <ul class='menu'>
+        <div id="menu">
+            <ul class='menuList'>
                 <?php
                     if (empty($_SESSION['user_id'])) {
-                        echo "<li class='menu'><a class='menu' href='login.php'>Войти</a></li>";
+                        echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
-                        echo "<li class='menu'><a class='menu' href='&exit'>Выйти</a></li>";
+                        echo "<li><a class='menuLink' href='viewsinglepost.php?viewPostById=$postId&exit'>Выйти</a></li>";
                         if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-                            echo "<li class='menu'><a class='menu' href='admin/admin.php'>Админка</a></li>";
+                            echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
                 ?>
-                <li class='menu'><a class='menu' href='cabinet.php'>Мой профиль</a></li>
-                <li class='menu'><a class='menu' href='search.php'>Поиск</a></li>
-                <li class='menu'><a class='menu' href='addpost.php'>Создать новый пост</a></li>
+                <li><a class='menuLink' href='cabinet.php'>Мой профиль</a></li>
+                <li><a class='menuLink' href='search.php'>Поиск</a></li>
+                <li><a class='menuLink' href='addpost.php'>Создать новый пост</a></li>
             </ul>
         </div>
     </div>
@@ -163,7 +164,7 @@ $year = date("Y", time());
 
 
         <div id='singlepostauthor'>
-            <p class='singlepostauthor'><a class='menu' title='Перейти в профиль пользвателя' href='cabinet.php?user=<?=$postAuthorId?>'><?=$post['author']?></a></p>
+            <p class='singlepostauthor'><a class='menuLink' title='Перейти в профиль пользвателя' href='cabinet.php?user=<?=$postAuthorId?>'><?=$post['author']?></a></p>
             <p class='singlepostdate'><?=$post['date_time']?></p>
         </div>
 
@@ -226,14 +227,14 @@ $year = date("Y", time());
             ?>
 
             <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
-                <p class='commentauthor'><a class='menu' href='cabinet.php?user=<?=$comment['user_id']?>'><?=$comment['author']?></a><div class='commentdate'><?=$date?></div></p>
+                <p class='commentauthor'><a class='menuLink' href='cabinet.php?user=<?=$comment['user_id']?>'><?=$comment['author']?></a><div class='commentdate'><?=$date?></div></p>
                 <div class='commentcontent'>
                     <p class='commentcontent'><?=$content?></p> 
                     <p class='commentcontent'>
                         <?php
                             if (!empty($isAdmin)) {
                         ?> 
-                            <object><a class='menu' href='viewsinglepost.php?viewPostById=<?=$postId?>&deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
+                            <object><a class='menuLink' href='viewsinglepost.php?viewPostById=<?=$postId?>&deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
                         <?php
                             }
                         ?>
@@ -275,9 +276,9 @@ $year = date("Y", time());
 
     </div>
 
-    <footer class='bottom'>
-        <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
-    </footer>
 </div>
+<footer>
+    <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+</footer>
 </body>
 </html>
