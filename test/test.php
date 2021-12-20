@@ -124,7 +124,7 @@ while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
 var_dump($results); */
 /* $posts = getMoreTalkedPosts();
 var_dump($posts); */
-$sql = "SELECT DISTINCT c.post_id, p.zag, 
+/* $sql = "SELECT DISTINCT c.post_id, p.zag, 
         p.date_time, p.content, p.rating, u.fio as author 
         FROM comments c
         JOIN posts p ON c.post_id = p.post_id
@@ -134,4 +134,7 @@ $stmt = $db->query($sql);
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $posts[] = $row;
 }
-var_dump($posts);
+var_dump($posts); */
+
+sendMail('drotov.mihailo@gmail.com', 'Prosto Blog', 
+            "<h1>Новый пост:</h1> <pre>тра-та-та,</pre>  <a href='blog.local.000webhostapp.com/viewsinglepost.php?viewPostById=10'>Перейти</a>");

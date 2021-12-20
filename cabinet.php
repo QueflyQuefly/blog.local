@@ -11,14 +11,6 @@ if (isset($_GET['user'])) {
     $user = getUserInfoById($userId);
     
     if (!empty($_SESSION['user_id'])) {
-        if (isset($_GET['subscribe'])) {
-            toSubscribeUser($_SESSION['user_id'], $userId);
-            header("Location: cabinet.php?user=$userId");
-        }
-        if (isset($_GET['unsubscribe'])) {
-            toUnsubscribeUser($_SESSION['user_id'], $userId);
-            header("Location: cabinet.php?user=$userId");
-        }
         $link = "<a class='menuLink' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
         if ($userId == $_SESSION['user_id']) {
             header("Location: cabinet.php");
@@ -36,8 +28,9 @@ if (isset($_GET['user'])) {
 } else {
     header("Location: login.php");
 }
-if (isset($_GET['exit'])) {
+if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
     $_SESSION['user_id'] = false;
+    setcookie('user_id', '0', 1);
     header("Location: cabinet.php?user=$userId");
 }
 if (!empty($showInfoAndLinksToDelete)) {
@@ -88,6 +81,22 @@ if (!empty($linkToChangeUserInfo)) {
 }
 if (isset($_GET['msg'])) {
     $msg = clearStr($_GET['msg']);
+}
+if (isset($_GET['subscribe'])) {
+    if (!empty($_SESSION['user_id'])) {
+        toSubscribeUser($_SESSION['user_id'], $userId);
+        header("Location: cabinet.php?user=$userId");
+    } else {
+        header("Location: login.php");
+    }
+}
+if (isset($_GET['unsubscribe'])) {
+    if (!empty($_SESSION['user_id'])) {
+        toUnsubscribeUser($_SESSION['user_id'], $userId);
+        header("Location: cabinet.php?user=$userId");
+    } else {
+        header("Location: login.php");
+    }
 }
 
 $year = date("Y", time());

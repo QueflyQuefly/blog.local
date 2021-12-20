@@ -6,8 +6,9 @@ require_once $functions;
 
 $_SESSION['referrer'] = "posts.php";
 
-if (isset($_GET['exit'])) {
+if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
     $_SESSION['user_id'] = false;
+    setcookie('user_id', '0', 1);
     header("Location:posts.php?");
 }
 

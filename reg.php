@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     header("Location: reg.php?msg=$error"); 
                 } else {
                     $_SESSION['user_id'] = getUserIdByEmail($email);
+                    setcookie('user_id', $_SESSION['user_id'], strtotime('+2 days'));
                     header("Location: /");
                 } 
             }

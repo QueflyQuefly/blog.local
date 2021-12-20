@@ -4,7 +4,7 @@ require_once $dbconfig;
 define('RIGHTS_USER', 'user');
 define('RIGHTS_SUPERUSER', 'superuser');
 
-/* if not connection to  dbname=myblog, run init_db.php */
+/* if not connection to dbname=myblog, run init_db.php */
 try {
     $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
 } catch (PDOException $e) {
@@ -133,6 +133,7 @@ function isEmailUnique($email) {
 function updateUser($userId, $email, $fio, $password) {
     global $db, $error;
     try {
+        $userId = clearStr($userId);
         $userId = $db->quote($userId);
         $unchangedEmail = getUserInfoById($userId, 'email');
         if ($unchangedEmail != $email) {
@@ -160,6 +161,7 @@ function updateUser($userId, $email, $fio, $password) {
 }
 function getUserInfoById($userId, $whatNeeded = ''){
     global $db, $error;
+    $userId = clearStr($userId);
     $userId = $db->quote($userId);
     $result = null;
     try {
@@ -216,11 +218,12 @@ function searchUsersByFioAndEmail($searchword, $rights = RIGHTS_USER) {
     }
     return $results;
 }
-function deleteUserById($id) {
+function deleteUserById($userId) {
     global $db, $error;
-    $id = clearInt($id);
+    $userId = clearstr($userId);
+    $userId = $db->quote($userId);
     try {
-        $sql = "DELETE FROM users WHERE user_id = $id;";
+        $sql = "DELETE FROM users WHERE user_id = $userId;";
         if ($db->exec($sql)) {
             return true;
         }
@@ -331,14 +334,14 @@ function addPost($zag, $userId, $content) {
     global $db, $error;
     try {
         $date = time();
-        $zag = $db->quote($zag);
+        $zagQuote = $db->quote($zag);
         $userId = $db->quote($userId);
         $fio = getUserInfoById($userId, 'fio');
         $content = $db->quote($content);
         $rating = 0;
         
         $sql = "INSERT INTO posts (zag, user_id, date_time, content, rating) 
-                VALUES($zag, $userId, $date, $content, $rating);";
+                VALUES($zagQuote, $userId, $date, $content, $rating);";
         if (!$db->exec($sql)) {
             return false;
         }
@@ -354,17 +357,26 @@ function addPost($zag, $userId, $content) {
             addTagsToPost($tag, $lastPostId);
         }
 
-        $sql = "SELECT user_id_want_subscribe FROM subscriptions WHERE user_id = $userId";
+        $sql = "SELECT s.user_id_want_subscribe, u.fio, u.email
+                FROM subscriptions s 
+                JOIN users u ON u.user_id = s.user_id_want_subscribe
+                WHERE s.user_id = $userId";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $toEmail = getUserInfoById($result['user_id_want_subscribe'], 'email');
-                $message = "$fio опубликовал новый пост: \n $zag \n 
-                http://blog.local/viewsinglepost.php?viewpostById=$lastPostId \n
-                Это письмо отправлено вам, потому что вы подписаны на этого автора \n
-                Отписаться: http://blog.local/cabinet.php?user=$userId&unsubscribe - 
-                необходимо прежде войти";
-                mail($toEmail, 'Новый пост', $message);
+                $toEmail = $result['email'];
+                $fio = $result['fio'];
+                $title = 'Prosto Blog';
+                $message = "
+                    <h2>$fio опубликовал новый пост:</h2> 
+                    <p style='font-size:13pt;'>$zag -
+                    <a href='bloglocal.000webhostapp.com/viewsinglepost.php?viewpostById=$lastPostId'>Перейти к посту</a></p>
+                    <pre>Это письмо отправлено вам, потому что вы подписаны на этого автора</pre>
+                    <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>Отписаться</a>
+                    <p style='font-size:10pt;'>Необходимо прежде <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>войти</a></p>
+                ";
+
+                sendMail($toEmail, $title, $message);
             }
         }
     } catch (PDOException $e) {
@@ -457,7 +469,7 @@ function searchPostsByContent($searchwords) {
         $searchwords = clearStr($searchwords);
         $searchwords = '%' . $searchwords . '%';
         $searchwords = $db->quote($searchwords);
-        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
+        $sql = "SELECT p.post_id, p.zag, p.content, p.user_id, p.date_time, 
                 p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
                 ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
                 WHERE p.content LIKE $searchwords;";// LIMIT 30
@@ -849,7 +861,8 @@ function getTagsToPostById($postId) {
 function toSubscribeUser($userIdWantSubscribe, $userId) {
     global $db, $error;
     try {
-        $userIdWantSubscribe = clearInt($userIdWantSubscribe);
+        $userIdWantSubscribe = clearStr($userIdWantSubscribe);
+        $userIdWantSubscribe = $db->quote($userIdWantSubscribe);
         $userId = $db->quote($userId);
 
         $sql = "INSERT INTO subscriptions (user_id_want_subscribe, user_id) 
@@ -866,7 +879,8 @@ function toSubscribeUser($userIdWantSubscribe, $userId) {
 function toUnsubscribeUser($userIdWantSubscribe, $userId) {
     global $db, $error;
     try {
-        $userIdWantSubscribe = clearInt($userIdWantSubscribe);
+        $userIdWantSubscribe = clearStr($userIdWantSubscribe);
+        $userIdWantSubscribe = $db->quote($userIdWantSubscribe);
         $userId = $db->quote($userId);
 
         $sql = "DELETE FROM subscriptions WHERE 
@@ -883,7 +897,8 @@ function toUnsubscribeUser($userIdWantSubscribe, $userId) {
 function isSubscribedUser($userIdWantSubscribe, $userId){
     global $db, $error;
     try {
-        $userIdWantSubscribe = clearInt($userIdWantSubscribe);
+        $userIdWantSubscribe = clearStr($userIdWantSubscribe);
+        $userIdWantSubscribe = $db->quote($userIdWantSubscribe);
         $userId = $db->quote($userId);
 
         $sql = "SELECT id FROM subscriptions WHERE 
@@ -925,3 +940,21 @@ function isNounForTag($text){
     return $tags;
 }
 /* functions for stab_db.php  */
+
+
+/* functions for send email  */
+function sendMail($toEmail, $title, $message) {
+    require 'sendmail.php';
+
+    $mail->addAddress($toEmail, 'Prosto Blog');
+    $mail->Subject = $title;
+    $mail->msgHTML($message);
+    //$mail->AltBody = 'This is a plain-text message body';
+    //$mail->addAttachment('images/phpmailer_mini.png');
+    if (!$mail->send()) {
+        return false;
+    } else {
+        return true;
+    }
+}
+/* functions for send email  */

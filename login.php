@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
         if (isUser($email, $password)) {
             $_SESSION['user_id'] = getUserIdByEmail($email);
+            setcookie('user_id', $_SESSION['user_id'], strtotime('+2 days'));
 
             if (!empty($_SESSION['referrer'])) {
                 header("Location: {$_SESSION['referrer']}");
@@ -57,7 +58,7 @@ if (isset($_GET['msg'])) {
                         ?>
                     </p>
                 </div>
-                <div id='left'><a class='button' href='reg.php'><div class='button'>Создать аккаунт</div></a></div>
+                <div id='left'><a class='button' href='reg.php'>Создать аккаунт</a></div>
                 <div id='right'><input type='submit' value='Войти' class='submit'></div>
             </form>
         </div>

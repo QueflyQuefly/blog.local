@@ -83,7 +83,7 @@ try {
         CREATE TABLE subscriptions
         (
         id INT AUTO_INCREMENT,
-        user_id_want_subscribe INT,
+        user_id_want_subscribe VARCHAR(30),
         user_id VARCHAR(30),
         PRIMARY KEY (id)
         );

@@ -4,9 +4,8 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
     
-if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = false;
-    header("Location: /");
+if (!empty($_COOKIE['user_id'])) {
+    $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
 if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
     if (isset($_GET['deletePostById'])) {
@@ -16,6 +15,11 @@ if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSE
             header("Location: cabinet.php?user=$userId");
         } 
     }
+}
+if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
+    $_SESSION['user_id'] = false;
+    setcookie('user_id', '0', 1);
+    header("Location: /");
 }
 $year = date("Y", time());
 $posts = getPostsByNumber(10);
@@ -156,9 +160,9 @@ $posts = getPostsByNumber(10);
             }
         ?>
     </div>
-    <footer>
-        <p>Website by Вячеслав Бельский &copy; <?= $year ?><br> Время загрузки страницы: <?= round(microtime(true) - $start, 4) ?> с.</p>
-    </footer>
 </div>
+<footer>
+    <p>Website by Вячеслав Бельский &copy; <?= $year ?><br> Время загрузки страницы: <?= round(microtime(true) - $start, 4) ?> с.</p>
+</footer>
 </body>
 </html>

@@ -16,8 +16,9 @@ if (!empty($_GET['viewPostById'])) {
 } else{
     header("Location: /");
 }
-if (isset($_GET['exit'])) {
+if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
     $_SESSION['user_id'] = false;
+    setcookie('user_id', '0', 1);
     header("Location: viewsinglepost.php?viewPostById=$postId");
 }
 if (!empty($_SESSION['user_id'])) {
