@@ -11,10 +11,6 @@ if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUS
 } else {
     $userRights = false;
 }
-if (isset($_GET['exit'])) {
-    $_SESSION['user_id'] = false;
-    header("Location: search.php?search=$search");
-}
 if (!empty($_GET['search'])) {
     $search = clearStr($_GET['search']);
     if ($search) {
@@ -55,8 +51,7 @@ if (!empty($_GET['search'])) {
     } else {
         $error = "<div class='singleposttext'><p class='error'>Введите хоть что-нибудь</p></div>\n";
     }
-} 
-
+}
 if (!empty($_GET['deletePostById'])) {
     $deletePostId = clearInt($_GET['deletePostById']);
     if ($deletePostId !== '') {
@@ -78,7 +73,10 @@ if (!empty($_GET['deleteUserById'])) {
         header("Location: search.php?search=$search");
     } 
 }
-
+if (isset($_GET['exit'])) {
+    $_SESSION['user_id'] = false;
+    header("Location: search.php?search=$search");
+}
 $year = date("Y", time());
 ?>
 
@@ -160,7 +158,7 @@ $year = date("Y", time());
                         <?php
                             if (!empty($isSuperuser)) {
                         ?>
-                            <object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID=<?= $post['post_id'] ?></a></object>
+                            <object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID = <?= $post['post_id'] ?></a></object>
                         <?php
                             }
                         ?>
@@ -182,8 +180,8 @@ $year = date("Y", time());
                     $user['date_time'] = date("d.m.Y в H:i", $user['date_time']);
         ?>
 
-        <a class='postLink' href='cabinet.php?user=<?=$user['user_id']?>'>
-            <div class='post'>
+        <div class='post'>
+            <a class='postLink' href='cabinet.php?user=<?=$user['user_id']?>'>
                 <div class='posttext'>
                     <p class='postzagolovok'> Просмотр дополнительной информации по нажатию</p>
                     <p class='postzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
@@ -200,8 +198,8 @@ $year = date("Y", time());
                         }
                     ?>
                 </div>
-            </div>
-        </a>
+            </a>
+        </div>
     
         <?php 
                 } 
@@ -211,7 +209,6 @@ $year = date("Y", time());
             }
         ?>
     </div>
-
 </div>
 <footer>
     <p>Website by Вячеслав Бельский &copy; <?=$year?></p>

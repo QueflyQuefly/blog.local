@@ -122,6 +122,10 @@ html, body {
     text-align: center;
     font-size: 13pt;
 }
+.radio {
+    text-align:left;
+    margin-left: 5vmin;
+}
 /* messages */
 .error{
     /* position: absolute; */

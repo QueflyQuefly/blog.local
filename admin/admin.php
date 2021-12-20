@@ -18,7 +18,7 @@ if (isset($_POST['view'])) {
         header("Location: adminusers.php");
     }
     if ($_POST['view'] === 'addAdmin') {
-        header("Location: reg.php");
+        header("Location: /reg.php");
     }
     if ($_POST['view'] === 'viewStab') {
         header("Location: /stab_db.php");
@@ -32,7 +32,7 @@ if (isset($_POST['view'])) {
 <head>
     <meta charset='UTF-8'>
     <title>Администрирование - Просто Блог</title>
-    <link rel='stylesheet' href='css/admincss.css'>
+    <link rel='stylesheet' href='../css/form.css'>
 </head>
 <body>
 <div class='container'>
@@ -40,15 +40,15 @@ if (isset($_POST['view'])) {
         <div class='form'>
             <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Администрирование</p>
-
-            <?php if ($rights !== "superuser") { ?>
-
-            <div class='msg'>
-                <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>
-            </div>
-
-            <?php } else { ?>
-
+            <?php 
+                if ($rights !== "superuser") { 
+            ?>
+                <div class='msg'>
+                    <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>
+                </div>
+            <?php 
+                } else { 
+            ?>
             <form action='admin.php'  method='post'>
 
                 <div class='radio'>
@@ -67,9 +67,9 @@ if (isset($_POST['view'])) {
 
                 <br><div id='right'><input type='submit' value='Перейти' class='submit'></div>
             </form>
-
-            <?php } ?>
-
+            <?php 
+                }
+            ?>
         </div>    
     </div>
 </div>

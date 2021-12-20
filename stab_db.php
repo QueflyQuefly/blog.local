@@ -73,7 +73,9 @@ if (!empty($_GET['number'])) {
 }
 if (!empty($_SESSION['user_id'])) {
     if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-        $j = $db->lastInsertId() + 1;
+        $stmt = $db->query("SELECT MAX(id) as max_id FROM users");
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $j = $result['max_id'] + 1;
         for ($i = $j; $i < $j + $numberOfLoopIterations; $i++) {
             try {
                 $random1 = mt_rand(0, 12);

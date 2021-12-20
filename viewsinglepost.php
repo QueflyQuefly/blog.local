@@ -6,27 +6,20 @@ require_once $functions;
 if (!empty($_GET['viewPostById'])) {
     $postId = clearInt($_GET['viewPostById']);
     $_SESSION['referrer'] = "viewsinglepost.php?viewPostById=$postId";
-
     $post = getPostForViewById($postId);
     if (empty($post)) {
         header("Location: /");
     }
     $postAuthorId = $post['user_id'];
-
     $tags = getTagsToPostById($postId);
-
     $comments = getCommentsByPostId($postId);
-    
-    $year = date("Y", time());
 } else{
     header("Location: /");
 }
-
 if (isset($_GET['exit'])) {
     $_SESSION['user_id'] = false;
     header("Location: viewsinglepost.php?viewPostById=$postId");
 }
-
 if (!empty($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
     if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
@@ -85,7 +78,6 @@ $year = date("Y", time());
 
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset='UTF-8'>
     <title>Пост - Просто блог</title>
@@ -120,14 +112,10 @@ $year = date("Y", time());
         </div>
     </div>
 </nav>
-
 <div class='allsinglepost'>
     <div class='contentsinglepost'>
-
         <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?=$post['zag']?></p></div>
-
         <div id='singlepostauthor'>
-            
             <?php
                 if (!empty($post['countRatings'])) {
                     echo "<p class='singlepostdate'>Рейтинг поста: {$post['rating']} из 5. Оценок: {$post['countRatings']}</p>";
@@ -161,19 +149,14 @@ $year = date("Y", time());
                 }
             ?>
         </div>
-
-
         <div id='singlepostauthor'>
             <p class='singlepostauthor'><a class='menuLink' title='Перейти в профиль пользвателя' href='cabinet.php?user=<?=$postAuthorId?>'><?=$post['author']?></a></p>
             <p class='singlepostdate'><?=$post['date_time']?></p>
         </div>
-
         <div class='singlepostimage'>
             <img src='images/PostImgId<?=$postId?>.jpg' alt='Картинка' class='singlepostimg'>
         </div>
-
         <div class='singleposttext'>
-            
             <p class='singlepostcontent'><?=$post['content']?></p>
             <p class='singlepostcontent'> Тэги: 
                 <?php 
@@ -191,11 +174,10 @@ $year = date("Y", time());
             <?php
                 if (!empty($isAdmin)) {
             ?>
-            <object><a class='list' href='viewsinglepost.php?viewPostById=<?=$postId?>&deletePostById=<?= $postId ?>'> Удалить пост с ID=<?= $postId ?></a></object><br>
+            <object><a class='list' href='viewsinglepost.php?viewPostById=<?=$postId?>&deletePostById=<?= $postId ?>'> Удалить пост с ID = <?= $postId ?></a></object><br>
             <?php
                 }
             ?>
-            
         </div>
         <div class='addcomments'  id='comment'>
 
@@ -213,28 +195,33 @@ $year = date("Y", time());
                 </form>
             </div>
         </div>
-
         <!-- viewing comments area-->
         <div class='viewcomments'>
-            
             <p class='center'>Комментарии к посту:</p>
             <?php
                 if (!empty($comments)) {
                     krsort($comments);
                 foreach ($comments as $comment) {
-                    $content = nl2br(strip_tags($comment['content']));
-                    $date = date("d.m.Y в H:i", $comment['date_time']);
+                    $comment['content'] = nl2br(strip_tags($comment['content']));
+                    $comment['date_time'] = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
             <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
-                <p class='commentauthor'><a class='menuLink' href='cabinet.php?user=<?=$comment['user_id']?>'><?=$comment['author']?></a><div class='commentdate'><?=$date?></div></p>
+                <p class='commentauthor'>
+                    <a class='menuLink' href='cabinet.php?user=<?= $comment['user_id'] ?>'><?= $comment['author'] ?></a>
+                    <div class='commentdate'><?= $comment['date_time'] ?></div>
+                </p>
                 <div class='commentcontent'>
-                    <p class='commentcontent'><?=$content?></p> 
+                    <p class='commentcontent'><?= $comment['content'] ?></p> 
                     <p class='commentcontent'>
                         <?php
                             if (!empty($isAdmin)) {
                         ?> 
-                            <object><a class='menuLink' href='viewsinglepost.php?viewPostById=<?=$postId?>&deleteCommentById=<?= $comment['com_id'] ?>'> Удалить комментарий</a></object>
+                            <object>
+                                <a class='menuLink' href='viewsinglepost.php?viewPostById=<?= $postId ?>&deleteCommentById=<?= $comment['com_id'] ?>'>
+                                    Удалить комментарий
+                                </a>
+                            </object>
                         <?php
                             }
                         ?>
@@ -249,12 +236,13 @@ $year = date("Y", time());
                             $name = 'unlike';
                         }
                     ?>
-                    
                     <form action='viewsinglepost.php?viewPostById=<?=$postId?>#comment<?=$comment['com_id']?>' method='post'>
-                        <label class='like' title="Нравится" for='like<?=$comment['com_id']?>'><span class='like'>&#9825; </span><?=$countLikes?></label>
-                        <input type="submit" class='like' id="like<?=$comment['com_id']?>" name="<?= $name ?>" value="<?=$comment['com_id']?>">
+                        <label id='heartlike' title="Нравится" for='like<?=$comment['com_id']?>'>
+                            <span class='like'>&#9825; </span>
+                            <?=$countLikes?>
+                        </label>
+                        <input type="submit" class='nodisplay' id="like<?=$comment['com_id']?>" name="<?= $name ?>" value="<?=$comment['com_id']?>">
                     </form>
-
                 </div>
                 <hr>
             </div>
@@ -263,22 +251,18 @@ $year = date("Y", time());
                 }
             } else {
             ?>
-
-            <div class='viewnotcomment'>   
-                <p class='commentcontent'>Пока ещё никто не оставил комментарий. Будьте первым!</p>
-                <hr>
-            </div>
-
+                <div class='viewnotcomment'>   
+                    <p class='commentcontent'>Пока ещё никто не оставил комментарий. Будьте первым!</p>
+                    <hr>
+                </div>
             <?php
                 }
             ?>
         </div>
-
     </div>
-
 </div>
 <footer>
-    <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+    <p>Website by Вячеслав Бельский &copy; <?= $year ?></p>
 </footer>
 </body>
 </html>

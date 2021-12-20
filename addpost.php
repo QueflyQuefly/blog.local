@@ -12,13 +12,10 @@ if (!empty($_SESSION['user_id'])) {
 } else {
     header("Location: login.php");
 }
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $zag = clearStr($_POST['addPostZag']);
     $content = clearStr($_POST['addPostContent']);
-
     if ($zag !== '' && $content !== '') {
-
         /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
             switch($_FILES['addPostImg']["error"]){
                 case UPLOAD_ERR_INI_SIZE:
@@ -46,11 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     header("Location: addpost.php?msg=$error");
             }
         } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-            
             addPost($zag, $userId, $content);
-
             /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
-            
             $msg =  "Пост добавлен";
             header("Location: addpost.php?msg=$msg");
         /* } else { 
@@ -62,18 +56,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: addpost.php?msg=$error");
     }
 }
-
 if (isset($_GET['msg'])) {
     $msg = clearStr($_GET['msg']);
     if ($msg == "Пост добавлен") {
-        $ok = $msg;
+        $msg = "<p class='ok'>$msg</p>";
     } else {
-        $error = $msg;
+        $msg = "<p class='error'>$msg</p>";
     }
 }
-
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -86,26 +77,14 @@ if (isset($_GET['msg'])) {
 <div class='content'>
     <div class='centerpost'>
         <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
-        
         <div class='msg'>
-            <p class='ok'>
-                <?php
-                    if (!empty($ok)) {
-                        echo $ok;
-                    }
-                ?>
-            </p>
-            <p class='error'>
-                <?php
-                    if (!empty($error)) {
-                        echo $error;
-                    }
-                ?>
-            </p>
+            <?php
+                if (!empty($msg)) {
+                    echo $msg;
+                }
+            ?>
         </div>
-
         <p class='label'>Форма добавления поста:</p>
-        
         <div class='form'>
             <form action='addpost.php' method='post' enctype="multipart/form-data" id='addpost'>
                 <label id='input' for='addpostname' class='addpost'>Заголовок: </label>
@@ -122,7 +101,6 @@ if (isset($_GET['msg'])) {
                 <input type='submit' value='Добавить пост' class='addpostsubmit'>
             </form>
         </div>
-
     </div>
 </div>
 </body>

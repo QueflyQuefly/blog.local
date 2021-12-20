@@ -8,6 +8,15 @@ if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
     $_SESSION['user_id'] = false;
     header("Location: /");
 }
+if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+    if (isset($_GET['deletePostById'])) {
+        $deletePostId = clearInt($_GET['deletePostById']);
+        if ($deletePostId !== '') {
+            deletePostById($deletePostId);
+            header("Location: cabinet.php?user=$userId");
+        } 
+    }
+}
 $year = date("Y", time());
 $posts = getPostsByNumber(10);
 ?>
@@ -22,7 +31,7 @@ $posts = getPostsByNumber(10);
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
 <body>
-    <nav>
+<nav>
     <div class='top'>
         <div id="logo">
             <a class="logo" title="На главную" href='/'>
@@ -80,8 +89,18 @@ $posts = getPostsByNumber(10);
                         }     
                     ?>  
                     </p>
+                    <?php
+                        if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                    ?>
+                        <object>
+                            <a class='link' href='posts.php?deletePostById=<?= $post['post_id'] ?>'>
+                                Удалить пост с ID = <?= $post['post_id'] ?>
+                            </a>
+                        </object>
+                    <?php
+                        } 
+                    ?>
                 </div>
-
                 <div class='postimage'>
                     <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
                 </div>
@@ -113,8 +132,18 @@ $posts = getPostsByNumber(10);
                         }     
                     ?>  
                     </p>
+                    <?php
+                        if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                    ?>
+                        <object>
+                            <a class='link' href='posts.php?deletePostById=<?= $post['post_id'] ?>'>
+                                Удалить пост с ID = <?= $post['post_id'] ?>
+                            </a>
+                        </object>
+                    <?php
+                        } 
+                    ?>
                 </div>
-
                 <div class='postimage'>
                     <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
                 </div>

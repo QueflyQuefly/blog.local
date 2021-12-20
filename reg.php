@@ -3,11 +3,8 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
-if (!empty($_SESSION['user_id'])) {
-    $rights = getUserInfoById($_SESSION['user_id'], 'rights');
-    if ($rights === RIGHTS_SUPERUSER) {
-        $forAdmin = "<label><input type='checkbox' name='add_admin' class='center'>Зарегистрировать как админа</label>";
-    }
+if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+    $forAdmin = "<label><input type='checkbox' name='add_admin'>Зарегистрировать как админа</label>";
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
@@ -49,9 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 if (isset($_GET['msg'])) {
     $msg = clearStr($_GET['msg']);
-    $error = $msg;
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -78,17 +73,15 @@ if (isset($_GET['msg'])) {
                         echo $forAdmin;
                     }
                 ?>
-
                 <div class='msg'>
                     <p class='error'>
                         <?php
-                            if (!empty($error)) {
-                                echo $error;
+                            if (!empty($msg)) {
+                                echo $msg;
                             }
                         ?>
                     </p>
                 </div>
-
                 <div id='right'><input type='submit' value='Создать аккаунт' class='submit'></div>
             </form>
         </div>

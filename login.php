@@ -26,9 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 if (isset($_GET['msg'])) {
-    $error = clearStr($_GET['msg']);
+    $msg = clearStr($_GET['msg']);
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -42,30 +41,25 @@ if (isset($_GET['msg'])) {
 <div class='container'>
     <div class='center'>
         <div class='form'>
-
             <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Вход</p>
-
             <form action='login.php' method='post'>
                 <input type='email' name='email' required minlength="1" maxlength='50' autofocus autocomplete="on" placeholder='Ваш email' class='text'><br>
                 <input type='password' name='password' required minlength="1" maxlength='20' autocomplete="off" placeholder='Ваш пароль' class='text'><br>
                 <img src="noise-picture.php">
                 <input type='login' name='variable_of_captcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
-
                 <div class='msg'>
                 <p class='error'>
                         <?php
-                            if (!empty($error)) {
-                                echo $error;
+                            if (!empty($msg)) {
+                                echo $msg;
                             }
                         ?>
                     </p>
                 </div>
-
                 <div id='left'><a class='button' href='reg.php'><div class='button'>Создать аккаунт</div></a></div>
                 <div id='right'><input type='submit' value='Войти' class='submit'></div>
             </form>
-            
         </div>
     </div> 
 </div>

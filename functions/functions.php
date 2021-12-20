@@ -41,20 +41,20 @@ function getUserIdByEmail($email) {
     }
     return $id;
 }
-function getUsersByNumber($numberOfUsers, $startId = false) {
+function getUsersByNumber($numberOfUsers , $lessThanMaxId = 0) {
     global $db, $error;
     $users = [];
     try {
-        $numberOfUsers = clearInt($numberOfUsers);
-        $startId = clearInt($startId);
-        if (empty($startId)) {
+        $numberOfUsers  = clearInt($numberOfUsers );
+        $lessThanMaxId = clearInt($lessThanMaxId);
+        if (empty($lessThanMaxId)) {
             $sql = "SELECT id, user_id, email, fio, pass_word, date_time, 
                     rights FROM users ORDER BY id DESC 
-                    LIMIT $numberOfUsers;";
+                    LIMIT $numberOfUsers ;";
         } else {
-            $sql = "SELECT id, user_id, email, fio, pass_word, date_time, 
-                    rights FROM users WHERE id >= $startId 
-                    ORDER BY id DESC LIMIT $numberOfUsers;";
+            $sql = "SELECT id, user_id, email, fio, pass_word, date_time, rights 
+                    FROM users WHERE id <= (SELECT MAX(id) FROM users) - $lessThanMaxId 
+                    ORDER BY id DESC LIMIT $numberOfUsers ;";
         }
         $stmt = $db->query($sql);
         if ($stmt != false) {
@@ -186,6 +186,36 @@ function getUserInfoById($userId, $whatNeeded = ''){
     }
     return $result;
 }
+function searchUsersByFioAndEmail($searchword, $rights = RIGHTS_USER) {
+    global $db, $error;
+    $results = [];
+    try {
+        $searchword = clearStr($searchword);
+        $searchword = '%' . $searchword . '%';
+        $searchword = $db->quote($searchword);
+        $sql = "SELECT id, user_id, fio, email, date_time, rights 
+                FROM users WHERE fio LIKE $searchword;";
+        $stmt = $db->query($sql);
+        if ($stmt != false) {
+            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $results[$result['id']] = $result;
+            }
+        }
+        if ($rights === RIGHTS_SUPERUSER) {
+            $sql = "SELECT id, user_id, fio, email, date_time, rights 
+                    FROM users WHERE email LIKE $searchword;";
+            $stmt = $db->query($sql);
+            if ($stmt != false) {
+                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $results[$result['id']] = $result;
+                }
+            }
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $results;
+}
 function deleteUserById($id) {
     global $db, $error;
     $id = clearInt($id);
@@ -203,16 +233,16 @@ function deleteUserById($id) {
 
 
 /* functions for table posts */
-function getPostsByNumber($numberOfPosts, $startId = 0) {
+function getPostsByNumber($numberOfPosts, $lessThanMaxId = 0) {
     global $db, $error;
     $posts = [];
     try {
         $numberOfPosts = clearInt($numberOfPosts);
-        $startId = clearInt($startId);
+        $lessThanMaxId = clearInt($lessThanMaxId);
         $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, p.content, 
                 p.rating, u.fio as author FROM posts p 
                 JOIN users u ON p.user_id = u.user_id 
-                WHERE p.post_id >= $startId
+                WHERE p.post_id <= (SELECT MAX(post_id) FROM posts) - $lessThanMaxId 
                 ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
@@ -225,42 +255,31 @@ function getPostsByNumber($numberOfPosts, $startId = 0) {
     }
     return $posts;
 }
-function getPostById($id) {
+function getPostForViewById($postId) {
     global $db, $error;
     $post = [];
     try {
+        $postId = clearInt($postId);
         $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, p.content, 
                 p.rating, u.fio as author FROM posts p 
-                JOIN users u ON p.user_id = u.user_id WHERE p.post_id = $id;";
+                JOIN users u ON p.user_id = u.user_id 
+                WHERE p.post_id = $postId;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
         }
+        if (!empty($post)) {
+            $post['content'] = str_replace("<br />
+<br />","</p>\n<p>", nl2br($post['content']));
+            $regex = '/#(\w+)/um';
+            $post['content'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['content']);
+            $post['zag'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['zag']);
+            $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
+            $post['countComments'] = countCommentsByPostId($postId);
+            $post['countRatings'] = countRatingsByPostId($postId);
+        }
     } catch (PDOException $e) {
         $error = $e->getMessage();
-    }
-    return $post;
-}
-function getPostForIndexById($postId) {
-    $post = getPostById($postId);
-    if (!empty($post)) {
-        $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
-        $post['countComments'] = countCommentsByPostId($postId);
-        $post['countRatings'] = countRatingsByPostId($postId);
-    }
-    return $post;
-}
-function getPostForViewById($postId) {
-    $post = getPostById($postId);
-    if (!empty($post)) {
-        $post['content'] = str_replace("<br />
-<br />","</p>\n<p>", nl2br($post['content']));
-        $regex = '/#(\w+)/um';
-        $post['content'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['content']);
-        $post['zag'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['zag']);
-        $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
-        $post['countComments'] = countCommentsByPostId($postId);
-        $post['countRatings'] = countRatingsByPostId($postId);
     }
     return $post;
 }
@@ -276,7 +295,7 @@ function getMoreTalkedPosts($numberOfPosts = 3) {
                 FROM comments c 
                 JOIN posts p ON c.post_id = p.post_id
                 JOIN users u ON p.user_id = u.user_id 
-                WHERE c.date_time >= $dateWeekAgo LIMIT 10;";
+                WHERE c.date_time >= $dateWeekAgo ORDER BY c.post_id DESC LIMIT 10;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -359,7 +378,10 @@ function getPostsByUserId($user_id) {
     try {
         $posts = [];
         $user_id = $db->quote($user_id);
-        $sql = "SELECT post_id, zag, date_time, content, rating FROM posts WHERE user_id = $user_id;";
+        $sql = "SELECT p.post_id, p.zag, p.date_time, 
+            p.content, p.rating, u.fio as author
+            FROM posts p JOIN users u ON p.user_id = u.user_id 
+            WHERE p.user_id = $user_id;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -373,7 +395,82 @@ function getPostsByUserId($user_id) {
         $error = $e->getMessage();
     }
     return $posts;
-
+}
+function searchPostsByTag($searchword) {
+    global $db, $error;
+    $results = [];
+    try {
+        $searchword = clearStr($searchword);
+        $searchword = '%' . $searchword . '%';
+        $searchword = $db->quote($searchword);
+        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
+                p.rating, u.fio as author, t.tag FROM posts p JOIN users u
+                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id WHERE t.tag 
+                LIKE $searchword;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt != false) {
+            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $results[$result['post_id']] = $result;
+            }
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $results;
+}
+function searchPostsByZagAndAuthor($searchword) {
+    global $db, $error;
+    $results = [];
+    try {
+        $searchword = clearStr($searchword);
+        $searchword = '%' . $searchword . '%';
+        $searchword = $db->quote($searchword);
+        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
+                p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
+                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
+                WHERE u.fio LIKE $searchword;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt != false) {
+            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $results[$result['post_id']] = $result;
+            }
+        }
+        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
+                p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
+                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
+                WHERE p.zag LIKE $searchword;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt != false) {
+            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $results[$result['post_id']] = $result;
+            }
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $results;
+}
+function searchPostsByContent($searchwords) {
+    global $db, $error;
+    $results = [];
+    try {
+        $searchwords = clearStr($searchwords);
+        $searchwords = '%' . $searchwords . '%';
+        $searchwords = $db->quote($searchwords);
+        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
+                p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
+                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
+                WHERE p.content LIKE $searchwords;";// LIMIT 30
+        $stmt = $db->query($sql);
+        if ($stmt != false) {
+            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $results[$result['post_id']] = $result;
+            }
+        }
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+    return $results;
 }
 function deletePostById($id) {
     global $db, $error;
@@ -475,11 +572,12 @@ function getCommentById($comId) {
 function insertComments($postId, $commentAuthorId, $commentDate, $commentContent) {
     global $db, $error;
     try {
-        $authorId = clearInt($commentAuthorId);
+        $authorId = clearStr($commentAuthorId);
         $postId = clearInt($postId);
         $date = $commentDate;
-        $content = $db->quote($commentContent);
-        $content = trim(strip_tags($content));
+        $content = trim(strip_tags($commentContent));
+        $content = $db->quote($content);
+        $authorId = $db->quote($authorId);
 
         $sql = "INSERT INTO comments (post_id, user_id, date_time, content, rating) 
         VALUES($postId, $authorId, $date, $content, 0);";
@@ -496,8 +594,10 @@ function getCommentsByUserId($userId) {
     $comments = [];
     try {
         $userId = $db->quote($userId);
-        $sql = "SELECT com_id, post_id, date_time, content, rating 
-                FROM comments WHERE user_id = $userId;";// LIMIT 30
+        $sql = "SELECT c.com_id, c.post_id, c.date_time, c.content, c.user_id,
+                c.rating, u.fio as author FROM comments c 
+                JOIN users u ON u.user_id = c.user_id 
+                WHERE c.user_id = $userId;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -608,44 +708,52 @@ function countRatingsByPostId($postId) {
     }
     return $countRatings;
 }
-function getLikedPostsIdsByUserId($userId) {
+function getLikedPostsByUserId($userId) {
     global $db, $error;
-    $postIds = [];
+    $posts = [];
     try {
         $userId = $db->quote($userId);
-        $sql = "SELECT post_id FROM rating_posts WHERE user_id = $userId;";// LIMIT 30
+        $sql = "SELECT r.post_id, p.zag, r.user_id, p.date_time, p.content, 
+                p.rating, u.fio as author FROM rating_posts r 
+                JOIN posts p ON p.post_id = r.post_id 
+                JOIN users u ON u.user_id = r.user_id 
+                WHERE r.user_id = $userId ORDER BY p.date_time DESC;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $postIds[] = $result['post_id'];
+                $posts[] = $result;
             }
-            $postIds = array_unique($postIds);
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $postIds;   
+    return $posts;   
 }
 /* functions for table rating_posts */
 
 
 /* functions for table rating_comments */
-function getLikedCommentsIdsByUserId($userId) {
+function getLikedCommentsByUserId($userId) {
     global $db, $error;
-    $commentsIds = [];
+    $comments = [];
     try {
         $userId = $db->quote($userId);
-        $sql = "SELECT com_id FROM rating_comments WHERE user_id = $userId;";// LIMIT 30
+        $sql = "SELECT r.com_id, r.user_id, r.post_id, 
+                u.fio as author, c.content, c.date_time, c.rating
+                FROM rating_comments r
+                JOIN comments c ON r.com_id = c.com_id
+                JOIN users u ON r.user_id = u.user_id
+                WHERE r.user_id = $userId;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $commentsIds[] = $result['com_id'];
+                $comments[] = $result;
             }
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-    return $commentsIds;
+    return $comments;
 }
 function changeCommentRating($rating, $comId, $postId, $userId){
     global $db, $error;
@@ -793,116 +901,6 @@ function isSubscribedUser($userIdWantSubscribe, $userId){
     return false;
 }
 /* functions for table subscriptions */
-
-
-/* functions for search.php */
-function searchPostsByTag($searchword) {
-    global $db, $error;
-    $results = [];
-    try {
-        $searchword = clearStr($searchword);
-        $searchword = '%' . $searchword . '%';
-        $searchword = $db->quote($searchword);
-        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
-                p.rating, u.fio as author, t.tag FROM posts p JOIN users u
-                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id WHERE t.tag 
-                LIKE $searchword;";// LIMIT 30
-        $stmt = $db->query($sql);
-        if ($stmt != false) {
-            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $results[$result['post_id']] = $result;
-            }
-        }
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-    return $results;
-}
-function searchPostsByZagAndAuthor($searchword) {
-    global $db, $error;
-    $results = [];
-    try {
-        $searchword = clearStr($searchword);
-        $searchword = '%' . $searchword . '%';
-        $searchword = $db->quote($searchword);
-        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
-                p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
-                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
-                WHERE u.fio LIKE $searchword;";// LIMIT 30
-        $stmt = $db->query($sql);
-        if ($stmt != false) {
-            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $results[$result['post_id']] = $result;
-            }
-        }
-        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
-                p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
-                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
-                WHERE p.zag LIKE $searchword;";// LIMIT 30
-        $stmt = $db->query($sql);
-        if ($stmt != false) {
-            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $results[$result['post_id']] = $result;
-            }
-        }
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-    return $results;
-}
-function searchPostsByContent($searchwords) {
-    global $db, $error;
-    $results = [];
-    try {
-        $searchwords = clearStr($searchwords);
-        $searchwords = '%' . $searchwords . '%';
-        $searchwords = $db->quote($searchwords);
-        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
-                p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
-                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
-                WHERE p.content LIKE $searchwords;";// LIMIT 30
-        $stmt = $db->query($sql);
-        if ($stmt != false) {
-            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $results[$result['post_id']] = $result;
-            }
-        }
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-    return $results;
-}
-function searchUsersByFioAndEmail($searchword, $rights = RIGHTS_USER) {
-    global $db, $error;
-    $results = [];
-    try {
-        $searchword = clearStr($searchword);
-        $searchword = '%' . $searchword . '%';
-        $searchword = $db->quote($searchword);
-        $sql = "SELECT id, user_id, fio, email, date_time, rights 
-                FROM users WHERE fio LIKE $searchword;";
-        $stmt = $db->query($sql);
-        if ($stmt != false) {
-            while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $results[$result['id']] = $result;
-            }
-        }
-        if ($rights === RIGHTS_SUPERUSER) {
-            $sql = "SELECT id, user_id, fio, email, date_time, rights 
-                    FROM users WHERE email LIKE $searchword;";
-            $stmt = $db->query($sql);
-            if ($stmt != false) {
-                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $results[$result['id']] = $result;
-                }
-            }
-        }
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-    return $results;
-}
-/* functions for search.php */
 
 
 /* functions for stab_db.php  */

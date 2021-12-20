@@ -366,22 +366,19 @@ nav{
 
 /* like area */
 .like{
-	overflow: hidden;
     margin-left: 8%;
-}
-.like{
-    display:none;
-}
-.like{
     background-color:transparent;
     border: none;
+    max-width: 20vmin;
     font-size: 15pt;
+}
+.like #heartlike{
     cursor: pointer;
 }
-.like{
+.like #heartlike span{
     font-size: 20pt;
 }
-.like:hover .like{
+.like:hover #heartlike  span{
     color: rgb(168, 0, 0);
 }
 /* like area */
@@ -520,6 +517,9 @@ hr{
 .center{
     margin-left: 10%;
     font-size: 13pt;
+}
+.nodisplay{
+    display:none;
 }
 footer{
     border-radius: 0;

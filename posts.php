@@ -28,9 +28,17 @@ if (!empty($_GET['page'])) {
 } else {
     $page = 1;
 }
+if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+    if (isset($_GET['deletePostById'])) {
+        $deletePostId = clearInt($_GET['deletePostById']);
+        if ($deletePostId !== '') {
+            deletePostById($deletePostId);
+            header("Location: cabinet.php?user=$userId");
+        } 
+    }
+}
+$posts = getPostsByNumber($numberOfPosts, ($numberOfPosts * $page) - $numberOfPosts);
 ?>
-
-
 
 <!DOCTYPE html>
 <html>
@@ -87,7 +95,8 @@ if (!empty($_GET['page'])) {
             </select>
             <label for='page'>Страница: <select id='page' class='select' name="page" onchange="window.location.href=this.options[this.selectedIndex].value"></label>
                 <?php
-                    for ($i = $page - 3; $i <= $page + 3; $i++) {
+                    count($posts) < $numberOfPosts ? $endPage = $page : $endPage = $page + 3;
+                    for ($i = $page - 3; $i <= $endPage; $i++) {
                         if ($i > 0) {
                             if ($i != $page) {
                                 echo "<option value='posts.php?number=$numberOfPosts&page=$i'>$i</option>";
@@ -100,53 +109,53 @@ if (!empty($_GET['page'])) {
             </select>
         </div>
         <?php 
-            $posts = getPostsByNumber($numberOfPosts, $numberOfPosts * $page - $numberOfPosts);
             if (empty($posts)) {
                 echo "<p>Нет постов для отображения</p>";    
             } else {
                 foreach ($posts as $post) {
                     $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         ?>
-
- 
-
-            <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
-            <div class='post'>
-
+            <div class='viewpost'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
                  <div class='posttext'>
                     <p class='postzagolovok'><?=$post['zag']?></p>
                     <p class='postcontent'><?=$post['content']?></p>
-                    <p class='postdate'><?=$post['date_time']. " " . $post['author']?></p>
+                    <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
                     <p class='postrating'>
-                        <?php
-                            if (!$post['rating']) {
-                                echo "Нет оценок. Будьте первым!";
-                            } else {
-                                echo "Рейтинг: " . $post['rating'] . ", оценок: " ; //. $post['countRatings'];
-                            }     
-                        ?>  
+                    <?php
+                        if (!$post['rating']) {
+                            echo "Нет оценок. Будьте первым!";
+                        } else {
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " ; //. $post['countRatings'];
+                        }     
+                    ?>  
                     </p>
+                    <?php
+                        if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                    ?>
+                        <object>
+                            <a class='link' href='posts.php?deletePostById=<?= $post['post_id'] ?>'>
+                                Удалить пост с ID = <?= $post['post_id'] ?>
+                            </a>
+                        </object>
+                    <?php
+                        } 
+                    ?>
                 </div>
-
                 <div class='postimage'>
                     <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
                 </div>
-               
+                </a>
             </div>
-            </a>
-
-        </div>
 
         <?php
                 }
             }
         ?>
-
     </div>
-
-    <footer>
-        <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
-    </footer>
 </div>
+<footer>
+    <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
+</footer>
 </body>
 </html>
