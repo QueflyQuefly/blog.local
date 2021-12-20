@@ -6,16 +6,17 @@ require_once $functions;
 $_SESSION['referrer'] = 'addpost.php';
 
 $maxSizeOfUploadImage = 4096000; // 4 megabytes
-
-if (!empty($_SESSION['user_id'])) {
-    $userId = $_SESSION['user_id'];
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
 } else {
     header("Location: login.php");
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $zag = clearStr($_POST['addPostZag']);
+    $title = clearStr($_POST['addPostZag']);
     $content = clearStr($_POST['addPostContent']);
-    if ($zag !== '' && $content !== '') {
+    if ($title !== '' && $content !== '') {
         /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
             switch($_FILES['addPostImg']["error"]){
                 case UPLOAD_ERR_INI_SIZE:
@@ -43,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     header("Location: addpost.php?msg=$error");
             }
         } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-            addPost($zag, $userId, $content);
+            addPost($title, $sessionUserId, $content);
             /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
             $msg =  "Пост добавлен";
             header("Location: addpost.php?msg=$msg");

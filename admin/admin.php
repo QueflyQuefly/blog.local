@@ -5,12 +5,17 @@ require_once $file_functions;
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
-if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-    $rights = RIGHTS_SUPERUSER;
-} else {
-    $rights = false;
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
 }
-if (isset($_POST['view'])) {
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
+} else {
+    $isSuperuser = false;
+}
+if (isset($_POST['view']) && $isSuperuser === true) {
     if ($_POST['view'] === 'viewPosts') {
         header("Location: adminposts.php");
     }
@@ -42,7 +47,7 @@ if (isset($_POST['view'])) {
             <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
             <p class='label'>Администрирование</p>
             <?php 
-                if ($rights !== "superuser") { 
+                if (empty($isSuperuser)) { 
             ?>
                 <div class='msg'>
                     <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>

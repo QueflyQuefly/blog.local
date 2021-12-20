@@ -3,18 +3,22 @@ $pathToPHPMailer = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECT
 require $pathToPHPMailer;
 
 use PHPMailer\PHPMailer\PHPMailer;
-$mail = new PHPMailer;
-$mail->isSMTP();
-$mail->SMTPDebug = 0;
-$mail->Host = 'smtp.gmail.com';
-$mail->Port = 587;
-$mail->SMTPSecure = 'tls';
-$mail->SMTPAuth = true;
+function getConfiguredMail () {
+    $mail = new PHPMailer;
+    $mail->isSMTP();
+    $mail->SMTPDebug = 0;
+    $mail->Host = 'smtp.gmail.com';
+    $mail->Port = 587;
+    $mail->SMTPSecure = 'tls';
+    $mail->SMTPAuth = true;
 
-$mail->Username = "prostoblog.local@gmail.com";
-$mail->Password = "1Artaxerx2##";
-$mail->setFrom('prostoblog.local@gmail.com', 'Prosto Blog');
-$mail->addReplyTo('prostoblog.local@gmail.com', 'Prosto Blog');
+    $mail->Username = "prostoblog.local@gmail.com";
+    $mail->Password = "1Artaxerx2##";
+    $mail->setFrom('prostoblog.local@gmail.com', 'Prosto Blog');
+    $mail->addReplyTo('prostoblog.local@gmail.com', 'Prosto Blog');
+    
+    return $mail;
+}
 
 
 

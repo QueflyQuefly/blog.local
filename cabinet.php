@@ -5,26 +5,33 @@ $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
-
-$twoDaysInseconds = 60*60*24*2;
-header("Cache-Control: max-age=$twoDaysInseconds");
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
+}
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
+}
+$twoDaysInSeconds = 60*60*24*2;
+header("Cache-Control: max-age=$twoDaysInSeconds");
 header("Cache-Control: must-revalidate");
 
 if (isset($_GET['user'])) {
     $userId = clearStr($_GET['user']);
     $user = getUserInfoById($userId);
     
-    if (!empty($_SESSION['user_id'])) {
+    if (!empty($sessionUserId)) {
         $link = "<a class='menuLink' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
-        if ($userId == $_SESSION['user_id']) {
+        if ($userId == $sessionUserId) {
             header("Location: cabinet.php");
         }
-        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+        if (!empty($isSuperuser)) {
             $showInfoAndLinksToDelete = true;
         }
     }
-} elseif (!empty($_SESSION['user_id'])) {
-    $userId = $_SESSION['user_id'];
+} elseif (!empty($sessionUserId)) {
+    $userId = $sessionUserId;
     $user = getUserInfoById($userId);
     $showInfoAndLinksToDelete = true;
     $linkToChangeUserInfo = true;
@@ -32,8 +39,8 @@ if (isset($_GET['user'])) {
 } else {
     header("Location: login.php");
 }
-if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = false;
+if (isset($_GET['exit']) && !empty($sessionUserId)) {
+    $sessionUserId = false;
     setcookie('user_id', '0', 1);
     header("Location: cabinet.php?user=$userId");
 }
@@ -55,7 +62,6 @@ if (!empty($showInfoAndLinksToDelete)) {
 }
 if (!empty($linkToChangeUserInfo)) {
     if (isset($_POST['email']) && isset($_POST['fio']) && isset($_POST['password'])) {
-        $id = $_SESSION['user_id'];
         $email = clearStr($_POST['email']);
         $fio = clearStr($_POST['fio']);
         $password = $_POST['password'];
@@ -70,7 +76,7 @@ if (!empty($linkToChangeUserInfo)) {
             } else {
                 $password = false;
             }
-            if (!updateUser($id, $email, $fio, $password)) {
+            if (!updateUser($sessionUserId, $email, $fio, $password)) {
                 $msg = "Пользователь с таким email уже зарегистрирован";
                 header("Location: cabinet.php?changeinfo&msg=$msg"); 
             } else {
@@ -87,16 +93,16 @@ if (isset($_GET['msg'])) {
     $msg = clearStr($_GET['msg']);
 }
 if (isset($_GET['subscribe'])) {
-    if (!empty($_SESSION['user_id'])) {
-        toSubscribeUser($_SESSION['user_id'], $userId);
+    if (!empty($sessionUserId)) {
+        toSubscribeUser($sessionUserId, $userId);
         header("Location: cabinet.php?user=$userId");
     } else {
         header("Location: login.php");
     }
 }
 if (isset($_GET['unsubscribe'])) {
-    if (!empty($_SESSION['user_id'])) {
-        toUnsubscribeUser($_SESSION['user_id'], $userId);
+    if (!empty($sessionUserId)) {
+        toUnsubscribeUser($sessionUserId, $userId);
         header("Location: cabinet.php?user=$userId");
     } else {
         header("Location: login.php");
@@ -129,15 +135,15 @@ $year = date("Y", time());
         <div id="menu">
             <ul class='menuList'>
                 <?php
-                    if (empty($_SESSION['user_id'])) {
+                    if (empty($sessionUserId)) {
                         echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
-                        if ($userId === $_SESSION['user_id']) {
+                        if ($userId === $sessionUserId) {
                             echo "<li><a class='menuLink' href='index.php?exit'>Выйти</a></li>";
                         } else {
                             echo "<li><a class='menuLink' href='cabinet.php?user=$userId&exit'>Выйти</a></li>";
                         }
-                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                             echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -168,8 +174,8 @@ $year = date("Y", time());
                                 href='cabinet.php'>Отмена</a>\n";
                     }
                 }
-                if (isset($_GET['user']) && !empty($_SESSION['user_id'])) {
-                    if (!isSubscribedUser($_SESSION['user_id'], $userId)) {
+                if (isset($_GET['user']) && !empty($sessionUserId)) {
+                    if (!isSubscribedUser($sessionUserId, $userId)) {
                         echo "<p><a class='link' title='Подписаться' style='font-size:14pt' 
                                 href='cabinet.php?user=$userId&subscribe'>Подписаться</a></p>";
                     } else {
@@ -210,7 +216,7 @@ $year = date("Y", time());
                 } else {
                     $countPosts = count($posts);
                 }
-                echo "<div class='contentsinglepost'><p class='postzagolovok'>Посты от автора &copy; 
+                echo "<div class='contentsinglepost'><p class='posttitle'>Посты от автора &copy; 
                         {$user['fio']} (всего $countPosts):</p></div>";
                 if (empty($posts)) {
                     echo "<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>"; 
@@ -221,16 +227,17 @@ $year = date("Y", time());
             <div class='viewpost'>
                 <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='posttitle'><?= $post['title'] ?></p>
                     <p class='postcontent'><?= $post['content'] ?></p>
                     <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
-                            echo "Нет оценок. Будьте первым!";
+                            echo "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
                         } else {
-                            echo "Рейтинг поста: " . $post['rating'];
-                        }     
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
+                                    . ", комментариев: " . $post['count_comments'];
+                        }  
                     ?>  
                     </p>
                     <?php
@@ -263,7 +270,7 @@ $year = date("Y", time());
                 } else {
                 $countComments = count($comments);
                 }
-                echo "<div class='contentsinglepost'><p class='postzagolovok'>Комментарии автора &copy; 
+                echo "<div class='contentsinglepost'><p class='posttitle'>Комментарии автора &copy; 
                         ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
                     foreach ($comments as $comment) {
@@ -304,7 +311,7 @@ $year = date("Y", time());
         <?php 
             $postsLike = getLikedPostsByUserId($userId);
             $countPostsLike = count($postsLike);
-            echo "<div class='contentsinglepost'><p class='postzagolovok'>Оценённые посты &copy; ${user['fio']} (всего $countPostsLike):</p></div>";
+            echo "<div class='contentsinglepost'><p class='posttitle'>Оценённые посты &copy; ${user['fio']} (всего $countPostsLike):</p></div>";
             if (!empty($postsLike)) {
                 foreach ($postsLike as $post) {
                     $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
@@ -312,16 +319,17 @@ $year = date("Y", time());
             <div class='viewpost'>
                 <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='posttitle'><?= $post['title'] ?></p>
                     <p class='postcontent'><?= $post['content'] ?></p>
                     <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
-                            echo "Нет оценок. Будьте первым!";
+                            echo "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
                         } else {
-                            echo "Рейтинг поста: " . $post['rating'];
-                        }     
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
+                                    . ", комментариев: " . $post['count_comments'];
+                        }  
                     ?>  
                     </p>
                     <?php
@@ -357,7 +365,7 @@ $year = date("Y", time());
                 } else {
                     $countComments = count($commentsLike);
                 }
-                echo "<div class='contentsinglepost'><p class='postzagolovok'>Понравившиеся комментарии &copy; ${user['fio']} (всего $countComments):</p></div>";
+                echo "<div class='contentsinglepost'><p class='posttitle'>Понравившиеся комментарии &copy; ${user['fio']} (всего $countComments):</p></div>";
                 if ($countComments) {
                     foreach ($commentsLike as $comment) {
                         $comment['content'] = nl2br($comment['content']);

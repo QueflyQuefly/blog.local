@@ -9,8 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
     if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
         if (isUser($email, $password)) {
-            $_SESSION['user_id'] = getUserIdByEmail($email);
-            setcookie('user_id', $_SESSION['user_id'], strtotime('+2 days'));
+            $sessionUserId = getUserIdByEmail($email);
+            setcookie('user_id', $sessionUserId, strtotime('+2 days'));
 
             if (!empty($_SESSION['referrer'])) {
                 header("Location: {$_SESSION['referrer']}");

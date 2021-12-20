@@ -4,24 +4,29 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
-$twoDaysInseconds = 60*60*24*2;
-header("Cache-Control: max-age=$twoDaysInseconds");
+$twoDaysInSeconds = 60*60*24*2;
+header("Cache-Control: max-age=$twoDaysInSeconds");
 header("Cache-Control: must-revalidate");
     
 if (!empty($_COOKIE['user_id'])) {
-    $_SESSION['user_id'] = $_COOKIE['user_id'];
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
 }
-if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
+}
+if (!empty($isSuperuser)) {
     if (isset($_GET['deletePostById'])) {
         $deletePostId = clearInt($_GET['deletePostById']);
         if ($deletePostId !== '') {
             deletePostById($deletePostId);
-            header("Location: cabinet.php?user=$userId");
+            header("Location: /");
         } 
     }
 }
-if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = false;
+if (isset($_GET['exit']) && !empty($sessionUserId)) {
+    $sessionUserId = false;
     setcookie('user_id', '0', 1);
     header("Location: /");
 }
@@ -51,11 +56,11 @@ $posts = getPostsByNumber(10);
         <div id="menu">
             <ul class='menuList'>
                 <?php
-                    if (empty($_SESSION['user_id'])) {
+                    if (empty($sessionUserId)) {
                         echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
                         echo "<li><a class='menuLink' href='?exit'>Выйти</a></li>";
-                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                             echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -86,20 +91,21 @@ $posts = getPostsByNumber(10);
             <div class='<?=  $class  ?>'>
                 <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                  <div class='posttext'>
-                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='posttitle'><?= $post['title'] ?></p>
                     <p class='postcontent'><?= $post['content'] ?></p>
                     <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
-                            echo "Нет оценок. Будьте первым!";
+                            echo "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
                         } else {
-                            echo "Рейтинг: " . $post['rating'] . ", оценок: " ; //. $post['countRatings'];
-                        }     
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
+                                    . ", комментариев: " . $post['count_comments'];
+                        }
                     ?>  
                     </p>
                     <?php
-                        if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                     ?>
                         <object>
                             <a class='link' href='posts.php?deletePostById=<?=  $post['post_id']  ?>'>
@@ -130,20 +136,21 @@ $posts = getPostsByNumber(10);
             <div class='viewpost'>
                 <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='posttitle'><?= $post['title'] ?></p>
                     <p class='postcontent'><?= $post['content'] ?></p>
                     <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
-                            echo "Нет оценок. Будьте первым!";
+                            echo "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
                         } else {
-                            echo "Рейтинг поста: " . $post['rating'];
-                        }     
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
+                                    . ", комментариев: " . $post['count_comments'];
+                        }  
                     ?>  
                     </p>
                     <?php
-                        if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                     ?>
                         <object>
                             <a class='link' href='posts.php?deletePostById=<?=  $post['post_id']  ?>'>

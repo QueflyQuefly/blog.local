@@ -3,7 +3,13 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
-if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
+}
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
     $forAdmin = "<label><input type='checkbox' name='add_admin'>Зарегистрировать как админа</label>";
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -19,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($email !== '' && $fio !== '' && $password !== '') {
         $password = password_hash($password, PASSWORD_BCRYPT);
         if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
-            if (isset($_POST['add_admin'])) {
+            if (isset($_POST['add_admin']) && $isSuperuser === true) {
                 if (!addUser($email, $fio, $password, RIGHTS_SUPERUSER)) {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
@@ -31,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $error = "Пользователь с таким email уже зарегистрирован";
                     header("Location: reg.php?msg=$error"); 
                 } else {
-                    $_SESSION['user_id'] = getUserIdByEmail($email);
-                    setcookie('user_id', $_SESSION['user_id'], strtotime('+2 days'));
+                    $sessionUserId = getUserIdByEmail($email);
+                    setcookie('user_id', $sessionUserId, strtotime('+2 days'));
                     header("Location: /");
                 } 
             }

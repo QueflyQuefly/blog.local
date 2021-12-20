@@ -6,12 +6,17 @@ require_once $file_functions;
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
-if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-    $rights = RIGHTS_SUPERUSER;
-} else {
-    $rights = false;
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
 }
-if (isset($_GET['deletePostById'])) {
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
+} else {
+    $isSuperuser = false;
+}
+if (isset($_GET['deletePostById']) && $isSuperuser === true) {
     $deletePostId = clearInt($_GET['deletePostById']);
     if ($deletePostId != '') {
         deletePostById($deletePostId);
@@ -50,11 +55,11 @@ $year = date("Y", time());
         <div id="menu">
             <ul class='menuList'>
                 <?php
-                    if (empty($_SESSION['user_id'])) {
+                    if (empty($sessionUserId)) {
                         echo "<li><a class='menuLink' href='/login.php'>Войти</a></li>";
                     } else {
                         echo "<li><a class='menuLink' href='/index.php?exit'>Выйти</a></li>";
-                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                             echo "<li><a class='menuLink' href='admin.php'>Админка</a></li>";
                         }
                     }
@@ -69,7 +74,7 @@ $year = date("Y", time());
 <div class='allwithoutmenu'>
     <div class='content'>
         <?php
-        if ($rights !== "superuser") {
+        if (empty($isSuperuser)) {
             echo "<p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>";
         } else {
             echo "<div id='desc'><p>Управление постами <br> ($numberOfPosts постов - одна страница)
@@ -93,16 +98,17 @@ $year = date("Y", time());
             <div class='viewpost'>
                 <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='posttitle'><?= $post['title'] ?></p>
                     <p class='postcontent'><?= $post['content'] ?></p>
                     <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
-                            echo "Нет оценок. Будьте первым!";
+                            echo "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
                         } else {
-                            echo "Рейтинг поста: " . $post['rating'];
-                        }     
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
+                                    . ", комментариев: " . $post['count_comments'];
+                        }  
                     ?>  
                     </p>
                     <object>

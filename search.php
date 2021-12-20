@@ -5,7 +5,12 @@ require_once $functions;
 $search = '';
 $_SESSION['referrer'] = "search.php?search=$search";
 
-if (!empty($_SESSION['user_id']) && (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false)) {
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
+}
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
     $isSuperuser = true;
     $userRights = RIGHTS_SUPERUSER;
 } else {
@@ -73,8 +78,8 @@ if (!empty($_GET['deleteUserById'])) {
         header("Location: search.php?search=$search");
     } 
 }
-if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = false;
+if (isset($_GET['exit']) && !empty($sessionUserId)) {
+    $sessionUserId = false;
     setcookie('user_id', '0', 1);
     header("Location: search.php?search=$search");
 }
@@ -104,11 +109,11 @@ $year = date("Y", time());
         <div id="menu">
             <ul class='menuList'>
                 <?php
-                    if (empty($_SESSION['user_id'])) {
+                    if (empty($sessionUserId)) {
                         echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
                         echo "<li><a class='menuLink' href='search.php?search=$search&exit'>Выйти</a></li>";
-                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                             echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -123,8 +128,8 @@ $year = date("Y", time());
 <div class='allsinglepost'>
     
     <div class='contentsinglepost'>
-        <div id='singlepostzagolovok'>
-            <p class='singlepostzagolovok'>Поиск поста или автора</p> 
+        <div id='singleposttitle'>
+            <p class='singleposttitle'>Поиск поста или автора</p> 
         </div>
 
         <div class='search'>
@@ -153,7 +158,7 @@ $year = date("Y", time());
         <div class='viewpost'>
             <a class='postLink' href='viewsinglepost.php?viewPostById=<?=  $post['post_id'] ?>'>
             <div class='posttext'>
-                <p class='postzagolovok'><?=  $post['zag'] ?></p>
+                <p class='posttitle'><?=  $post['title'] ?></p>
                 <p class='postauthor'><?=  $post['date_time'] ?> &copy; <?=  $post['author'] ?></p>
                 <p class='postcontent'><?= $post['content'] ?></p>
                 <p class='postdate'>
@@ -164,7 +169,7 @@ $year = date("Y", time());
                     if (!$post['rating']) {
                         echo "Нет оценок. Будьте первым!";
                     } else {
-                        echo "Рейтинг: " . $post['rating'] . ", оценок: " ; //. $post['countRatings'];
+                        echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings'];
                     }     
                 ?>  
                 </p>
@@ -199,16 +204,16 @@ $year = date("Y", time());
         <div class='post'>
             <a class='postLink' href='cabinet.php?user=<?= $user['user_id']?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'> Просмотр дополнительной информации по нажатию</p>
-                    <p class='postzagolovok'> ФИО(псевдоним): <?=  $user['fio'] ?></p>
-                    <p class='postzagolovok'> Дата регистрации: <?=  $user['date_time'] ?></p>
+                    <p class='posttitle'> Просмотр дополнительной информации по нажатию</p>
+                    <p class='posttitle'> ФИО(псевдоним): <?=  $user['fio'] ?></p>
+                    <p class='posttitle'> Дата регистрации: <?=  $user['date_time'] ?></p>
 
                     <?php
                         if (!empty($isSuperuser)) {
                     ?>
-                        <p class='postzagolovok'> Категория: <?=  $user['rights'] ?></p>
-                        <p class='postzagolovok'>ID: <?=  $user['user_id'] ?> </p>
-                        <p class='postzagolovok'>E-mail: <?=  $user['email'] ?></p>
+                        <p class='posttitle'> Категория: <?=  $user['rights'] ?></p>
+                        <p class='posttitle'>ID: <?=  $user['user_id'] ?> </p>
+                        <p class='posttitle'>E-mail: <?=  $user['email'] ?></p>
                         <p class='postdate'><object><a class='list' href='search.php?search=<?= $search?>&deleteUserById=<?=  $user['user_id'] ?> '> Удалить <?=  $user['rights'] ?>-а</a></object>
                     <?php
                         }

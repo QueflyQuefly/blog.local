@@ -6,12 +6,17 @@ require_once $file_functions;
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
-if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-    $rights = RIGHTS_SUPERUSER;
-} else {
-    $rights = false;
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
 }
-if (isset($_GET['deleteUserById']) && $rights === RIGHTS_SUPERUSER) {
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
+} else {
+    $isSuperuser = false;
+}
+if (isset($_GET['deleteUserById']) && $isSuperuser === true) {
     $deleteId = clearInt($_GET['deleteUserById']);
     if ($deleteId != false) {
         deleteUserById($deleteId);
@@ -50,11 +55,11 @@ $year = date("Y", time());
         <div id="menu">
             <ul class='menuList'>
                 <?php
-                    if (empty($_SESSION['user_id'])) {
+                    if (empty($sessionUserId)) {
                         echo "<li><a class='menuLink' href='/login.php'>Войти</a></li>";
                     } else {
                         echo "<li><a class='menuLink' href='/index.php?exit'>Выйти</a></li>";
-                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                             echo "<li><a class='menuLink' href='admin.php'>Админка</a></li>";
                         }
                     }
@@ -69,7 +74,7 @@ $year = date("Y", time());
 <div class='allwithoutmenu'>
     <div class='content'>
         <?php
-            if ($rights !== "superuser") {
+            if (empty($isSuperuser)) {
                 echo "<p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>";
             } else {
         ?>
@@ -96,12 +101,12 @@ $year = date("Y", time());
         <div class='viewpost'>
             <a class='postLink' href='cabinet.php?user=<?= $user['user_id'] ?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'> Просмотр дополнительной информации по нажатию</p>
-                    <p class='postzagolovok'> ФИО(псевдоним): <?=  $user['fio']  ?></p>
-                    <p class='postzagolovok'> Дата регистрации: <?=  $user['date_time']  ?></p>
-                    <p class='postzagolovok'> Категория: <?=  $user['rights']  ?></p>
-                    <p class='postzagolovok'>ID: <?=  $user['user_id']  ?> </p>
-                    <p class='postzagolovok'>E-mail: <?=  $user['email']  ?></p>
+                    <p class='posttitle'> Просмотр дополнительной информации по нажатию</p>
+                    <p class='posttitle'> ФИО(псевдоним): <?=  $user['fio']  ?></p>
+                    <p class='posttitle'> Дата регистрации: <?=  $user['date_time']  ?></p>
+                    <p class='posttitle'> Категория: <?=  $user['rights']  ?></p>
+                    <p class='posttitle'>ID: <?=  $user['user_id']  ?> </p>
+                    <p class='posttitle'>E-mail: <?=  $user['email']  ?></p>
                     <p class='postdate'><object><a class='list' href='adminusers.php?deleteUserById=<?=  $user['user_id']  ?> '> Удалить <?=  $user['rights']  ?>-а</a></object>
                 </div>
             </a>

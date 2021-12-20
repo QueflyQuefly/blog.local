@@ -5,13 +5,20 @@ $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
 $_SESSION['referrer'] = "posts.php";
-
-$twoDaysInseconds = 60*60*24*2;
-header("Cache-Control: max-age=$twoDaysInseconds");
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
+}
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
+}
+$twoDaysInSeconds = 60*60*24*2;
+header("Cache-Control: max-age=$twoDaysInSeconds");
 header("Cache-Control: must-revalidate");
 
-if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = false;
+if (isset($_GET['exit']) && !empty($sessionUserId)) {
+    $sessionUserId = false;
     setcookie('user_id', '0', 1);
     header("Location:posts.php?");
 }
@@ -33,12 +40,12 @@ if (!empty($_GET['page'])) {
 } else {
     $page = 1;
 }
-if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+if (!empty($isSuperuser)) {
     if (isset($_GET['deletePostById'])) {
         $deletePostId = clearInt($_GET['deletePostById']);
         if ($deletePostId !== '') {
             deletePostById($deletePostId);
-            header("Location: cabinet.php?user=$userId");
+            header("Location: posts.php?number=$numberOfPosts&page=$page");
         } 
     }
 }
@@ -67,11 +74,11 @@ $posts = getPostsByNumber($numberOfPosts, ($numberOfPosts * $page) - $numberOfPo
         <div id="menu">
             <ul class='menuList'>
                 <?php
-                    if (empty($_SESSION['user_id'])) {
+                    if (empty($sessionUserId)) {
                         echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
                         echo "<li><a class='menuLink' href='?exit'>Выйти</a></li>";
-                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                             echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -124,7 +131,7 @@ $posts = getPostsByNumber($numberOfPosts, ($numberOfPosts * $page) - $numberOfPo
             <div class='viewpost'>
                 <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                  <div class='posttext'>
-                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='posttitle'><?= $post['title'] ?></p>
                     <p class='postcontent'><?= $post['content'] ?></p>
                     <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
@@ -132,12 +139,12 @@ $posts = getPostsByNumber($numberOfPosts, ($numberOfPosts * $page) - $numberOfPo
                         if (!$post['rating']) {
                             echo "Нет оценок. Будьте первым!";
                         } else {
-                            echo "Рейтинг: " . $post['rating'] . ", оценок: " ; //. $post['countRatings'];
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings'];
                         }     
                     ?>  
                     </p>
                     <?php
-                        if (!empty($_SESSION['user_id']) && strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                     ?>
                         <object>
                             <a class='link' href='posts.php?deletePostById=<?=  $post['post_id']  ?>'>

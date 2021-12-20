@@ -110,14 +110,14 @@ nav{
     padding:2.7vmin 2.7vmin;
     cursor:pointer;
 }
-.generalpost .postzagolovok{
+.generalpost .posttitle{
     padding-top: 1vmin;
     font-size: 20pt;
     -webkit-line-clamp: 3;
     display: -webkit-box;
     -webkit-box-orient: vertical;
 }
-.generalpost:hover .postzagolovok{
+.generalpost:hover .posttitle{
     color:darkslateblue;
 }
 .generalpost .posttext{
@@ -167,7 +167,7 @@ nav{
     padding:1.7vmin 1.7vmin;
     cursor:pointer;
 }
-.viewpost:hover .postzagolovok{
+.viewpost:hover .posttitle{
     color:darkslateblue;
 }
 .posttext{
@@ -176,7 +176,7 @@ nav{
     text-align: left;
     padding: 2vmin 3vmin 2vmin 2vmin;
 }
-.postzagolovok{
+.posttitle{
     -webkit-line-clamp: 2;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -215,7 +215,7 @@ nav{
 .contentsinglepost{
     margin: 2% 17% 2% 17%;
 }
-#singlepostzagolovok{
+#singleposttitle{
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 99vmin;
@@ -225,7 +225,7 @@ nav{
     font-size: 28pt;
     text-indent: 2%;
 }
-/*#singlepostzagolovok::first-letter{
+/*#singleposttitle::first-letter{
     font-size: 30pt;
     font-family: Georgia, 'Times New Roman', Times, serif;
 } */
@@ -397,29 +397,20 @@ hr{
 .list{
     margin:0 auto;
     font-size: 14pt;
-}
-.list{
     text-overflow: ellipsis;
     overflow: hidden;
     text-decoration:none;
     list-style: none;
     padding:1.5vmin;
     padding-bottom:0.5vmin;
+    color: darkslateblue;
+    float:right;
+    margin-right: 3%;
 }
 .list:hover{
     border: 0.3vmin solid lightgray;
     padding: 1.2vmin;
     padding-bottom:0.2vmin;
-}
-.list{
-    margin:0 0;
-}
-.list{
-    text-decoration: none;
-    font-style: italic;
-    color: darkslateblue;
-    float:right;
-    margin-right: 3%;
 }
 hr{
     width:90%;

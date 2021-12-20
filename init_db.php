@@ -16,12 +16,12 @@ try {
 
         CREATE TABLE users
         (
-        id INT  AUTO_INCREMENT,
+        id INT UNSIGNED AUTO_INCREMENT,
         user_id VARCHAR(30),
         email VARCHAR(50),
         fio VARCHAR(50),
         pass_word CHAR(60),
-        date_time INT,
+        date_time INT UNSIGNED,
         rights VARCHAR(20),
         PRIMARY KEY (id)
         );
@@ -29,60 +29,70 @@ try {
 
         CREATE TABLE posts
         (
-        post_id INT AUTO_INCREMENT,
-        zag TEXT,
+        post_id INT UNSIGNED AUTO_INCREMENT,
+        title TINYTEXT,
         user_id VARCHAR(30),
-        date_time INT,
+        date_time INT UNSIGNED,
         content TEXT,
-        rating DOUBLE,
         PRIMARY KEY (post_id)
         );
 
 
         CREATE TABLE comments
         (
-        com_id INT AUTO_INCREMENT,
-        post_id INT,
+        com_id INT UNSIGNED AUTO_INCREMENT,
+        post_id INT UNSIGNED,
         user_id VARCHAR(30),
-        date_time INT,
+        date_time INT UNSIGNED,
         content TEXT,
-        rating INT,
+        rating INT UNSIGNED,
         PRIMARY KEY (com_id)
         );
 
 
         CREATE TABLE rating_posts
         (
-        id INT AUTO_INCREMENT,
+        id INT UNSIGNED AUTO_INCREMENT,
         user_id VARCHAR(30),
-        post_id INT,
-        rating TINYINT,
+        post_id INT UNSIGNED,
+        rating DECIMAL(1),
         PRIMARY KEY (id)
         );
         
 
+        CREATE TABLE additional_info_posts
+        (
+        id INT UNSIGNED AUTO_INCREMENT,
+        post_id INT UNSIGNED,
+        rating DECIMAL(2,1),
+        count_comments INT UNSIGNED,
+        count_ratings INT UNSIGNED,
+        PRIMARY KEY (id)
+        );
+
+
         CREATE TABLE rating_comments
         (
-        id INT AUTO_INCREMENT,
+        id INT UNSIGNED AUTO_INCREMENT,
         user_id VARCHAR(30),
-        com_id INT,
-        post_id INT,
+        com_id INT UNSIGNED,
+        post_id INT UNSIGNED,
         PRIMARY KEY (id)
         );
 
 
         CREATE TABLE tag_posts
         (
-        id INT AUTO_INCREMENT,
+        id INT UNSIGNED AUTO_INCREMENT,
         tag TINYTEXT,
-        post_id INT,
+        post_id INT UNSIGNED,
         PRIMARY KEY (id)
         );
 
 
         CREATE TABLE subscriptions
         (
-        id INT AUTO_INCREMENT,
+        id INT UNSIGNED AUTO_INCREMENT,
         user_id_want_subscribe VARCHAR(30),
         user_id VARCHAR(30),
         PRIMARY KEY (id)

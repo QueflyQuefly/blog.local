@@ -3,8 +3,8 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
-$twoDaysInseconds = 60*60*24*2;
-header("Cache-Control: max-age=$twoDaysInseconds");
+$twoDaysInSeconds = 60*60*24*2;
+header("Cache-Control: max-age=$twoDaysInSeconds");
 header("Cache-Control: must-revalidate");
 
 if (!empty($_GET['viewPostById'])) {
@@ -20,58 +20,59 @@ if (!empty($_GET['viewPostById'])) {
 } else{
     header("Location: /");
 }
-if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = false;
+if (isset($_GET['exit']) && !empty($sessionUserId)) {
+    $sessionUserId = false;
     setcookie('user_id', '0', 1);
     header("Location: viewsinglepost.php?viewPostById=$postId");
 }
-if (!empty($_SESSION['user_id'])) {
-    $userId = $_SESSION['user_id'];
-    if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-        $isAdmin = true;
-        
-        if (isset($_GET['deletePostById'])) {
-            $deletePostId = clearInt($_GET['deletePostById']);
-            if ($deletePostId !== '') {
-                deletePostById($deletePostId);
-                header("Location: /");
-            } 
-        }
-        if (isset($_GET['deleteCommentById'])) {
-            $deleteCommentId = clearInt($_GET['deleteCommentById']);
-            if ($deleteCommentId !== '') {
-                deleteCommentById($deleteCommentId);
-                header("Location: {$_SESSION['referrer']}");
-            } 
-        }
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
+}
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
+    if (isset($_GET['deletePostById'])) {
+        $deletePostId = clearInt($_GET['deletePostById']);
+        if ($deletePostId !== '') {
+            deletePostById($deletePostId);
+            header("Location: /");
+        } 
+    }
+    if (isset($_GET['deleteCommentById'])) {
+        $deleteCommentId = clearInt($_GET['deleteCommentById']);
+        if ($deleteCommentId !== '') {
+            deleteCommentById($deleteCommentId);
+            header("Location: {$_SESSION['referrer']}");
+        } 
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (!empty($_SESSION['user_id'])) {
+    if (!empty($sessionUserId)) {
         if (isset($_POST['addCommentContent'])) {
-            $commentAuthorId = $userId;
+            $commentAuthorId = $sessionUserId;
             $commentContent = $_POST['addCommentContent'];
             if ($commentAuthorId && $commentContent) {
-                insertComments($postId, $commentAuthorId, time(), $commentContent);
+                insertComments($postId, $commentAuthorId, time(), $commentContent, 0);
                 header("Location: viewsinglepost.php?viewPostById=$postId");
             } else {
                 $error = 'Комментарий не может быть пустым';
             }
         }
-        if (!isUserChangesPostRating($userId, $postId) && isset($_POST['star'])) {
+        if (!isUserChangesPostRating($sessionUserId, $postId) && isset($_POST['star'])) {
             $star = clearInt($_POST['star']);
-            changePostRating($userId, $postId, $star);
+            changePostRating($sessionUserId, $postId, $star);
             header("Location: viewsinglepost.php?viewPostById=$postId");
         }
         
         if (isset($_POST['like'])) {
             $like = clearInt($_POST['like']);
-            changeCommentRating('like', $like, $postId, $userId);
+            changeCommentRating('like', $like, $postId, $sessionUserId);
             header("Location: viewsinglepost.php?viewPostById=$postId#comment$like");
         } 
         if (isset($_POST['unlike'])) {
             $unlike = clearInt($_POST['unlike']);
-            changeCommentRating('unlike', $unlike, $postId, $userId);
+            changeCommentRating('unlike', $unlike, $postId, $sessionUserId);
             header("Location: viewsinglepost.php?viewPostById=$postId#comment$unlike");
         }
     } else {
@@ -102,11 +103,11 @@ $year = date("Y", time());
         <div id="menu">
             <ul class='menuList'>
                 <?php
-                    if (empty($_SESSION['user_id'])) {
+                    if (empty($sessionUserId)) {
                         echo "<li><a class='menuLink' href='login.php'>Войти</a></li>";
                     } else {
                         echo "<li><a class='menuLink' href='viewsinglepost.php?viewPostById=$postId&exit'>Выйти</a></li>";
-                        if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
+                        if (!empty($isSuperuser)) {
                             echo "<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>";
                         }
                     }
@@ -120,16 +121,16 @@ $year = date("Y", time());
 </nav>
 <div class='allsinglepost'>
     <div class='contentsinglepost'>
-        <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?= $post['zag']?></p></div>
+        <div id='singleposttitle'><p class='singleposttitle'><?= $post['title']?></p></div>
         <div id='singlepostauthor'>
             <?php
-                if (!empty($post['countRatings'])) {
-                    echo "<p class='singlepostdate'>Рейтинг поста: {$post['rating']} из 5. Оценок: {$post['countRatings']}</p>";
+                if (!empty($post['count_ratings'])) {
+                    echo "<p class='singlepostdate'>Рейтинг поста: {$post['rating']} из 5. Оценок: {$post['count_ratings']}</p>";
                 } else {
                     echo "<p class='singlepostdate'>Оценок 0. Будьте первым!</p>";
                 }
                 
-                if (empty($userId) || !isUserChangesPostRating($userId, $postId)) {
+                if (empty($sessionUserId) || !isUserChangesPostRating($sessionUserId, $postId)) {
             ?>
             <div class="rating-area">
                 <form action='<?= $_SERVER['REQUEST_URI']?>' method='post'>
@@ -178,7 +179,7 @@ $year = date("Y", time());
                 ?>
             </p>
             <?php
-                if (!empty($isAdmin)) {
+                if (!empty($isSuperuser)) {
             ?>
             <object><a class='list' href='viewsinglepost.php?viewPostById=<?= $postId?>&deletePostById=<?=  $postId ?>'> Удалить пост с ID = <?=  $postId ?></a></object><br>
             <?php
@@ -203,12 +204,11 @@ $year = date("Y", time());
         </div>
         <!-- viewing comments area-->
         <div class='viewcomments'>
-            <p class='center'>Комментарии к посту:</p>
+            <p class='center'>Комментарии к посту (всего <?=$post['count_comments']?>):</p>
             <?php
-                if (!empty($comments)) {
-                    krsort($comments);
+            if (!empty($comments)) {
                 foreach ($comments as $comment) {
-                    $comment['content'] = nl2br(strip_tags($comment['content']));
+                    $comment['content'] = nl2br(clearStr($comment['content']));
                     $comment['date_time'] = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
@@ -221,7 +221,7 @@ $year = date("Y", time());
                     <p class='commentcontent'><?=  $comment['content'] ?></p> 
                     <p class='commentcontent'>
                         <?php
-                            if (!empty($isAdmin)) {
+                            if (!empty($isSuperuser)) {
                         ?> 
                             <object>
                                 <a class='menuLink' href='viewsinglepost.php?viewPostById=<?=  $postId ?>&deleteCommentById=<?=  $comment['com_id'] ?>'>
@@ -236,7 +236,7 @@ $year = date("Y", time());
                 <div class='like'>
                     <?php
                         $countLikes = $comment['rating'];
-                        if (empty($userId) || !isUserChangedCommentRating($userId, $comment['com_id'])) {
+                        if (empty($sessionUserId) || !isUserChangedCommentRating($sessionUserId, $comment['com_id'])) {
                             $name = 'like';
                         } else {
                             $name = 'unlike';

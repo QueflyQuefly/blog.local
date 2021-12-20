@@ -7,6 +7,14 @@ require_once 'dbconfig.php';
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
+if (!empty($_COOKIE['user_id'])) {
+    $sessionUserId = $_COOKIE['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $sessionUserId = $_SESSION['user_id'];
+}
+if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+    $isSuperuser = true;
+}
 try {
     $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
 } catch (PDOException $e) {
@@ -20,7 +28,7 @@ $user = [
     "surnames" => [0 => "Бродский", 1 => "Васильев", 2 => "Пугачев", 3=> "Иванюк", 4 => "Житомирский", 5 => "Данилов", 6 => "Крупской", 
                     7 => "Павлов", 8 => 'Анатольев', 9 => "Вертеловский", 10 => "Кириллов", 11 => "Григорьев", 12 => "Георгиевский"]
 ]; 
-$zags1 = [
+$titles1 = [
     0 => 'Пушкиногорье -',
     1 => 'Полуостров Крым -',
     2 => 'Ночная Россия -',
@@ -35,7 +43,7 @@ $zags1 = [
     11 => 'Солнечный Белиз -',
     12 => 'Таиланд удивил -',
 ]; 
-$zags2 = [
+$titles2 = [
     0 => 'это не только памятник историко-литературный',
     1 => 'это своеобразный ботанический и зоологический сад',
     2 => 'это замечательный памятник природы',
@@ -71,105 +79,92 @@ if (!empty($_GET['number'])) {
 } else {
     $numberOfLoopIterations = 10;
 }
-if (!empty($_SESSION['user_id'])) {
-    if (strpos($_SESSION['user_id'], RIGHTS_SUPERUSER) !== false) {
-        $stmt = $db->query("SELECT MAX(id) as max_id FROM users");
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        $j = $result['max_id'] + 1;
-        for ($i = $j; $i < $j + $numberOfLoopIterations; $i++) {
-            try {
-                $random1 = mt_rand(0, 12);
-                $random2 = mt_rand(0, 12);
-                $random3 = mt_rand(0, 12);
-                $randomDate = mt_rand(100000, 2628000);
-                $date = time() - $randomDate;
+if (!empty($isSuperuser)) {
+    $stmt = $db->query("SELECT MAX(id) as max_id FROM users");
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $j = $result['max_id'] + 1;
 
-                $userId = uniqid('user');
-                $userId = $db->quote($userId);
-                $password = password_hash($i, PASSWORD_BCRYPT);
-                $password = $db->quote($password);
-                $email = "'$i@gmail.com'";
-                $fio = $user['names'][$random2] . " " . $user['surnames'][$random3];
-                $fio = $db->quote($fio);
+    for ($i = $j; $i < $j + $numberOfLoopIterations; $i++) {
+        try {
+            $random1 = mt_rand(0, 12);
+            $random2 = mt_rand(0, 12);
+            $random3 = mt_rand(0, 12);
+            
 
-                $sql = "INSERT INTO users (user_id, email, fio, pass_word, date_time, rights) 
-                        VALUES($userId, $email, $fio, $password, $date, 'user');";
+            $userId = "'" . uniqid(RIGHTS_USER) . "'";
+            $email = "'$i@gmail.com'";
+            $fio = "'" . $user['names'][$random2] . " " . $user['surnames'][$random3] . "'";
+            $password = "'" . password_hash($i, PASSWORD_BCRYPT) . "'";
+            $randomDate = mt_rand(100000, 2628000);
+            $date = time() - $randomDate;
+            $rights = "'" . RIGHTS_USER . "'";
 
-                if (!$db->exec($sql)) {
-                    echo $sql;
-                    $errors[] = "Пользователь с id= $i не  создан";
-                    continue;
-                }
+            $sql = "INSERT INTO users (user_id, email, fio, pass_word, date_time, rights) 
+                    VALUES($userId, $email, $fio, $password, $date, $rights);";
 
-                $zag = $zags1[$random1] . " " . $zags2[$random2];
-                $zag = $db->quote($zag);
-
-                $text = $texts[$random3] . "<br />
+            if (!$db->exec($sql)) {
+                echo $sql;
+                $errors[] = "Пользователь с id= $i не  создан";
+                continue;
+            }
+            $title = "'" . $titles1[$random1] . " " . $titles2[$random2] . "'";
+            $text = "' " . $texts[$random3] . "<br />
 <br />" . $texts[$random2] . "<br />
-<br />" . $texts[$random1];
-                $tags = isNounForTag($text);
-                $text = $db->quote($text);
+<br />" . $texts[$random1] . " '";
+            $tags = isNounForTag($text);
 
-                $sql = "INSERT INTO posts (zag, user_id, date_time, content, rating) 
-                        VALUES($zag, $userId, $date, $text, 0);";
+            $sql = "INSERT INTO posts (title, user_id, date_time, content) 
+                    VALUES($title, $userId, $date, $text);";
 
-                if (!$db->exec($sql)) {
-                    echo $sql;
-                    $errors[] = "Пост от пользователя с id= $userId не создан";
-                    continue;
-                }
-                $postId = $db->lastInsertId();
-                if (!empty($tags)) {
-                    foreach ($tags as $tag) {
-                        $tag = $db->quote($tag);
+            if (!$db->exec($sql)) {
+                echo $sql;
+                $errors[] = "Пост от пользователя с id= $userId не создан";
+                continue;
+            }
+            $postId = $db->lastInsertId();
+            if (!empty($tags)) {
+                foreach ($tags as $tag) {
+                    $tag = "'" . $tag . "'";
 
-                        $sql = "INSERT INTO tag_posts (tag, post_id) 
-                                VALUES($tag, $postId);";
-
-                        if (!$db->exec($sql)) {
-                            echo $sql;
-                            $errors[] = "Тэг $tag к посту №$postId не создан";
-                            continue;
-                        }
-                    }
-                }
-                for ($m = 0; $m <= $random3; $m++) {
-                    $random4 = mt_rand($j, $j + $numberOfLoopIterations - 1);
-                    $randomUser = $random4 . "@gmail.com";
-                    $randomUser = getUserIdByEmail($randomUser);
-                    if (is_null($randomUser)) {
-                        continue;
-                    }
-                    $randomUser = $db->quote($randomUser);
-                    $random5 = mt_rand(0, 5);
-                    $random6 = mt_rand(0, 12);
-                    $dateOfComment = mt_rand($date, time());
-                    $commentContent = $texts[$random6];
-                    $commentContent = $db->quote($commentContent);
-
-                    if (!isUserChangesPostRating($randomUser, $postId)) {
-                        changePostRating($randomUser, $postId, $random5);
-                    }
-
-                    $randomLike = mt_rand(0, 1000);
-                    $sql = "INSERT INTO comments (post_id, user_id, date_time, content, rating) 
-                            VALUES($postId, $randomUser, $dateOfComment, $commentContent, $randomLike);";
+                    $sql = "INSERT INTO tag_posts (tag, post_id) 
+                            VALUES($tag, $postId);";
 
                     if (!$db->exec($sql)) {
                         echo $sql;
-                        $errors[] = "Комментарий к посту №$postId от пользователя с id= $randomUser не создан";
+                        $errors[] = "Тэг $tag к посту №$postId не создан";
                         continue;
                     }
-                    if (!isUserChangedCommentRating($randomUser, $random4)) {
-                        changeCommentRating('like', $random4, $postId, $randomUser);
-                    }
                 }
-            } catch (PDOException $e) {
-                $errors[] = $e->getMessage();
             }
+            for ($m = 0; $m <= $random3; $m++) {
+                $random4 = mt_rand($j, $j + $numberOfLoopIterations - 1);
+                $randomUser = $random4 . "@gmail.com";
+                $randomUser = getUserIdByEmail($randomUser);
+                if (is_null($randomUser)) {
+                    continue;
+                }
+                $random5 = mt_rand(0, 5);
+                $random6 = mt_rand(0, 12);
+                $dateOfComment = mt_rand($date, time());
+                $commentContent = $texts[$random6];
+
+                if (!isUserChangesPostRating($randomUser, $postId)) {
+                    changePostRating($randomUser, $postId, $random5);
+                }
+
+                $randomLike = mt_rand(0, 1000);
+                if (!insertComments($postId, $randomUser, $dateOfComment, $commentContent, $randomLike)) {
+                    $errors[] = "Комментарий к посту №$postId от пользователя с id= $randomUser не создан";
+                    continue;
+                }
+                $like = "like";
+                if (!isUserChangedCommentRating($randomUser, $random4)) {
+                    changeCommentRating($like, $random4, $postId, $randomUser);
+                }
+            }
+        } catch (PDOException $e) {
+            $errors[] = $e->getMessage();
         }
-    } else {
-        header("Location: login.php");
     }
 } else {
     header("Location: login.php");
@@ -212,12 +207,12 @@ $year = date("Y", time());
                     if ($numberOfLoopIterations == 1) {
                         echo "Подключение к БД: успешно</p><p>Создан $numberOfLoopIterations новый пользователь, 
                         $numberOfLoopIterations новый пост и несколько(до 12) комментариев к каждому.<br>
-                        Создание 100 постов занимает примерно 15 секунд.<br>
+                        Создание 100 постов занимает примерно 10 секунд.<br>
                         Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
                     } else {
                         echo "Подключение к БД: успешно</p><p>Создано $numberOfLoopIterations новых пользователей, 
                         $numberOfLoopIterations новых постов и несколько(до 12) комментариев к каждому.<br>
-                        Создание 100 постов занимает примерно 15 секунд.<br>
+                        Создание 100 постов занимает примерно 10 секунд.<br>
                         Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
                     }
                 } else {
