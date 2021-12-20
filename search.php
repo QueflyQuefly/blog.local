@@ -127,7 +127,7 @@ $year = date("Y", time());
 
         <div class='search'>
             <form class='search' action='search.php' method='get'>
-                <input class='text' type='text' id='search' required autofocus autocomplete="on" minlength="1" maxlength="100" placeholder='Найти...' name='search' value='<?=$search?>'>
+                <input class='text' type='text' id='search' required autofocus autocomplete="on" minlength="1" maxlength="100" placeholder='Найти...' name='search' value='<?= $search?>'>
                 <button type="submit">&#x2315</button>
             </form>
         </div> 
@@ -148,27 +148,41 @@ $year = date("Y", time());
                     $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         ?>
 
-        <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
-            <div class='post'>
-                <div class='posttext'>
-                    <p class='postzagolovok'><?= $post['zag'] ?></p>
-                    <p class='postauthor'><?= $post['date_time'] ?> &copy; <?= $post['author'] ?></p>
-                    <p class='postdate'>Тэги: <?= $post['tag'] ?></p>
-                    <p class='postdate'> Комментариев к посту: <?= ""/* $post['count_comments'] */ ?>
-                        <?php
-                            if (!empty($isSuperuser)) {
-                        ?>
-                            <object><a class='list' href='search.php?search=<?=$search?>&deletePostById=<?= $post['post_id'] ?>'> Удалить пост с ID = <?= $post['post_id'] ?></a></object>
-                        <?php
-                            }
-                        ?>
-                    </p>
-                </div>
-                <div class='postimage'>
-                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
-                </div>
+        <div class='viewpost'>
+            <a class='postLink' href='viewsinglepost.php?viewPostById=<?=  $post['post_id'] ?>'>
+            <div class='posttext'>
+                <p class='postzagolovok'><?=  $post['zag'] ?></p>
+                <p class='postauthor'><?=  $post['date_time'] ?> &copy; <?=  $post['author'] ?></p>
+                <p class='postcontent'><?= $post['content'] ?></p>
+                <p class='postdate'>
+                    Тэг: <?=  $post['tag'] ?>, комментариев к посту: <?=  ""/* $post['count_comments'] */ ?>
+                </p>
+                <p class='postrating'>
+                <?php
+                    if (!$post['rating']) {
+                        echo "Нет оценок. Будьте первым!";
+                    } else {
+                        echo "Рейтинг: " . $post['rating'] . ", оценок: " ; //. $post['countRatings'];
+                    }     
+                ?>  
+                </p>
+                <?php
+                    if (!empty($isSuperuser)) {
+                ?>
+                    <object>
+                        <a class='link' href='search.php?search=<?= $search?>&deletePostById=<?=  $post['post_id'] ?>'> 
+                            Удалить пост с ID = <?=  $post['post_id'] ?>
+                        </a>
+                    </object>
+                <?php
+                    }
+                ?>
             </div>
-        </a>
+            <div class='postimage'>
+                <img src='images/PostImgId<?= $post['post_id']?>.jpg' alt='Картинка'>
+            </div>
+            </a>
+        </div>
 
         <?php 
                 }
@@ -181,19 +195,19 @@ $year = date("Y", time());
         ?>
 
         <div class='post'>
-            <a class='postLink' href='cabinet.php?user=<?=$user['user_id']?>'>
+            <a class='postLink' href='cabinet.php?user=<?= $user['user_id']?>'>
                 <div class='posttext'>
                     <p class='postzagolovok'> Просмотр дополнительной информации по нажатию</p>
-                    <p class='postzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
-                    <p class='postzagolovok'> Дата регистрации: <?= $user['date_time'] ?></p>
+                    <p class='postzagolovok'> ФИО(псевдоним): <?=  $user['fio'] ?></p>
+                    <p class='postzagolovok'> Дата регистрации: <?=  $user['date_time'] ?></p>
 
                     <?php
                         if (!empty($isSuperuser)) {
                     ?>
-                        <p class='postzagolovok'> Категория: <?= $user['rights'] ?></p>
-                        <p class='postzagolovok'>ID: <?= $user['user_id'] ?> </p>
-                        <p class='postzagolovok'>E-mail: <?= $user['email'] ?></p>
-                        <p class='postdate'><object><a class='list' href='search.php?search=<?=$search?>&deleteUserById=<?= $user['user_id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
+                        <p class='postzagolovok'> Категория: <?=  $user['rights'] ?></p>
+                        <p class='postzagolovok'>ID: <?=  $user['user_id'] ?> </p>
+                        <p class='postzagolovok'>E-mail: <?=  $user['email'] ?></p>
+                        <p class='postdate'><object><a class='list' href='search.php?search=<?= $search?>&deleteUserById=<?=  $user['user_id'] ?> '> Удалить <?=  $user['rights'] ?>-а</a></object>
                     <?php
                         }
                     ?>
@@ -211,7 +225,7 @@ $year = date("Y", time());
     </div>
 </div>
 <footer>
-    <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+    <p>Website by Вячеслав Бельский &copy; <?= $year?></p>
 </footer>
 </body>
 </html>

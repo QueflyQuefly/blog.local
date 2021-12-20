@@ -236,7 +236,7 @@ $year = date("Y", time());
     </div>
 </div>
 <footer>
-    <p>Website by Вячеслав Бельский &copy; <?=$year?></p>
+    <p>Website by Вячеслав Бельский &copy; <?= $year?></p>
 </footer>
 </body>
 </html>

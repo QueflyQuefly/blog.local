@@ -114,7 +114,7 @@ $year = date("Y", time());
 </nav>
 <div class='allsinglepost'>
     <div class='contentsinglepost'>
-        <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?=$post['zag']?></p></div>
+        <div id='singlepostzagolovok'><p class='singlepostzagolovok'><?= $post['zag']?></p></div>
         <div id='singlepostauthor'>
             <?php
                 if (!empty($post['countRatings'])) {
@@ -126,7 +126,7 @@ $year = date("Y", time());
                 if (empty($userId) || !isUserChangesPostRating($userId, $postId)) {
             ?>
             <div class="rating-area">
-                <form action='<?=$_SERVER['REQUEST_URI']?>' method='post'>
+                <form action='<?= $_SERVER['REQUEST_URI']?>' method='post'>
                     <label class='star' title="Оценка «1»" for='star-1'>&#9734;</label>
                     <input type="submit" id="star-1" name="star" value="1">
 
@@ -150,14 +150,14 @@ $year = date("Y", time());
             ?>
         </div>
         <div id='singlepostauthor'>
-            <p class='singlepostauthor'><a class='menuLink' title='Перейти в профиль пользвателя' href='cabinet.php?user=<?=$postAuthorId?>'><?=$post['author']?></a></p>
-            <p class='singlepostdate'><?=$post['date_time']?></p>
+            <p class='singlepostauthor'><a class='menuLink' title='Перейти в профиль пользвателя' href='cabinet.php?user=<?= $postAuthorId?>'><?= $post['author']?></a></p>
+            <p class='singlepostdate'><?= $post['date_time']?></p>
         </div>
         <div class='singlepostimage'>
-            <img src='images/PostImgId<?=$postId?>.jpg' alt='Картинка' class='singlepostimg'>
+            <img src='images/PostImgId<?= $postId?>.jpg' alt='Картинка' class='singlepostimg'>
         </div>
         <div class='singleposttext'>
-            <p class='singlepostcontent'><?=$post['content']?></p>
+            <p class='singlepostcontent'><?= $post['content']?></p>
             <p class='singlepostcontent'> Тэги: 
                 <?php 
                     if ($tags) {
@@ -174,20 +174,20 @@ $year = date("Y", time());
             <?php
                 if (!empty($isAdmin)) {
             ?>
-            <object><a class='list' href='viewsinglepost.php?viewPostById=<?=$postId?>&deletePostById=<?= $postId ?>'> Удалить пост с ID = <?= $postId ?></a></object><br>
+            <object><a class='list' href='viewsinglepost.php?viewPostById=<?= $postId?>&deletePostById=<?=  $postId ?>'> Удалить пост с ID = <?=  $postId ?></a></object><br>
             <?php
                 }
             ?>
         </div>
         <div class='addcomments'  id='comment'>
 
-            <?=$error?>
+            <?= $error?>
 
             <p class='center'>Добавьте комментарий:</p>
 
             <div class='addcomment'>
 
-                <form action='viewsinglepost.php?viewPostById=<?=$postId?>#comment' method='post'>
+                <form action='viewsinglepost.php?viewPostById=<?= $postId?>#comment' method='post'>
                    
                     <br><textarea name='addCommentContent' required  minlength="1" maxlength='500' wrap='hard' placeholder="Опишите ваши эмоции :-) (до 500 символов)" id='textcomment'></textarea><br>
                     
@@ -206,19 +206,19 @@ $year = date("Y", time());
                     $comment['date_time'] = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
-            <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
+            <div class='viewcomment' id='comment<?=  $comment['com_id'] ?>'>
                 <p class='commentauthor'>
-                    <a class='menuLink' href='cabinet.php?user=<?= $comment['user_id'] ?>'><?= $comment['author'] ?></a>
-                    <div class='commentdate'><?= $comment['date_time'] ?></div>
+                    <a class='menuLink' href='cabinet.php?user=<?=  $comment['user_id'] ?>'><?=  $comment['author'] ?></a>
+                    <div class='commentdate'><?=  $comment['date_time'] ?></div>
                 </p>
                 <div class='commentcontent'>
-                    <p class='commentcontent'><?= $comment['content'] ?></p> 
+                    <p class='commentcontent'><?=  $comment['content'] ?></p> 
                     <p class='commentcontent'>
                         <?php
                             if (!empty($isAdmin)) {
                         ?> 
                             <object>
-                                <a class='menuLink' href='viewsinglepost.php?viewPostById=<?= $postId ?>&deleteCommentById=<?= $comment['com_id'] ?>'>
+                                <a class='menuLink' href='viewsinglepost.php?viewPostById=<?=  $postId ?>&deleteCommentById=<?=  $comment['com_id'] ?>'>
                                     Удалить комментарий
                                 </a>
                             </object>
@@ -236,12 +236,12 @@ $year = date("Y", time());
                             $name = 'unlike';
                         }
                     ?>
-                    <form action='viewsinglepost.php?viewPostById=<?=$postId?>#comment<?=$comment['com_id']?>' method='post'>
-                        <label id='heartlike' title="Нравится" for='like<?=$comment['com_id']?>'>
+                    <form action='viewsinglepost.php?viewPostById=<?= $postId?>#comment<?= $comment['com_id']?>' method='post'>
+                        <label id='heartlike' title="Нравится" for='like<?= $comment['com_id']?>'>
                             <span class='like'>&#9825; </span>
-                            <?=$countLikes?>
+                            <?= $countLikes?>
                         </label>
-                        <input type="submit" class='nodisplay' id="like<?=$comment['com_id']?>" name="<?= $name ?>" value="<?=$comment['com_id']?>">
+                        <input type="submit" class='nodisplay' id="like<?= $comment['com_id']?>" name="<?=  $name ?>" value="<?= $comment['com_id']?>">
                     </form>
                 </div>
                 <hr>
@@ -262,7 +262,7 @@ $year = date("Y", time());
     </div>
 </div>
 <footer>
-    <p>Website by Вячеслав Бельский &copy; <?= $year ?></p>
+    <p>Website by Вячеслав Бельский &copy; <?=  $year ?></p>
 </footer>
 </body>
 </html>

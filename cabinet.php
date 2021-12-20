@@ -99,7 +99,7 @@ $year = date("Y", time());
 
 <head>
     <meta charset='UTF-8'>
-    <title><?=$user['fio']?>. Профиль - Просто блог</title>
+    <title><?= $user['fio'] ?>. Профиль - Просто блог</title>
     <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
@@ -137,7 +137,7 @@ $year = date("Y", time());
 
 <div class='allwithoutmenu'>
     <div class='content'>
-        <div id='desc'><p><?=$user['fio']?> </p>
+        <div id='desc'><p><?= $user['fio'] ?> </p>
             <?php
                 if (!empty($showInfoAndLinksToDelete)) {
                     echo "<p>E-mail: {$user['email']}</p>";
@@ -172,8 +172,8 @@ $year = date("Y", time());
             <div class='viewcomment'>
                 <div class='form'>
                     <form action='cabinet.php' method='post'>
-                        <input type='email' name='email' required autofocus minlength="1" maxlength='50' autocomplete="on" placeholder='Введите новый email' class='text' value='<?=$user['email']?>'><br>
-                        <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='Новый псевдоним' class='text' value='<?=$user['fio']?>'><br>
+                        <input type='email' name='email' required autofocus minlength="1" maxlength='50' autocomplete="on" placeholder='Введите новый email' class='text' value='<?= $user['email'] ?>'><br>
+                        <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='Новый псевдоним' class='text' value='<?= $user['fio'] ?>'><br>
                         <input type='password' name='password' minlength="0" maxlength='20' autocomplete="new-password" placeholder='Новый пароль; оставьте пустым, если не хотите менять' class='text'><br>
                 <?php
                     if (!empty($msg)) {
@@ -205,11 +205,11 @@ $year = date("Y", time());
             ?>
 
             <div class='viewpost'>
-                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'><?=$post['zag']?></p>
-                    <p class='postcontent'><?=$post['content']?></p>
-                    <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
+                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='postcontent'><?= $post['content'] ?></p>
+                    <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
@@ -223,8 +223,8 @@ $year = date("Y", time());
                         if (!empty($showInfoAndLinksToDelete)) {
                     ?>
                         <object>
-                            <a class='link' href='cabinet.php?user=<?=$userId?>&deletePostById=<?= $post['post_id'] ?>'>
-                                Удалить пост с ID = <?= $post['post_id'] ?>
+                            <a class='link' href='cabinet.php?user=<?= $userId ?>&deletePostById=<?=  $post['post_id']  ?>'>
+                                Удалить пост с ID = <?=  $post['post_id']  ?>
                             </a>
                         </object>
                     <?php
@@ -232,7 +232,7 @@ $year = date("Y", time());
                     ?>
                 </div>
                 <div class='postimage'>
-                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
+                    <img src='images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка'>
                 </div>
                 </a>
             </div>
@@ -257,17 +257,17 @@ $year = date("Y", time());
                         $comment['date_time'] = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
-            <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
-                <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $comment['post_id'] ?>#comment<?= $comment['com_id'] ?>'>
-                    <p class='commentauthor'><?= $comment['author'] ?><div class='commentdate'><?= $comment['date_time'] ?></div></p>
+            <div class='viewcomment' id='comment<?=  $comment['com_id']  ?>'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=  $comment['post_id']  ?>#comment<?=  $comment['com_id']  ?>'>
+                    <p class='commentauthor'><?=  $comment['author']  ?><div class='commentdate'><?=  $comment['date_time']  ?></div></p>
                     <div class='commentcontent'>
-                        <p class='commentcontent'><?=$comment['content']?></p>
+                        <p class='commentcontent'><?= $comment['content'] ?></p>
                         <p class='commentcontent'>
                         <?php
                             if (!empty($showInfoAndLinksToDelete)) {
                         ?>
                             <object>
-                                <a class='link' href='cabinet.php?user=<?=$userId?>&deleteCommentById=<?= $comment['com_id'] ?>'>
+                                <a class='link' href='cabinet.php?user=<?= $userId ?>&deleteCommentById=<?=  $comment['com_id']  ?>'>
                                     Удалить комментарий
                                 </a>
                             </object>
@@ -296,11 +296,11 @@ $year = date("Y", time());
                     $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         ?>
             <div class='viewpost'>
-                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'><?=$post['zag']?></p>
-                    <p class='postcontent'><?=$post['content']?></p>
-                    <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
+                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='postcontent'><?= $post['content'] ?></p>
+                    <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
@@ -314,8 +314,8 @@ $year = date("Y", time());
                         if (!empty($showInfoAndLinksToDelete)) {
                     ?>
                         <object>
-                            <a class='link' href='cabinet.php?user=<?=$userId?>&deletePostById=<?= $post['post_id'] ?>'>
-                                Удалить пост с ID = <?= $post['post_id'] ?>
+                            <a class='link' href='cabinet.php?user=<?= $userId ?>&deletePostById=<?=  $post['post_id']  ?>'>
+                                Удалить пост с ID = <?=  $post['post_id']  ?>
                             </a>
                         </object>
                     <?php
@@ -323,7 +323,7 @@ $year = date("Y", time());
                     ?>
                 </div>
                 <div class='postimage'>
-                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
+                    <img src='images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка'>
                 </div>
                 </a>
             </div>
@@ -350,17 +350,17 @@ $year = date("Y", time());
                         $comment['date_time'] = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
-            <div class='viewcomment' id='comment<?= $comment['com_id'] ?>'>
-                <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $comment['post_id'] ?>#comment<?= $comment['com_id'] ?>'>
-                    <p class='commentauthor'><?= $comment['author'] ?><div class='commentdate'><?= $comment['date_time'] ?></div></p>
+            <div class='viewcomment' id='comment<?=  $comment['com_id']  ?>'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=  $comment['post_id']  ?>#comment<?=  $comment['com_id']  ?>'>
+                    <p class='commentauthor'><?=  $comment['author']  ?><div class='commentdate'><?=  $comment['date_time']  ?></div></p>
                     <div class='commentcontent'>
-                        <p class='commentcontent'><?= $comment['content'] ?></p>
+                        <p class='commentcontent'><?=  $comment['content']  ?></p>
                         <p class='commentcontent'>
                         <?php
                             if (!empty($showInfoAndLinksToDelete)) {
                         ?>
                             <object>
-                                <a class='link' href='cabinet.php?user=<?=$userId?>&deleteCommentById=<?= $comment['com_id'] ?>'>
+                                <a class='link' href='cabinet.php?user=<?= $userId ?>&deleteCommentById=<?=  $comment['com_id']  ?>'>
                                     Удалить комментарий
                                 </a>
                             </object>
@@ -383,7 +383,7 @@ $year = date("Y", time());
     </div>
 </div>
 <footer>
-    <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
+    <p>Website by Вячеслав Бельский &copy; <?= $year ?><br> Время загрузки страницы: <?= round(microtime(true) - $start, 4) ?> с.</p>
 </footer>
 </body>
 </html>

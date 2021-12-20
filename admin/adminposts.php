@@ -90,11 +90,11 @@ $year = date("Y", time());
                 foreach ($posts as $post) {
             ?>
             <div class='viewpost'>
-                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=$post['post_id']?>'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
                 <div class='posttext'>
-                    <p class='postzagolovok'><?=$post['zag']?></p>
-                    <p class='postcontent'><?=$post['content']?></p>
-                    <p class='postdate'><?=$post['date_time']. " &copy; " . $post['author']?></p>
+                    <p class='postzagolovok'><?= $post['zag'] ?></p>
+                    <p class='postcontent'><?= $post['content'] ?></p>
+                    <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
                         if (!$post['rating']) {
@@ -105,13 +105,13 @@ $year = date("Y", time());
                     ?>  
                     </p>
                     <object>
-                        <a class='link' href='adminposts.php?deletePostById=<?= $post['post_id'] ?>'>
-                            Удалить пост с ID = <?= $post['post_id'] ?>
+                        <a class='link' href='adminposts.php?deletePostById=<?=  $post['post_id']  ?>'>
+                            Удалить пост с ID = <?=  $post['post_id']  ?>
                         </a>
                     </object>
                 </div>
                 <div class='postimage'>
-                    <img src='images/PostImgId<?=$post['post_id']?>.jpg' alt='Картинка'>
+                    <img src='images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка'>
                 </div>
                 </a>
             </div>
@@ -123,7 +123,7 @@ $year = date("Y", time());
     </div>
 </div>
 <footer>
-    <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
+    <p>Website by Вячеслав Бельский &copy; <?= $year ?><br> Время загрузки страницы: <?= round(microtime(true) - $start, 4) ?> с.</p>
 </footer>
 </body>
 </html>

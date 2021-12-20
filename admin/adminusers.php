@@ -75,7 +75,7 @@ $year = date("Y", time());
 
         <div id='desc'>
             <p>Управление пользователями<br>
-            (одна страница - <?= $numberOfUsers ?> пользователей)
+            (одна страница - <?=  $numberOfUsers  ?> пользователей)
             <a href='adminusers.php'> &#8634</a></p>
         </div>
             <?php 
@@ -93,15 +93,15 @@ $year = date("Y", time());
             ?>
 
         <div class='viewpost'>
-            <a class='postLink' href='cabinet.php?user=<?=$user['user_id']?>'>
+            <a class='postLink' href='cabinet.php?user=<?= $user['user_id'] ?>'>
                 <div class='posttext'>
                     <p class='postzagolovok'> Просмотр дополнительной информации по нажатию</p>
-                    <p class='postzagolovok'> ФИО(псевдоним): <?= $user['fio'] ?></p>
-                    <p class='postzagolovok'> Дата регистрации: <?= $user['date_time'] ?></p>
-                    <p class='postzagolovok'> Категория: <?= $user['rights'] ?></p>
-                    <p class='postzagolovok'>ID: <?= $user['user_id'] ?> </p>
-                    <p class='postzagolovok'>E-mail: <?= $user['email'] ?></p>
-                    <p class='postdate'><object><a class='list' href='adminusers.php?deleteUserById=<?= $user['user_id'] ?> '> Удалить <?= $user['rights'] ?>-а</a></object>
+                    <p class='postzagolovok'> ФИО(псевдоним): <?=  $user['fio']  ?></p>
+                    <p class='postzagolovok'> Дата регистрации: <?=  $user['date_time']  ?></p>
+                    <p class='postzagolovok'> Категория: <?=  $user['rights']  ?></p>
+                    <p class='postzagolovok'>ID: <?=  $user['user_id']  ?> </p>
+                    <p class='postzagolovok'>E-mail: <?=  $user['email']  ?></p>
+                    <p class='postdate'><object><a class='list' href='adminusers.php?deleteUserById=<?=  $user['user_id']  ?> '> Удалить <?=  $user['rights']  ?>-а</a></object>
                 </div>
             </a>
         </div>
@@ -113,7 +113,7 @@ $year = date("Y", time());
     </div>
 </div>
 <footer>
-    <p>Website by Вячеслав Бельский &copy; <?=$year?><br> Время загрузки страницы: <?=round(microtime(true) - $start, 4)?> с.</p>
+    <p>Website by Вячеслав Бельский &copy; <?= $year ?><br> Время загрузки страницы: <?= round(microtime(true) - $start, 4) ?> с.</p>
 </footer>
 </body>
 </html>

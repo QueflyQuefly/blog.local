@@ -403,7 +403,7 @@ function searchPostsByTag($searchword) {
         $searchword = clearStr($searchword);
         $searchword = '%' . $searchword . '%';
         $searchword = $db->quote($searchword);
-        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
+        $sql = "SELECT p.post_id, p.zag, p.content, p.user_id, p.date_time, 
                 p.rating, u.fio as author, t.tag FROM posts p JOIN users u
                 ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id WHERE t.tag 
                 LIKE $searchword;";// LIMIT 30
@@ -425,7 +425,7 @@ function searchPostsByZagAndAuthor($searchword) {
         $searchword = clearStr($searchword);
         $searchword = '%' . $searchword . '%';
         $searchword = $db->quote($searchword);
-        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
+        $sql = "SELECT p.post_id, p.zag, p.content, p.user_id, p.date_time, 
                 p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
                 ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
                 WHERE u.fio LIKE $searchword;";// LIMIT 30
@@ -435,7 +435,7 @@ function searchPostsByZagAndAuthor($searchword) {
                 $results[$result['post_id']] = $result;
             }
         }
-        $sql = "SELECT p.post_id, p.zag, p.user_id, p.date_time, 
+        $sql = "SELECT p.post_id, p.zag, p.content, p.user_id, p.date_time, 
                 p.rating, u.fio as author, t.tag FROM posts p JOIN users u 
                 ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
                 WHERE p.zag LIKE $searchword;";// LIMIT 30
