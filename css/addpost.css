@@ -158,3 +158,6 @@ html, body {
     font-style: oblique;
     font-size: 13pt;
 }
+img[alt="www.000webhost.com"] {
+    display:none;
+}

@@ -3,6 +3,10 @@ session_start();
 $functions = 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $functions;
 
+$twoDaysInseconds = 60*60*24*2;
+header("Cache-Control: max-age=$twoDaysInseconds");
+header("Cache-Control: must-revalidate");
+
 if (!empty($_GET['viewPostById'])) {
     $postId = clearInt($_GET['viewPostById']);
     $_SESSION['referrer'] = "viewsinglepost.php?viewPostById=$postId";
@@ -81,6 +85,7 @@ $year = date("Y", time());
 <html>
 <head>
     <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Пост - Просто блог</title>
     <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">

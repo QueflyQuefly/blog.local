@@ -87,6 +87,7 @@ $year = date("Y", time());
 
 <head>
     <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Поиск - Просто блог</title>
     <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">

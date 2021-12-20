@@ -6,6 +6,10 @@ require_once $functions;
 
 $_SESSION['referrer'] = "posts.php";
 
+$twoDaysInseconds = 60*60*24*2;
+header("Cache-Control: max-age=$twoDaysInseconds");
+header("Cache-Control: must-revalidate");
+
 if (isset($_GET['exit']) && !empty($_SESSION['user_id'])) {
     $_SESSION['user_id'] = false;
     setcookie('user_id', '0', 1);
@@ -46,6 +50,7 @@ $posts = getPostsByNumber($numberOfPosts, ($numberOfPosts * $page) - $numberOfPo
 
 <head>
     <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Все посты - Просто блог</title>
     <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">

@@ -135,6 +135,13 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $posts[] = $row;
 }
 var_dump($posts); */
-
+/* 
 sendMail('drotov.mihailo@gmail.com', 'Prosto Blog', 
-            "<h1>Новый пост:</h1> <pre>тра-та-та,</pre>  <a href='blog.local.000webhostapp.com/viewsinglepost.php?viewPostById=10'>Перейти</a>");
+            "<h1>Новый пост:</h1> <pre>тра-та-та,</pre>  <a href='blog.local.000webhostapp.com/viewsinglepost.php?viewPostById=10'>Перейти</a>"); */
+/* 
+$sql = "SHOW GLOBAL STATUS LIKE 'Qcache%'";
+$stmt = $db->query($sql);
+while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $results[] = $result;
+}
+var_dump($results); */

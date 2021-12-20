@@ -6,6 +6,10 @@ require_once $functions;
 
 $_SESSION['referrer'] = $_SERVER['REQUEST_URI'];
 
+$twoDaysInseconds = 60*60*24*2;
+header("Cache-Control: max-age=$twoDaysInseconds");
+header("Cache-Control: must-revalidate");
+
 if (isset($_GET['user'])) {
     $userId = clearStr($_GET['user']);
     $user = getUserInfoById($userId);
@@ -108,6 +112,7 @@ $year = date("Y", time());
 
 <head>
     <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $user['fio'] ?>. Профиль - Просто блог</title>
     <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">

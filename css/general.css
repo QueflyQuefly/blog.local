@@ -530,3 +530,18 @@ footer{
     padding-top: 0.2vmin;
     text-align: center;
 }
+img[alt="www.000webhost.com"] {
+    display:none;
+}
+/* @media (min-width: 300px) and (max-width: 1200.98px) {
+    * {
+        font-size: 1.2em;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 0;
+    }
+    nav{
+        font-size: 0.5em;
+        display:table;
+    }
+} */
