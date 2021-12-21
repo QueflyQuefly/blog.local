@@ -136,11 +136,12 @@ $posts = getPostsByNumber($numberOfPosts, ($numberOfPosts * $page) - $numberOfPo
                     <p class='postdate'><?= $post['date_time']. " &copy; " . $post['author'] ?></p>
                     <p class='postrating'>
                     <?php
-                        if (!$post['rating']) {
-                            echo "Нет оценок. Будьте первым!";
+                        if ($post['count_ratings'] == 0) {
+                            echo "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
                         } else {
-                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings'];
-                        }     
+                            echo "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
+                                    . ", комментариев: " . $post['count_comments'];
+                        } 
                     ?>  
                     </p>
                     <?php

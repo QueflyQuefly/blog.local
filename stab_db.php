@@ -80,7 +80,7 @@ if (!empty($_GET['number'])) {
     $numberOfLoopIterations = 10;
 }
 if (!empty($isSuperuser)) {
-    $stmt = $db->query("SELECT MAX(id) as max_id FROM users");
+    $stmt = $db->query("SELECT MAX(user_id) as max_id FROM users");
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     $j = $result['max_id'] + 1;
 
@@ -91,7 +91,7 @@ if (!empty($isSuperuser)) {
             $random3 = mt_rand(0, 12);
             
 
-            $userId = "'" . uniqid(RIGHTS_USER) . "'";
+            $userId = $i;
             $email = "'$i@gmail.com'";
             $fio = "'" . $user['names'][$random2] . " " . $user['surnames'][$random3] . "'";
             $password = "'" . password_hash($i, PASSWORD_BCRYPT) . "'";
@@ -104,7 +104,7 @@ if (!empty($isSuperuser)) {
 
             if (!$db->exec($sql)) {
                 echo $sql;
-                $errors[] = "Пользователь с id= $i не  создан";
+                $errors[] = "Пользователь с id = $i не  создан";
                 continue;
             }
             $title = "'" . $titles1[$random1] . " " . $titles2[$random2] . "'";
@@ -114,24 +114,34 @@ if (!empty($isSuperuser)) {
             $tags = isNounForTag($text);
 
             $sql = "INSERT INTO posts (title, user_id, date_time, content) 
-                    VALUES($title, $userId, $date, $text);";
+                    VALUES($title, $userId, $date, $text); ";
 
             if (!$db->exec($sql)) {
                 echo $sql;
-                $errors[] = "Пост от пользователя с id= $userId не создан";
+                $errors[] = "Пост от пользователя с id = $userId не создан";
                 continue;
             }
+
             $postId = $db->lastInsertId();
+
+            $sql = "INSERT INTO additional_info_posts (post_id, rating, count_comments, count_ratings) 
+                    VALUES ($postId, 0.0, 0, 0);";
+            if (!$db->exec($sql)) {
+                echo $sql;
+                $errors[] = "Дополнительная информация для поста с id = $postId не создана";
+                continue;
+            }
+
             if (!empty($tags)) {
                 foreach ($tags as $tag) {
                     $tag = "'" . $tag . "'";
 
-                    $sql = "INSERT INTO tag_posts (tag, post_id) 
-                            VALUES($tag, $postId);";
+                    $sql = "INSERT INTO tag_posts (post_id, tag) 
+                            VALUES($postId, $tag);";
 
                     if (!$db->exec($sql)) {
                         echo $sql;
-                        $errors[] = "Тэг $tag к посту №$postId не создан";
+                        $errors[] = "Тэг $tag к посту № $postId не создан";
                         continue;
                     }
                 }
@@ -149,17 +159,23 @@ if (!empty($isSuperuser)) {
                 $commentContent = $texts[$random6];
 
                 if (!isUserChangesPostRating($randomUser, $postId)) {
-                    changePostRating($randomUser, $postId, $random5);
+                    if (!changePostRating($randomUser, $postId, $random5)) {
+                        $errors[] = "Рейтинг $random5 к посту № $postId от пользователя с id = $randomUser не поставился";
+                        continue;
+                    }
                 }
 
                 $randomLike = mt_rand(0, 1000);
                 if (!insertComments($postId, $randomUser, $dateOfComment, $commentContent, $randomLike)) {
-                    $errors[] = "Комментарий к посту №$postId от пользователя с id= $randomUser не создан";
+                    $errors[] = "Комментарий к посту № $postId от пользователя с id = $randomUser не создан";
                     continue;
                 }
                 $like = "like";
                 if (!isUserChangedCommentRating($randomUser, $random4)) {
-                    changeCommentRating($like, $random4, $postId, $randomUser);
+                    if (!changeCommentRating($like, $random4, $postId, $randomUser)) {
+                        $errors[] = "Лайк к комментарию № $random4 от пользователя с id = $randomUser не поставился";
+                        continue;
+                    }
                 }
             }
         } catch (PDOException $e) {
@@ -217,7 +233,7 @@ $year = date("Y", time());
                     }
                 } else {
                     foreach ($errors as $error) {
-                        echo $error . "\n\r";
+                        echo $error . "<br>";
                     }
                 }
             ?>

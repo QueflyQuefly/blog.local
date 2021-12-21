@@ -175,6 +175,10 @@ function getUserInfoById($userId, $whatNeeded = ''){
         }
         $sql = "SELECT $query FROM users WHERE user_id = $userId;";
         $stmt = $db->query($sql);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!empty($whatNeeded)) {
+            $result = $result[$whatNeeded];
+        }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
@@ -534,7 +538,8 @@ function getCommentsByPostId($postId) {
         $sql = "SELECT c.comment_id, c.post_id, c.user_id, c.date_time, 
                 c.content, c.rating, u.fio as author
                 FROM comments c JOIN users u 
-                ON u.user_id = c.user_id WHERE c.post_id = $postId";// LIMIT 30
+                ON u.user_id = c.user_id WHERE c.post_id = $postId
+                ORDER BY c.date_time DESC";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -610,13 +615,13 @@ function deleteCommentById($deleteCommentId) {
 function changePostRating($userId, $postId, $rating){
     global $db, $error;
     try {
-        
+        $userId = clearInt($userId);
         $postId = clearInt($postId);
         $rating = clearInt($rating);
 
         if ($rating) {
-            $sql = "INSERT INTO rating_posts (user_id, post_id, rating) 
-                    VALUES($userId, $postId, $rating);";
+            $sql = "INSERT INTO rating_posts (post_id, user_id, rating) 
+                    VALUES($postId, $userId, $rating);";
             if (!$db->exec($sql)) {
                 return false;
             }
@@ -625,14 +630,14 @@ function changePostRating($userId, $postId, $rating){
             if (!$stmt) {
                 return false;
             }
-            while ($postRate = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $postRates[] = $postRate['rating'];
-            }
-            $countRatings = count($postRates);
             $summRatings = 0;
-            for ($i = 0; $i < $countRatings; $i++) {
-                $summRatings += $postRates[$i];
+            $i = 0;
+            while ($postRate = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $summRatings += $postRate['rating'];
+                $i++;
             }
+            $countRatings = $i;
+
             $postRating = $summRatings / $countRatings;
             $postRating = round($postRating, 1, PHP_ROUND_HALF_UP);
             

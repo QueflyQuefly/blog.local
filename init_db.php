@@ -56,7 +56,6 @@ try {
         post_id INT UNSIGNED,
         user_id INT UNSIGNED,
         rating DECIMAL(1),
-        PRIMARY KEY (post_id),
         FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
         FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
         );
@@ -75,10 +74,9 @@ try {
 
         CREATE TABLE rating_comments
         (
-        comment_id INT UNSIGNED AUTO_INCREMENT,
+        comment_id INT UNSIGNED,
         user_id INT UNSIGNED,
         post_id INT UNSIGNED,
-        PRIMARY KEY (comment_id),
         FOREIGN KEY (comment_id) REFERENCES comments (comment_id) ON DELETE CASCADE,
         FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
         FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
@@ -89,7 +87,6 @@ try {
         (
         post_id INT UNSIGNED,
         tag TINYTEXT,
-        PRIMARY KEY (post_id),
         FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
         );
 
@@ -98,7 +95,6 @@ try {
         (
         user_id_want_subscribe INT UNSIGNED,
         user_id INT UNSIGNED,
-        PRIMARY KEY (user_id_want_subscribe),
         FOREIGN KEY (user_id_want_subscribe) REFERENCES users (user_id) ON DELETE CASCADE,
         FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
         );
@@ -107,6 +103,8 @@ try {
         CREATE INDEX fio ON users (fio);
         CREATE INDEX post_date_time ON posts (date_time, post_id);
         CREATE INDEX comment_date_time ON comments (date_time, post_id);
+        CREATE INDEX comment_id ON rating_comments (comment_id);
+        CREATE INDEX post_id ON rating_posts (post_id);
 
 
         INSERT INTO users
