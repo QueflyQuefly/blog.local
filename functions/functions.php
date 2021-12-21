@@ -48,13 +48,13 @@ function getUsersByNumber($numberOfUsers , $lessThanMaxId = 0) {
         $numberOfUsers  = clearInt($numberOfUsers );
         $lessThanMaxId = clearInt($lessThanMaxId);
         if (empty($lessThanMaxId)) {
-            $sql = "SELECT id, user_id, email, fio, pass_word, date_time, 
-                    rights FROM users ORDER BY id DESC 
+            $sql = "SELECT user_id, email, fio, pass_word, date_time, 
+                    rights FROM users ORDER BY user_id DESC 
                     LIMIT $numberOfUsers ;";
         } else {
-            $sql = "SELECT id, user_id, email, fio, pass_word, date_time, rights 
-                    FROM users WHERE id <= (SELECT MAX(id) FROM users) - $lessThanMaxId 
-                    ORDER BY id DESC LIMIT $numberOfUsers ;";
+            $sql = "SELECT user_id, email, fio, pass_word, date_time, rights 
+                    FROM users WHERE user_id <= (SELECT MAX(id) FROM users) - $lessThanMaxId 
+                    ORDER BY user_id DESC LIMIT $numberOfUsers ;";
         }
         $stmt = $db->query($sql);
         if ($stmt != false) {
@@ -72,7 +72,8 @@ function isUser($email, $password) {
     global $db, $error;
     try {
         $email = $db->quote($email);
-        $sql = "SELECT user_id, pass_word FROM users WHERE email = $email;";
+        $sql = "SELECT user_id, pass_word FROM users 
+                WHERE email = $email;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -92,20 +93,18 @@ function addUser($email, $fio, $password, $rights = false) {
             return false;
         }
         if ($rights === RIGHTS_SUPERUSER) {
-            $userId = uniqid(RIGHTS_SUPERUSER);
             $rights = $db->quote(RIGHTS_SUPERUSER);
         } else {
-            $userId = uniqid(RIGHTS_USER);
             $rights = $db->quote(RIGHTS_USER);
         }
-        $userId = $db->quote($userId);
+        
         $email = $db->quote($email);
         $fio = $db->quote($fio);
         $date = time();
         $password = $db->quote($password);
 
-        $sql = "INSERT INTO users (user_id, email, fio, pass_word, date_time, rights) 
-                VALUES ($userId, $email, $fio, $password, $date, $rights);";
+        $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
+                VALUES ($email, $fio, $password, $date, $rights);";
         if (!$db->exec($sql)) {
             return false;
         }
@@ -133,8 +132,8 @@ function isEmailUnique($email) {
 function updateUser($userId, $email, $fio, $password) {
     global $db, $error;
     try {
-        $userId = clearStr($userId);
-        $userId = $db->quote($userId);
+        $userId = clearInt($userId);
+        
         $unchangedEmail = getUserInfoById($userId, 'email');
         if ($unchangedEmail != $email) {
             if (!isEmailUnique($email)) {
@@ -144,14 +143,16 @@ function updateUser($userId, $email, $fio, $password) {
         $email = $db->quote($email);
         $fio = $db->quote($fio);
 
-        $sql = "UPDATE users SET email = $email, fio = $fio WHERE user_id = $userId;";
+        $sql = "UPDATE users SET email = $email, fio = $fio 
+                WHERE user_id = $userId;";
         if (!$db->exec($sql)) {
             return false;
         }
 
         if ($password !== false) {
             $password = $db->quote($password);
-            $sql = "UPDATE users SET pass_word = $password WHERE user_id = $userId;";
+            $sql = "UPDATE users SET pass_word = $password 
+                    WHERE user_id = $userId;";
             $db->exec($sql);
         }
     } catch (PDOException $e) {
@@ -161,24 +162,19 @@ function updateUser($userId, $email, $fio, $password) {
 }
 function getUserInfoById($userId, $whatNeeded = ''){
     global $db, $error;
-    $userId = clearStr($userId);
-    $userId = $db->quote($userId);
+    $userId = clearInt($userId);
+    
     $result = null;
     try {
-        $sql = "SELECT email, fio, date_time, rights 
-                FROM users WHERE user_id = $userId;";
-        $stmt = $db->query($sql);
-        if ($stmt != false) {
-            if($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                switch ($whatNeeded) {
-                    case 'email': $result = $data['email']; break;
-                    case 'fio': $result = $data['fio']; break;
-                    case 'rights': $result = $data['rights']; break;
-                    case 'date_time': $result = $data['date_time']; break;
-                    default: $result = $data;
-                }
-            }
+        switch ($whatNeeded) {
+            case 'email': $query = 'email'; break;
+            case 'fio': $query = 'fio'; break;
+            case 'rights': $query = 'rights'; break;
+            case 'date_time': $query = 'date_time'; break;
+            default:  $query = 'email, fio, date_time, rights';
         }
+        $sql = "SELECT $query FROM users WHERE user_id = $userId;";
+        $stmt = $db->query($sql);
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
@@ -217,7 +213,7 @@ function searchUsersByFioAndEmail($searchword, $rights = RIGHTS_USER) {
 function deleteUserById($userId) {
     global $db, $error;
     $userId = clearstr($userId);
-    $userId = $db->quote($userId);
+    
     try {
         $sql = "DELETE FROM users WHERE user_id = $userId;";
         if ($db->exec($sql)) {
@@ -238,13 +234,22 @@ function getPostsByNumber($numberOfPosts, $lessThanMaxId = 0) {
     try {
         $numberOfPosts = clearInt($numberOfPosts);
         $lessThanMaxId = clearInt($lessThanMaxId);
-        $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
-                a.rating, a.count_comments, a.count_ratings,
-                a.rating, u.fio as author FROM posts p 
-                JOIN additional_info_posts a ON a.post_id = p.post_id 
-                JOIN users u ON p.user_id = u.user_id 
-                WHERE p.post_id <= (SELECT MAX(post_id) FROM posts) - $lessThanMaxId 
-                ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
+        if (!empty($lessThanMaxId)) {
+            $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
+                    a.rating, a.count_comments, a.count_ratings,
+                    a.rating, u.fio as author FROM posts p 
+                    JOIN additional_info_posts a ON a.post_id = p.post_id 
+                    JOIN users u ON p.user_id = u.user_id 
+                    WHERE p.post_id <= (SELECT MAX(post_id) FROM posts) - $lessThanMaxId 
+                    ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
+        } else {
+            $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
+                    a.rating, a.count_comments, a.count_ratings,
+                    a.rating, u.fio as author FROM posts p 
+                    JOIN additional_info_posts a ON a.post_id = p.post_id 
+                    JOIN users u ON p.user_id = u.user_id 
+                    ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
+        }
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -300,7 +305,7 @@ function getMoreTalkedPosts($numberOfPosts = 3) {
                 JOIN posts p ON c.post_id = p.post_id
                 JOIN additional_info_posts a ON a.post_id = p.post_id
                 JOIN users u ON p.user_id = u.user_id 
-                WHERE c.date_time >= $dateWeekAgo ORDER BY c.post_id DESC LIMIT 10;";
+                WHERE comment_date_time >= $dateWeekAgo ORDER BY c.post_id DESC LIMIT 10;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -337,7 +342,7 @@ function addPost($title, $userId, $content) {
     try {
         $date = time();
         $titleQuote = $db->quote($title);
-        $userId = $db->quote($userId);
+        
         $fio = getUserInfoById($userId, 'fio');
         $content = $db->quote($content);
         $rating = 0;
@@ -349,7 +354,8 @@ function addPost($title, $userId, $content) {
         }
         $lastPostId = $db->lastInsertId();
 
-        $sql = "INSERT INTO additional_info_posts (post_id, rating, count_comments, count_ratings) 
+        $sql = "INSERT INTO additional_info_posts 
+                (post_id, rating, count_comments, count_ratings) 
                 VALUES($lastPostId, 0.0 , 0, 0);";
         if (!$db->exec($sql)) {
             return false;
@@ -424,8 +430,8 @@ function searchPostsByTag($searchword) {
         $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
                 a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag FROM posts p JOIN users u
                 JOIN additional_info_posts a ON a.post_id = p.post_id
-                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id WHERE t.tag 
-                LIKE $searchword;";// LIMIT 30
+                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
+                WHERE tag LIKE $searchword;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -450,7 +456,7 @@ function searchPostsByZagAndAuthor($searchword) {
                 JOIN users u ON p.user_id = u.user_id 
                 JOIN tag_posts t ON p.post_id = t.post_id 
                 JOIN additional_info_posts a ON a.post_id = p.post_id 
-                WHERE u.fio LIKE $searchword;";// LIMIT 30
+                WHERE fio LIKE $searchword;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -463,7 +469,7 @@ function searchPostsByZagAndAuthor($searchword) {
                 JOIN users u ON p.user_id = u.user_id 
                 JOIN tag_posts t ON p.post_id = t.post_id 
                 JOIN additional_info_posts a ON a.post_id = p.post_id
-                WHERE p.title LIKE $searchword;";// LIMIT 30
+                WHERE post_title LIKE $searchword;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -488,7 +494,7 @@ function searchPostsByContent($searchwords) {
                 JOIN users u ON p.user_id = u.user_id 
                 JOIN tag_posts t ON p.post_id = t.post_id 
                 JOIN additional_info_posts a ON a.post_id = p.post_id
-                WHERE p.content LIKE $searchwords;";// LIMIT 30
+                WHERE post_content LIKE $searchwords;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -504,34 +510,13 @@ function deletePostById($id) {
     global $db, $error;
     try {  
         $id = clearInt($id);
-        $db->beginTransaction();
-
         /* Удаляю пост */
         $sql = "DELETE FROM posts WHERE post_id = $id;";
-        $db->exec($sql);
-        
-        /* Удаляю рэйтинг этого поста */
-        $sql = "DELETE FROM rating_posts WHERE post_id = $id;";
         $db->exec($sql);
 
         /* Удаляю его картинку */
         //unlink("..\images\PostImgId$id.jpg");
-
-        /* Удаляю все комментарии, связанные с постом */
-        $sql = "DELETE FROM comments WHERE post_id = $id;";
-        $db->exec($sql);
-
-        /* Удаляю рэйтинг комментариев, связанных с постом  */
-        $sql = "DELETE FROM rating_comments WHERE post_id = $id;";
-        $db->exec($sql);
-
-        /* Удаляю тэги, связанных с постом  */
-        $sql = "DELETE FROM tag_posts WHERE post_id = $id;";
-        $db->exec($sql);
-
-        $db->commit();
     } catch (PDOException $e) {
-        $db->rollBack();
         $error = $e->getMessage();
         return false;
     }
@@ -546,7 +531,7 @@ function getCommentsByPostId($postId) {
     $comments = [];
     try {
         $postId = clearInt($postId);
-        $sql = "SELECT c.com_id, c.post_id, c.user_id, c.date_time, 
+        $sql = "SELECT c.comment_id, c.post_id, c.user_id, c.date_time, 
                 c.content, c.rating, u.fio as author
                 FROM comments c JOIN users u 
                 ON u.user_id = c.user_id WHERE c.post_id = $postId";// LIMIT 30
@@ -561,29 +546,10 @@ function getCommentsByPostId($postId) {
     }
     return $comments;
 }
-function getCommentById($comId) {
-    global $db, $error;
-    $comment = [];
-    try {
-        $comId = clearInt($comId);
-        $sql = "SELECT c.com_id, c.post_id, c.user_id, c.date_time, 
-                c.content, c.rating, u.fio as author
-                FROM comments c JOIN users u 
-                ON c.user_id = u.user_id WHERE com_id = $comId;";
-        $stmt = $db->query($sql);
-        if ($stmt != false) {
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            $comment = $result;
-        }
-    } catch (PDOException $e) {
-        $error = $e->getMessage();
-    }
-    return $comment;
-}
 function insertComments($postId, $commentAuthorId, $commentDate, $commentContent, $rating) {
     global $db, $error;
     try {
-        $authorId = clearStr($commentAuthorId);
+        $authorId = clearInt($commentAuthorId);
         $postId = clearInt($postId);
         $commentDate = clearInt($commentDate);
         $content = clearStr($commentContent);
@@ -592,18 +558,14 @@ function insertComments($postId, $commentAuthorId, $commentDate, $commentContent
         $rating = clearInt($rating);
 
         $sql = "INSERT INTO comments (post_id, user_id, date_time, content, rating) 
-        VALUES($postId, $authorId, $commentDate, $content, $rating);";
+                VALUES($postId, $authorId, $commentDate, $content, $rating);";
         if (!$db->exec($sql)) {
             return false;
         }
         $sql = "UPDATE additional_info_posts SET count_comments = count_comments+1 
                 WHERE post_id = $postId;";
         if (!$db->exec($sql)) {
-            $sql = "INSERT INTO additional_info_posts (post_id, count_comments) 
-                    VALUES($postId, 1);";
-            if (!$db->exec($sql)) {
-                return false;
-            }
+            return false;
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
@@ -614,8 +576,8 @@ function getCommentsByUserId($userId) {
     global $db, $error;
     $comments = [];
     try {
-        $userId = $db->quote($userId);
-        $sql = "SELECT c.com_id, c.post_id, c.date_time, c.content, c.user_id,
+        
+        $sql = "SELECT c.comment_id, c.post_id, c.date_time, c.content, c.user_id,
                 c.rating, u.fio as author FROM comments c 
                 JOIN users u ON u.user_id = c.user_id 
                 WHERE c.user_id = $userId;";// LIMIT 30
@@ -634,17 +596,10 @@ function deleteCommentById($deleteCommentId) {
     global $db, $error;
     $deleteCommentId = clearInt($deleteCommentId);
     try {
-        $db->beginTransaction();
         /* Удаляю комментарий */
-        $sql = "DELETE FROM comments WHERE com_id = $deleteCommentId;";
+        $sql = "DELETE FROM comments WHERE comment_id = $deleteCommentId;";
         $db->exec($sql);
-
-        /* Удаляю рейтинг этого комментария*/
-        $sql = "DELETE FROM rating_comments WHERE com_id = $deleteCommentId;";
-        $db->exec($sql);
-        $db->commit();
     } catch (PDOException $e) {
-        $db->rollBack();
         $error = $e->getMessage();
     }
 }
@@ -655,7 +610,7 @@ function deleteCommentById($deleteCommentId) {
 function changePostRating($userId, $postId, $rating){
     global $db, $error;
     try {
-        $userId = $db->quote($userId);
+        
         $postId = clearInt($postId);
         $rating = clearInt($rating);
 
@@ -696,10 +651,11 @@ function changePostRating($userId, $postId, $rating){
 function isUserChangesPostRating($userId, $postId){
     global $db, $error;
     try {
-        $userId = $db->quote($userId);
+        
 
         $sql = "SELECT rating FROM rating_posts 
-                WHERE user_id = $userId AND post_id = $postId;";
+                WHERE user_id = $userId 
+                AND post_id = $postId;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -716,13 +672,13 @@ function getLikedPostsByUserId($userId) {
     global $db, $error;
     $posts = [];
     try {
-        $userId = $db->quote($userId);
+        
         $sql = "SELECT r.post_id, p.title, r.user_id, p.date_time, p.content, 
                 a.rating, a.count_comments, a.count_ratings,, u.fio as author FROM rating_posts r 
                 JOIN posts p ON p.post_id = r.post_id 
                 JOIN users u ON u.user_id = r.user_id 
                 JOIN additional_info_posts a ON a.post_id = p.post_id 
-                WHERE r.user_id = $userId ORDER BY p.date_time DESC;";// LIMIT 30
+                WHERE r.user_id = $userId ORDER BY post_date_time DESC;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -742,11 +698,11 @@ function getLikedCommentsByUserId($userId) {
     global $db, $error;
     $comments = [];
     try {
-        $userId = $db->quote($userId);
-        $sql = "SELECT r.com_id, r.user_id, r.post_id, 
+        
+        $sql = "SELECT r.comment_id, r.user_id, r.post_id, 
                 u.fio as author, c.content, c.date_time, c.rating
                 FROM rating_comments r
-                JOIN comments c ON r.com_id = c.com_id
+                JOIN comments c ON r.comment_id = c.comment_id
                 JOIN users u ON r.user_id = u.user_id
                 WHERE r.user_id = $userId;";// LIMIT 30
         $stmt = $db->query($sql);
@@ -765,23 +721,23 @@ function changeCommentRating($rating, $comId, $postId, $userId){
     try {
         $comId = clearInt($comId);
         $postId = clearInt($postId);
-        $userId = $db->quote($userId);
+        
 
         $db->beginTransaction();
 
         if ($rating === 'like') {
-            $sql = "INSERT INTO rating_comments (user_id, com_id, post_id) 
+            $sql = "INSERT INTO rating_comments (user_id, comment_id, post_id) 
                     VALUES($userId, $comId, $postId);";
             $db->exec($sql);
 
-            $sql = "UPDATE comments SET rating = rating+1 WHERE com_id = $comId;";
+            $sql = "UPDATE comments SET rating = rating+1 WHERE comment_id = $comId;";
             $db->exec($sql); 
         }
         if ($rating === 'unlike') {
-            $sql = "DELETE FROM rating_comments WHERE com_id = $comId;";
+            $sql = "DELETE FROM rating_comments WHERE comment_id = $comId;";
             $db->exec($sql);
 
-            $sql = "UPDATE comments SET rating = rating-1 WHERE com_id = $comId;";
+            $sql = "UPDATE comments SET rating = rating-1 WHERE comment_id = $comId;";
             $db->exec($sql); 
         }
         $db->commit();
@@ -795,9 +751,10 @@ function changeCommentRating($rating, $comId, $postId, $userId){
 function isUserChangedCommentRating($userId, $comId){
     global $db, $error;
     try {
-        $userId = $db->quote($userId);
+        
 
-        $sql = "SELECT id FROM rating_comments WHERE user_id = $userId AND com_id = $comId;";
+        $sql = "SELECT user_id FROM rating_comments 
+                WHERE user_id = $userId AND comment_id = $comId;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -835,7 +792,8 @@ function getTagsToPostById($postId) {
     try {
         $postId = clearInt($postId);
 
-        $sql = "SELECT tag FROM tag_posts WHERE post_id=$postId;";
+        $sql = "SELECT tag FROM tag_posts 
+                WHERE post_id = $postId;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -854,13 +812,11 @@ function getTagsToPostById($postId) {
 function toSubscribeUser($userIdWantSubscribe, $userId) {
     global $db, $error;
     try {
-        $userIdWantSubscribe = clearStr($userIdWantSubscribe);
+        $userIdWantSubscribe = clearInt($userIdWantSubscribe);
         $userIdWantSubscribe = $db->quote($userIdWantSubscribe);
-        $userId = $db->quote($userId);
-
+        
         $sql = "INSERT INTO subscriptions (user_id_want_subscribe, user_id) 
-        VALUES($userIdWantSubscribe, $userId);";
-
+                VALUES($userIdWantSubscribe, $userId);";
         if (!$db->exec($sql)) {
             return false;
         }
@@ -872,9 +828,9 @@ function toSubscribeUser($userIdWantSubscribe, $userId) {
 function toUnsubscribeUser($userIdWantSubscribe, $userId) {
     global $db, $error;
     try {
-        $userIdWantSubscribe = clearStr($userIdWantSubscribe);
+        $userIdWantSubscribe = clearInt($userIdWantSubscribe);
         $userIdWantSubscribe = $db->quote($userIdWantSubscribe);
-        $userId = $db->quote($userId);
+        
 
         $sql = "DELETE FROM subscriptions WHERE 
                 user_id_want_subscribe = $userIdWantSubscribe 
@@ -891,11 +847,10 @@ function toUnsubscribeUser($userIdWantSubscribe, $userId) {
 function isSubscribedUser($userIdWantSubscribe, $userId){
     global $db, $error;
     try {
-        $userIdWantSubscribe = clearStr($userIdWantSubscribe);
+        $userIdWantSubscribe = clearInt($userIdWantSubscribe);
         $userIdWantSubscribe = $db->quote($userIdWantSubscribe);
-        $userId = $db->quote($userId);
-
-        $sql = "SELECT id FROM subscriptions WHERE 
+        
+        $sql = "SELECT user_id FROM subscriptions WHERE 
                 user_id_want_subscribe = $userIdWantSubscribe 
                 AND user_id = $userId;";
         $stmt = $db->query($sql);

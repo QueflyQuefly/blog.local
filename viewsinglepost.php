@@ -30,7 +30,7 @@ if (!empty($_COOKIE['user_id'])) {
 } elseif (!empty($_SESSION['user_id'])) {
     $sessionUserId = $_SESSION['user_id'];
 }
-if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+if (!empty($sessionUserId) && getUserInfoById($sessionUserId, 'rights') === RIGHTS_SUPERUSER) {
     $isSuperuser = true;
     if (isset($_GET['deletePostById'])) {
         $deletePostId = clearInt($_GET['deletePostById']);
@@ -212,7 +212,7 @@ $year = date("Y", time());
                     $comment['date_time'] = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
-            <div class='viewcomment' id='comment<?=  $comment['com_id'] ?>'>
+            <div class='viewcomment' id='comment<?=  $comment['comment_id'] ?>'>
                 <p class='commentauthor'>
                     <a class='menuLink' href='cabinet.php?user=<?=  $comment['user_id'] ?>'><?=  $comment['author'] ?></a>
                     <div class='commentdate'><?=  $comment['date_time'] ?></div>
@@ -224,7 +224,7 @@ $year = date("Y", time());
                             if (!empty($isSuperuser)) {
                         ?> 
                             <object>
-                                <a class='menuLink' href='viewsinglepost.php?viewPostById=<?=  $postId ?>&deleteCommentById=<?=  $comment['com_id'] ?>'>
+                                <a class='menuLink' href='viewsinglepost.php?viewPostById=<?=  $postId ?>&deleteCommentById=<?=  $comment['comment_id'] ?>'>
                                     Удалить комментарий
                                 </a>
                             </object>
@@ -236,18 +236,18 @@ $year = date("Y", time());
                 <div class='like'>
                     <?php
                         $countLikes = $comment['rating'];
-                        if (empty($sessionUserId) || !isUserChangedCommentRating($sessionUserId, $comment['com_id'])) {
+                        if (empty($sessionUserId) || !isUserChangedCommentRating($sessionUserId, $comment['comment_id'])) {
                             $name = 'like';
                         } else {
                             $name = 'unlike';
                         }
                     ?>
-                    <form action='viewsinglepost.php?viewPostById=<?= $postId?>#comment<?= $comment['com_id']?>' method='post'>
-                        <label id='heartlike' title="Нравится" for='like<?= $comment['com_id']?>'>
+                    <form action='viewsinglepost.php?viewPostById=<?= $postId?>#comment<?= $comment['comment_id']?>' method='post'>
+                        <label id='heartlike' title="Нравится" for='like<?= $comment['comment_id']?>'>
                             <span class='like'>&#9825; </span>
                             <?= $countLikes?>
                         </label>
-                        <input type="submit" class='nodisplay' id="like<?= $comment['com_id']?>" name="<?=  $name ?>" value="<?= $comment['com_id']?>">
+                        <input type="submit" class='nodisplay' id="like<?= $comment['comment_id']?>" name="<?=  $name ?>" value="<?= $comment['comment_id']?>">
                     </form>
                 </div>
                 <hr>

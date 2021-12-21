@@ -13,7 +13,7 @@ if (!empty($_COOKIE['user_id'])) {
 } elseif (!empty($_SESSION['user_id'])) {
     $sessionUserId = $_SESSION['user_id'];
 }
-if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+if (!empty($sessionUserId) && getUserInfoById($sessionUserId, 'rights') === RIGHTS_SUPERUSER) {
     $isSuperuser = true;
 }
 if (!empty($isSuperuser)) {

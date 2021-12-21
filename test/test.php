@@ -145,3 +145,16 @@ while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $results[] = $result;
 }
 var_dump($results); */
+$sql = "EXPLAIN SELECT r.post_id, p.title, r.user_id, p.date_time, p.content, 
+        a.rating, a.count_comments, a.count_ratings, u.fio as author FROM rating_posts r 
+        JOIN posts p ON p.post_id = r.post_id 
+        JOIN users u ON u.user_id = r.user_id 
+        JOIN additional_info_posts a ON a.post_id = p.post_id 
+        WHERE r.user_id = 0  ORDER BY p.date_time DESC;";// LIMIT 30
+$stmt = $db->query($sql);
+if ($stmt != false) {
+    while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $posts[] = $result;
+    }
+}
+var_dump($posts);

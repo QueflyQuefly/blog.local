@@ -8,7 +8,7 @@ if (!empty($_COOKIE['user_id'])) {
 } elseif (!empty($_SESSION['user_id'])) {
     $sessionUserId = $_SESSION['user_id'];
 }
-if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+if (!empty($sessionUserId) && getUserInfoById($sessionUserId, 'rights') === RIGHTS_SUPERUSER) {
     $isSuperuser = true;
     $forAdmin = "<label><input type='checkbox' name='add_admin'>Зарегистрировать как админа</label>";
 }
@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
     $email = clearStr($_POST['email']);
     $fio = clearStr($_POST['fio']);
-    $password = clearStr($_POST['password']);
+    $password = $_POST['password'];
     $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
     if (!preg_match($regex, $email)) {
         $error = "Неверный формат email";

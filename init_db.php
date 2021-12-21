@@ -5,8 +5,7 @@ try {
 
     $password = password_hash('1', PASSWORD_BCRYPT);
     $password = $db->quote($password);
-    $userId = uniqid(RIGHTS_SUPERUSER);
-    $userId = $db->quote($userId);
+    
     $date = time();
     $rights = $db->quote(RIGHTS_SUPERUSER);
 
@@ -16,14 +15,13 @@ try {
 
         CREATE TABLE users
         (
-        id INT UNSIGNED AUTO_INCREMENT,
-        user_id VARCHAR(30),
-        email VARCHAR(50),
+        user_id INT UNSIGNED AUTO_INCREMENT,
+        email VARCHAR(50) UNIQUE,
         fio VARCHAR(50),
         pass_word CHAR(60),
         date_time INT UNSIGNED,
         rights VARCHAR(20),
-        PRIMARY KEY (id)
+        PRIMARY KEY (user_id)
         );
 
 
@@ -31,77 +29,89 @@ try {
         (
         post_id INT UNSIGNED AUTO_INCREMENT,
         title TINYTEXT,
-        user_id VARCHAR(30),
+        user_id INT UNSIGNED,
         date_time INT UNSIGNED,
         content TEXT,
-        PRIMARY KEY (post_id)
+        PRIMARY KEY (post_id),
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
         );
 
 
         CREATE TABLE comments
         (
-        com_id INT UNSIGNED AUTO_INCREMENT,
+        comment_id INT UNSIGNED AUTO_INCREMENT,
         post_id INT UNSIGNED,
-        user_id VARCHAR(30),
+        user_id INT UNSIGNED,
         date_time INT UNSIGNED,
         content TEXT,
         rating INT UNSIGNED,
-        PRIMARY KEY (com_id)
+        PRIMARY KEY (comment_id),
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+        FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
         );
 
 
         CREATE TABLE rating_posts
         (
-        id INT UNSIGNED AUTO_INCREMENT,
-        user_id VARCHAR(30),
         post_id INT UNSIGNED,
+        user_id INT UNSIGNED,
         rating DECIMAL(1),
-        PRIMARY KEY (id)
+        PRIMARY KEY (post_id),
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+        FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
         );
         
 
         CREATE TABLE additional_info_posts
         (
-        id INT UNSIGNED AUTO_INCREMENT,
         post_id INT UNSIGNED,
         rating DECIMAL(2,1),
         count_comments INT UNSIGNED,
         count_ratings INT UNSIGNED,
-        PRIMARY KEY (id)
+        PRIMARY KEY (post_id),
+        FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
         );
 
 
         CREATE TABLE rating_comments
         (
-        id INT UNSIGNED AUTO_INCREMENT,
-        user_id VARCHAR(30),
-        com_id INT UNSIGNED,
+        comment_id INT UNSIGNED AUTO_INCREMENT,
+        user_id INT UNSIGNED,
         post_id INT UNSIGNED,
-        PRIMARY KEY (id)
+        PRIMARY KEY (comment_id),
+        FOREIGN KEY (comment_id) REFERENCES comments (comment_id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+        FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
         );
 
 
         CREATE TABLE tag_posts
         (
-        id INT UNSIGNED AUTO_INCREMENT,
-        tag TINYTEXT,
         post_id INT UNSIGNED,
-        PRIMARY KEY (id)
+        tag TINYTEXT,
+        PRIMARY KEY (post_id),
+        FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
         );
 
 
         CREATE TABLE subscriptions
         (
-        id INT UNSIGNED AUTO_INCREMENT,
-        user_id_want_subscribe VARCHAR(30),
-        user_id VARCHAR(30),
-        PRIMARY KEY (id)
+        user_id_want_subscribe INT UNSIGNED,
+        user_id INT UNSIGNED,
+        PRIMARY KEY (user_id_want_subscribe),
+        FOREIGN KEY (user_id_want_subscribe) REFERENCES users (user_id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
         );
 
 
+        CREATE INDEX fio ON users (fio);
+        CREATE INDEX post_date_time ON posts (date_time, post_id);
+        CREATE INDEX comment_date_time ON comments (date_time, post_id);
+
+
         INSERT INTO users
-        (user_id, email, fio, pass_word, date_time, rights) 
-        VALUES ($userId, '1@1.1', 'Администратор', $password, $date, $rights)
+        (email, fio, pass_word, date_time, rights) 
+        VALUES ('1@1.1', 'Администратор', $password, $date, $rights)
         ;";
 
     if (!$db->exec($sql)) {

@@ -10,7 +10,7 @@ if (!empty($_COOKIE['user_id'])) {
 } elseif (!empty($_SESSION['user_id'])) {
     $sessionUserId = $_SESSION['user_id'];
 }
-if (!empty($sessionUserId) && strpos($sessionUserId, RIGHTS_SUPERUSER) !== false) {
+if (!empty($sessionUserId) && getUserInfoById($sessionUserId, 'rights') === RIGHTS_SUPERUSER) {
     $isSuperuser = true;
 }
 $twoDaysInSeconds = 60*60*24*2;
@@ -18,7 +18,7 @@ header("Cache-Control: max-age=$twoDaysInSeconds");
 header("Cache-Control: must-revalidate");
 
 if (isset($_GET['user'])) {
-    $userId = clearStr($_GET['user']);
+    $userId = clearInt($_GET['user']);
     $user = getUserInfoById($userId);
     
     if (!empty($sessionUserId)) {
@@ -278,8 +278,8 @@ $year = date("Y", time());
                         $comment['date_time'] = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
-            <div class='viewcomment' id='comment<?=  $comment['com_id']  ?>'>
-                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=  $comment['post_id']  ?>#comment<?=  $comment['com_id']  ?>'>
+            <div class='viewcomment' id='comment<?=  $comment['comment_id']  ?>'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=  $comment['post_id']  ?>#comment<?=  $comment['comment_id']  ?>'>
                     <p class='commentauthor'><?=  $comment['author']  ?><div class='commentdate'><?=  $comment['date_time']  ?></div></p>
                     <div class='commentcontent'>
                         <p class='commentcontent'><?= $comment['content'] ?></p>
@@ -288,7 +288,7 @@ $year = date("Y", time());
                             if (!empty($showInfoAndLinksToDelete)) {
                         ?>
                             <object>
-                                <a class='link' href='cabinet.php?user=<?= $userId ?>&deleteCommentById=<?=  $comment['com_id']  ?>'>
+                                <a class='link' href='cabinet.php?user=<?= $userId ?>&deleteCommentById=<?=  $comment['comment_id']  ?>'>
                                     Удалить комментарий
                                 </a>
                             </object>
@@ -372,8 +372,8 @@ $year = date("Y", time());
                         $comment['date_time'] = date("d.m.Y в H:i", $comment['date_time']);
             ?>
 
-            <div class='viewcomment' id='comment<?=  $comment['com_id']  ?>'>
-                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=  $comment['post_id']  ?>#comment<?=  $comment['com_id']  ?>'>
+            <div class='viewcomment' id='comment<?=  $comment['comment_id']  ?>'>
+                <a class='postLink' href='viewsinglepost.php?viewPostById=<?=  $comment['post_id']  ?>#comment<?=  $comment['comment_id']  ?>'>
                     <p class='commentauthor'><?=  $comment['author']  ?><div class='commentdate'><?=  $comment['date_time']  ?></div></p>
                     <div class='commentcontent'>
                         <p class='commentcontent'><?=  $comment['content']  ?></p>
@@ -382,7 +382,7 @@ $year = date("Y", time());
                             if (!empty($showInfoAndLinksToDelete)) {
                         ?>
                             <object>
-                                <a class='link' href='cabinet.php?user=<?= $userId ?>&deleteCommentById=<?=  $comment['com_id']  ?>'>
+                                <a class='link' href='cabinet.php?user=<?= $userId ?>&deleteCommentById=<?=  $comment['comment_id']  ?>'>
                                     Удалить комментарий
                                 </a>
                             </object>
