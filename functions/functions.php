@@ -303,13 +303,13 @@ function getMoreTalkedPosts($numberOfPosts = 3) {
         $numberOfPosts = clearInt($numberOfPosts);
         $oneWeekInSeconds = 604800; //60 * 60 * 24 * 7
         $dateWeekAgo = time() - $oneWeekInSeconds;
-        $sql = "SELECT DISTINCT c.post_id, p.title, 
-                p.date_time, p.content, a.rating, a.count_comments, a.count_ratings,, u.fio as author 
+        $sql = "SELECT DISTINCT c.post_id, p.title, p.date_time, p.content, a.rating, 
+                a.count_comments, a.count_ratings, u.fio as author 
                 FROM comments c 
                 JOIN posts p ON c.post_id = p.post_id
                 JOIN additional_info_posts a ON a.post_id = p.post_id
                 JOIN users u ON p.user_id = u.user_id 
-                WHERE comment_date_time >= $dateWeekAgo ORDER BY c.post_id DESC LIMIT 10;";
+                WHERE c.date_time >= $dateWeekAgo ORDER BY a.count_comments DESC LIMIT 10;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
