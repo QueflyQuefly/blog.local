@@ -1,5 +1,5 @@
 <?php
-$start = microtime(true);
+$startTime = microtime(true);
 session_start();
 @set_time_limit(6000);
 require_once 'dbconfig.php';
@@ -224,12 +224,12 @@ $year = date("Y", time());
                         echo "Подключение к БД: успешно</p><p>Создан $numberOfLoopIterations новый пользователь, 
                         $numberOfLoopIterations новый пост и несколько(до 12) комментариев к каждому.<br>
                         Создание 100 постов занимает примерно 10 секунд.<br>
-                        Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
+                        Время выполнения скрипта: " . round(microtime(true) - $startTime, 4) . " сек.";
                     } else {
                         echo "Подключение к БД: успешно</p><p>Создано $numberOfLoopIterations новых пользователей, 
                         $numberOfLoopIterations новых постов и несколько(до 12) комментариев к каждому.<br>
                         Создание 100 постов занимает примерно 10 секунд.<br>
-                        Время выполнения скрипта: " . round(microtime(true) - $start, 4) . " сек.";
+                        Время выполнения скрипта: " . round(microtime(true) - $startTime, 4) . " сек.";
                     }
                 } else {
                     foreach ($errors as $error) {

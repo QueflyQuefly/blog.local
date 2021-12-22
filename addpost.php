@@ -44,9 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     header("Location: addpost.php?msg=$error");
             }
         } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-            addPost($title, $sessionUserId, $content);
-            /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
             $msg =  "Пост добавлен";
+            if (!addPost($title, $sessionUserId, $content)) {
+                $msg =  "Произошла ошибка при добавлении поста";
+            }
+            /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
             header("Location: addpost.php?msg=$msg");
         /* } else { 
             $error = "Изображение имеет недопустимое расширение (не jpg)";

@@ -1,5 +1,5 @@
 <?php
-$start = microtime(true);
+$startTime = microtime(true);
 session_start();
 $file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
 require_once $file_functions;
@@ -119,7 +119,7 @@ $year = date("Y", time());
     </div>
 </div>
 <footer>
-    <p>Website by Вячеслав Бельский &copy; <?= $year ?><br> Время загрузки страницы: <?= round(microtime(true) - $start, 4) ?> с.</p>
+    <p>Website by Вячеслав Бельский &copy; <?= $year ?><br> Время загрузки страницы: <?= round(microtime(true) - $startTime, 4) ?> с.</p>
 </footer>
 </body>
 </html>

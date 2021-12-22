@@ -346,13 +346,10 @@ function addPost($title, $userId, $content) {
     try {
         $date = time();
         $titleQuote = $db->quote($title);
-        
-        $fio = getUserInfoById($userId, 'fio');
         $content = $db->quote($content);
-        $rating = 0;
         
-        $sql = "INSERT INTO posts (title, user_id, date_time, content, rating) 
-                VALUES($titleQuote, $userId, $date, $content, $rating);";
+        $sql = "INSERT INTO posts (title, user_id, date_time, content) 
+                VALUES($titleQuote, $userId, $date, $content);";
         if (!$db->exec($sql)) {
             return false;
         }
@@ -408,10 +405,10 @@ function getPostsByUserId($user_id) {
         $posts = [];
         $user_id = $db->quote($user_id);
         $sql = "SELECT p.post_id, p.title, p.date_time, 
-            p.content, a.rating, a.count_comments, a.count_ratings,, u.fio as author
-            FROM posts p JOIN users u ON p.user_id = u.user_id 
-            JOIN additional_info_posts a ON a.post_id = p.post_id
-            WHERE p.user_id = $user_id;";
+                p.content, a.rating, a.count_comments, a.count_ratings,, u.fio as author
+                FROM posts p JOIN users u ON p.user_id = u.user_id 
+                JOIN additional_info_posts a ON a.post_id = p.post_id
+                WHERE p.user_id = $user_id;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -625,20 +622,15 @@ function changePostRating($userId, $postId, $rating){
             if (!$db->exec($sql)) {
                 return false;
             }
-            $sql = "SELECT rating FROM rating_posts WHERE post_id = $postId;";
+            $sql = "SELECT avg(rating) as average_rating, COUNT(*) as count_rating 
+                    FROM rating_posts WHERE post_id = $postId;";
             $stmt = $db->query($sql);
             if (!$stmt) {
                 return false;
             }
-            $summRatings = 0;
-            $i = 0;
-            while ($postRate = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $summRatings += $postRate['rating'];
-                $i++;
-            }
-            $countRatings = $i;
-
-            $postRating = $summRatings / $countRatings;
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $countRatings = $result['count_rating'];
+            $postRating = $result['average_rating'];
             $postRating = round($postRating, 1, PHP_ROUND_HALF_UP);
             
             $sql = "UPDATE additional_info_posts SET rating = $postRating,
