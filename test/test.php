@@ -145,13 +145,14 @@ while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $results[] = $result;
 }
 var_dump($results); */
-$sql = "EXPLAIN SELECT DISTINCT c.post_id, p.title, 
-        p.date_time, p.content, a.rating, a.count_comments, a.count_ratings, u.fio as author 
-        FROM comments c 
-        JOIN posts p ON c.post_id = p.post_id
-        JOIN additional_info_posts a ON a.post_id = p.post_id
+$numberOfPosts = 10;
+$sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
+        a.rating, a.count_comments, a.count_ratings,
+        u.fio as author 
+        FROM posts p 
+        JOIN additional_info_posts a ON a.post_id = p.post_id 
         JOIN users u ON p.user_id = u.user_id 
-        WHERE c.date_time >= 169999 ORDER BY c.post_id DESC LIMIT 10;";
+        ORDER BY p.post_id DESC LIMIT 10, $numberOfPosts;";
 $stmt = $db->query($sql);
 if ($stmt != false) {
     while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {

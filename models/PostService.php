@@ -1,12 +1,7 @@
 <?php
-require "GetConnectionToDb.php";
+require 'GetConnectionToDb.php';
+require 'functions.php';
 
-function clearInt($int) {
-    return abs((int) $int);
-}
-function clearStr($str) {
-    return trim(strip_tags($str));
-}
 class PostService {
     public $error;
     private $_db;
@@ -20,16 +15,15 @@ class PostService {
             $lessThanMaxId = clearInt($lessThanMaxId);
             if (!empty($lessThanMaxId)) {
                 $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
-                        a.rating, a.count_comments, a.count_ratings,
-                        a.rating, u.fio as author FROM posts p 
+                        a.rating, a.count_comments, a.count_ratings, u.fio as author 
+                        FROM posts p 
                         JOIN additional_info_posts a ON a.post_id = p.post_id 
                         JOIN users u ON p.user_id = u.user_id 
-                        WHERE p.post_id <= (SELECT MAX(post_id) FROM posts) - $lessThanMaxId 
-                        ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
+                        ORDER BY p.post_id DESC LIMIT $lessThanMaxId, $numberOfPosts;";
             } else {
                 $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
-                        a.rating, a.count_comments, a.count_ratings,
-                        a.rating, u.fio as author FROM posts p 
+                        a.rating, a.count_comments, a.count_ratings, u.fio as author 
+                        FROM posts p 
                         JOIN additional_info_posts a ON a.post_id = p.post_id 
                         JOIN users u ON p.user_id = u.user_id 
                         ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
@@ -44,7 +38,7 @@ class PostService {
                 }
             }
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return $posts;
     }
@@ -71,7 +65,7 @@ class PostService {
                 $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
             }
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return $post;
     }
@@ -115,7 +109,7 @@ class PostService {
                 }
             }
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return $posts;
     }
@@ -174,7 +168,7 @@ class PostService {
                 }
             }
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return true;
     }
@@ -184,7 +178,7 @@ class PostService {
             $posts = [];
             $user_id = $this->_db->quote($user_id);
             $sql = "SELECT p.post_id, p.title, p.date_time, 
-                    p.content, a.rating, a.count_comments, a.count_ratings,, u.fio as author
+                    p.content, a.rating, a.count_comments, a.count_ratings, u.fio as author
                     FROM posts p JOIN users u ON p.user_id = u.user_id 
                     JOIN additional_info_posts a ON a.post_id = p.post_id
                     WHERE p.user_id = $user_id;";
@@ -196,7 +190,7 @@ class PostService {
                 }
             }
         } catch(PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return $posts;
     }
@@ -207,7 +201,8 @@ class PostService {
             $searchword = '%' . $searchword . '%';
             $searchword = $this->_db->quote($searchword);
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                    a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag FROM posts p JOIN users u
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
+                    FROM posts p JOIN users u
                     JOIN additional_info_posts a ON a.post_id = p.post_id
                     ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
                     WHERE tag LIKE $searchword;";// LIMIT 30
@@ -218,7 +213,7 @@ class PostService {
                 }
             }
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return $results;
     }
@@ -229,7 +224,7 @@ class PostService {
             $searchword = '%' . $searchword . '%';
             $searchword = $this->_db->quote($searchword);
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                    a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
                     FROM posts p 
                     JOIN users u ON p.user_id = u.user_id 
                     JOIN tag_posts t ON p.post_id = t.post_id 
@@ -242,7 +237,7 @@ class PostService {
                 }
             }
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                    a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
                     FROM posts p 
                     JOIN users u ON p.user_id = u.user_id 
                     JOIN tag_posts t ON p.post_id = t.post_id 
@@ -255,7 +250,7 @@ class PostService {
                 }
             }
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return $results;
     }
@@ -266,7 +261,7 @@ class PostService {
             $searchwords = '%' . $searchwords . '%';
             $searchwords = $this->_db->quote($searchwords);
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                    a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
                     FROM posts p 
                     JOIN users u ON p.user_id = u.user_id 
                     JOIN tag_posts t ON p.post_id = t.post_id 
@@ -279,7 +274,7 @@ class PostService {
                 }
             }
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return $results;
     }
@@ -293,7 +288,7 @@ class PostService {
             /* Удаляю его картинку */
             //unlink("..\images\PostImgId$id.jpg");
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
             return false;
         }
         return true;

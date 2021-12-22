@@ -11,6 +11,8 @@ class getConnectionToDb {
         return self::$_instance::$_db;
     }
     private function __construct() {
+        define('RIGHTS_USER', 'user');
+        define('RIGHTS_SUPERUSER', 'superuser');
         $pathToDbconfig = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'dbconfig.php';
         require_once $pathToDbconfig;
         try {

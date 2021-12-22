@@ -15,7 +15,7 @@ try {
 
         CREATE TABLE users
         (
-        user_id INT UNSIGNED AUTO_INCREMENT,
+        user_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
         email VARCHAR(50) UNIQUE,
         fio VARCHAR(50),
         pass_word CHAR(60),
@@ -27,7 +27,7 @@ try {
 
         CREATE TABLE posts
         (
-        post_id INT UNSIGNED AUTO_INCREMENT,
+        post_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
         title TINYTEXT,
         user_id INT UNSIGNED,
         date_time INT UNSIGNED,
@@ -39,7 +39,7 @@ try {
 
         CREATE TABLE comments
         (
-        comment_id INT UNSIGNED AUTO_INCREMENT,
+        comment_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
         post_id INT UNSIGNED,
         user_id INT UNSIGNED,
         date_time INT UNSIGNED,
@@ -63,7 +63,7 @@ try {
 
         CREATE TABLE additional_info_posts
         (
-        post_id INT UNSIGNED,
+        post_id INT UNSIGNED NOT NULL,
         rating DECIMAL(2,1),
         count_comments INT UNSIGNED,
         count_ratings INT UNSIGNED,

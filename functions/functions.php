@@ -48,13 +48,13 @@ function getUsersByNumber($numberOfUsers , $lessThanMaxId = 0) {
         $numberOfUsers  = clearInt($numberOfUsers );
         $lessThanMaxId = clearInt($lessThanMaxId);
         if (empty($lessThanMaxId)) {
-            $sql = "SELECT user_id, email, fio, pass_word, date_time, 
-                    rights FROM users ORDER BY user_id DESC 
-                    LIMIT $numberOfUsers ;";
+            $sql = "SELECT user_id, email, fio, pass_word, date_time, rights 
+                    FROM users ORDER BY user_id 
+                    DESC LIMIT $numberOfUsers;";
         } else {
             $sql = "SELECT user_id, email, fio, pass_word, date_time, rights 
-                    FROM users WHERE user_id <= (SELECT MAX(id) FROM users) - $lessThanMaxId 
-                    ORDER BY user_id DESC LIMIT $numberOfUsers ;";
+                    FROM users ORDER BY user_id 
+                    DESC LIMIT $lessThanMaxId, $numberOfUsers;";
         }
         $stmt = $db->query($sql);
         if ($stmt != false) {
@@ -240,16 +240,15 @@ function getPostsByNumber($numberOfPosts, $lessThanMaxId = 0) {
         $lessThanMaxId = clearInt($lessThanMaxId);
         if (!empty($lessThanMaxId)) {
             $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
-                    a.rating, a.count_comments, a.count_ratings,
-                    a.rating, u.fio as author FROM posts p 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author 
+                    FROM posts p 
                     JOIN additional_info_posts a ON a.post_id = p.post_id 
                     JOIN users u ON p.user_id = u.user_id 
-                    WHERE p.post_id <= (SELECT MAX(post_id) FROM posts) - $lessThanMaxId 
-                    ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
+                    ORDER BY p.post_id DESC LIMIT $lessThanMaxId, $numberOfPosts;";
         } else {
             $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
-                    a.rating, a.count_comments, a.count_ratings,
-                    a.rating, u.fio as author FROM posts p 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author 
+                    FROM posts p 
                     JOIN additional_info_posts a ON a.post_id = p.post_id 
                     JOIN users u ON p.user_id = u.user_id 
                     ORDER BY p.post_id DESC LIMIT $numberOfPosts;";
@@ -405,7 +404,7 @@ function getPostsByUserId($user_id) {
         $posts = [];
         $user_id = $db->quote($user_id);
         $sql = "SELECT p.post_id, p.title, p.date_time, 
-                p.content, a.rating, a.count_comments, a.count_ratings,, u.fio as author
+                p.content, a.rating, a.count_comments, a.count_ratings, u.fio as author
                 FROM posts p JOIN users u ON p.user_id = u.user_id 
                 JOIN additional_info_posts a ON a.post_id = p.post_id
                 WHERE p.user_id = $user_id;";
@@ -429,9 +428,11 @@ function searchPostsByTag($searchword) {
         $searchword = '%' . $searchword . '%';
         $searchword = $db->quote($searchword);
         $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag FROM posts p JOIN users u
-                JOIN additional_info_posts a ON a.post_id = p.post_id
-                ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
+                a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
+                FROM posts p 
+                JOIN users u ON p.user_id = u.user_id 
+                JOIN additional_info_posts a ON a.post_id = p.post_id 
+                JOIN tag_posts t ON p.post_id = t.post_id 
                 WHERE tag LIKE $searchword;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
@@ -452,7 +453,7 @@ function searchPostsByZagAndAuthor($searchword) {
         $searchword = '%' . $searchword . '%';
         $searchword = $db->quote($searchword);
         $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag 
+                a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
                 FROM posts p 
                 JOIN users u ON p.user_id = u.user_id 
                 JOIN tag_posts t ON p.post_id = t.post_id 
@@ -465,7 +466,7 @@ function searchPostsByZagAndAuthor($searchword) {
             }
         }
         $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag 
+                a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
                 FROM posts p 
                 JOIN users u ON p.user_id = u.user_id 
                 JOIN tag_posts t ON p.post_id = t.post_id 
@@ -490,7 +491,7 @@ function searchPostsByContent($searchwords) {
         $searchwords = '%' . $searchwords . '%';
         $searchwords = $db->quote($searchwords);
         $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                a.rating, a.count_comments, a.count_ratings,, u.fio as author, t.tag 
+                a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
                 FROM posts p 
                 JOIN users u ON p.user_id = u.user_id 
                 JOIN tag_posts t ON p.post_id = t.post_id 
@@ -534,8 +535,9 @@ function getCommentsByPostId($postId) {
         $postId = clearInt($postId);
         $sql = "SELECT c.comment_id, c.post_id, c.user_id, c.date_time, 
                 c.content, c.rating, u.fio as author
-                FROM comments c JOIN users u 
-                ON u.user_id = c.user_id WHERE c.post_id = $postId
+                FROM comments c 
+                JOIN users u ON u.user_id = c.user_id 
+                WHERE c.post_id = $postId 
                 ORDER BY c.date_time DESC";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
@@ -580,8 +582,9 @@ function getCommentsByUserId($userId) {
     try {
         
         $sql = "SELECT c.comment_id, c.post_id, c.date_time, c.content, c.user_id,
-                c.rating, u.fio as author FROM comments c 
-                JOIN users u ON u.user_id = c.user_id 
+                c.rating, u.fio as author 
+                FROM comments c 
+                JOIN users u USING(user_id) 
                 WHERE c.user_id = $userId;";// LIMIT 30
         $stmt = $db->query($sql);
         if ($stmt != false) {
@@ -671,7 +674,8 @@ function getLikedPostsByUserId($userId) {
     try {
         
         $sql = "SELECT r.post_id, p.title, r.user_id, p.date_time, p.content, 
-                a.rating, a.count_comments, a.count_ratings,, u.fio as author FROM rating_posts r 
+                a.rating, a.count_comments, a.count_ratings, u.fio as author 
+                FROM rating_posts r 
                 JOIN posts p ON p.post_id = r.post_id 
                 JOIN users u ON u.user_id = r.user_id 
                 JOIN additional_info_posts a ON a.post_id = p.post_id 
@@ -829,8 +833,8 @@ function toUnsubscribeUser($userIdWantSubscribe, $userId) {
         $userIdWantSubscribe = $db->quote($userIdWantSubscribe);
         
 
-        $sql = "DELETE FROM subscriptions WHERE 
-                user_id_want_subscribe = $userIdWantSubscribe 
+        $sql = "DELETE FROM subscriptions 
+                WHERE user_id_want_subscribe = $userIdWantSubscribe 
                 AND user_id = $userId;";
         if (!$db->exec($sql)) {
             return false;
@@ -847,8 +851,8 @@ function isSubscribedUser($userIdWantSubscribe, $userId){
         $userIdWantSubscribe = clearInt($userIdWantSubscribe);
         $userIdWantSubscribe = $db->quote($userIdWantSubscribe);
         
-        $sql = "SELECT user_id FROM subscriptions WHERE 
-                user_id_want_subscribe = $userIdWantSubscribe 
+        $sql = "SELECT user_id FROM subscriptions 
+                WHERE user_id_want_subscribe = $userIdWantSubscribe 
                 AND user_id = $userId;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
