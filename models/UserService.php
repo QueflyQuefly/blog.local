@@ -1,12 +1,13 @@
 <?php
-require 'GetConnectionToDb.php';
-require 'functions.php';
+spl_autoload_register(function ($class) {
+    require "$class.php";
+});
 
 class UserService {
     public $error;
     private $_db;
     public function __construct() {
-        $this->_db = GetConnectionToDb::getInstance();
+        $this->_db = DbService::getInstance();
     }
     public function getUserIdByEmail($email) {
         $id = null;

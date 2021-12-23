@@ -1,6 +1,6 @@
 <?php
 
-class getConnectionToDb {
+class DbService {
     private static $_instance;
     private static $_db;
     public $error;
@@ -112,8 +112,6 @@ class getConnectionToDb {
                 if (!self::$_db->exec($sql)) {
                     echo $sql;
                     echo $this->error = "База данных не создана";
-                } else {
-                    return self::$_db;
                 }
             } catch(PDOException $e) {
                 echo $this->error = $e->getMessage();

@@ -1,23 +1,38 @@
 <?php
 $startTime = microtime(true);
 spl_autoload_register(function ($class) {
-    $pathToControllers = 'controllers' . DIRECTORY_SEPARATOR;
-    require $pathToControllers . $class . '.php';
+    if (strpos($class, 'Controller')) {
+        $pathToClass = 'controllers' . DIRECTORY_SEPARATOR;
+    }
+    if (strpos($class, 'Service')) {
+        $pathToClass = 'models' . DIRECTORY_SEPARATOR;
+    }
+    require $pathToClass . $class . '.php';
 });
+
 $pageTitle = 'Главная - просто Блог';
 $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
 $postController = new PostController;
 $posts = $postController->getIndexPosts(10);
 $moreTalkedPosts =  $postController->getmoreTalkedPosts(3);
 $year = date("Y", time());
-$postLayout = file_get_contents("layouts/post.layout.php");
+$sessionUserId = FrontController::$sessionUserId;
+$isSuperuser = FrontController::$isSuperuser;
+
+if (isset($_GET['deletePostById'])) {
+    $postController->deletePostById($_GET['deletePostById']);
+}
+if (isset($_GET['exit'])) {
+    $postController->exitUser();
+}
 
 require "layouts/head.layout.php";
 require "layouts/menu.layout.php";
 require "layouts/startbody.layout.php";
 
 if (empty($posts)) {
-        echo "<p class='center'>Нет постов для отображения</p>";    
+        echo "\n<p class='center'>Нет постов для отображения</p>\n";
+        echo $isSuperuser, $sessionUserId;  
 } else {
     foreach ($posts as $key => $post) {
         $class = 'viewpost';
@@ -27,10 +42,10 @@ if (empty($posts)) {
         $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         include 'layouts/post.layout.php';
         }
-    echo "<p class='center'><a class='submit' href='posts.php'>Посмотреть ещё</a></p>";
+    echo "\n<p class='center'><a class='submit' href='posts.php'>Посмотреть ещё</a></p>\n";
     }
     if (!empty($moreTalkedPosts)) {
-        echo "<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>";
+        echo "\n<div class='searchdescription'><div class='singleposttext'>Самые обсуждаемые посты за неделю	&darr;&darr;&darr;</div></div>\n";
         foreach ($moreTalkedPosts as $post) {
             $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
             $class = 'viewpost';

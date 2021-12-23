@@ -3,13 +3,11 @@ $pathToPostService = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTO
 require $pathToPostService;
 require 'FrontController.php';
 class PostController {
-    public $sessionUserId;
-    private $isSuperuser, $postService, $frontController;
+    private $isSuperuser, $postService;
     public function __construct(){
 
         $this->postService = new PostService();
-        $this->frontController = new FrontController();
-        $this->isSuperuser = $this->frontController->isSuperuser;
+        $this->isSuperuser = FrontController::$isSuperuser;
     }
     public function getIndexPosts($numberOfPosts) {
         $posts = $this->postService->getPostsByNumber($numberOfPosts);
@@ -31,15 +29,9 @@ class PostController {
     public function exitUser () {
         $_SESSION['user_id'] = false;
         setcookie('user_id', '0', 1);
+        unset(FrontController::$isSuperuser);
+        unset(FrontController::$sessionUserId);
         header("Location: /");
     }
 }
-
-if (isset($_GET['deletePostById'])) {
-
-}
-if (isset($_GET['exit'])) {
-
-}
-
 ?>
