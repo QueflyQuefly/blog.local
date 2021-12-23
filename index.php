@@ -16,8 +16,9 @@ $postController = new PostController;
 $posts = $postController->getIndexPosts(10);
 $moreTalkedPosts =  $postController->getmoreTalkedPosts(3);
 $year = date("Y", time());
-$sessionUserId = FrontController::$sessionUserId;
-$isSuperuser = FrontController::$isSuperuser;
+$frontController = new FrontController();
+$sessionUserId = $frontController->sessionUserId;
+$isSuperuser = $frontController->isSuperuser;
 
 if (isset($_GET['deletePostById'])) {
     $postController->deletePostById($_GET['deletePostById']);
@@ -31,8 +32,7 @@ require "layouts/menu.layout.php";
 require "layouts/startbody.layout.php";
 
 if (empty($posts)) {
-        echo "\n<p class='center'>Нет постов для отображения</p>\n";
-        echo $isSuperuser, $sessionUserId;  
+        echo "\n<p class='center'>Нет постов для отображения</p>\n";  
 } else {
     foreach ($posts as $key => $post) {
         $class = 'viewpost';

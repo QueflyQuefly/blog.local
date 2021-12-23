@@ -18,7 +18,7 @@
             if (!empty($isSuperuser)) {
         ?>
             <object>
-                <a class='link' href='posts.php?deletePostById=<?=  $post['post_id']  ?>'>
+                <a class='link' href='index.php?deletePostById=<?=  $post['post_id']  ?>'>
                     Удалить пост с ID = <?=  $post['post_id']  ?>
                 </a>
             </object>
