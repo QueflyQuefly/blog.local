@@ -1,7 +1,7 @@
 #404 Страница не найдена
-ErrorDocument 404 http://blog.local/index.php
+#ErrorDocument 404 http://blog.local/index.php
 #500 Внутренняя ошибка сервера
-ErrorDocument 500 http://blog.local/index.php
+#ErrorDocument 500 http://blog.local/index.php
 Options -Indexes
 <FilesMatch "\.(jpg|css|jpeg|png|gif|swf)$">
     Header set Cache-Control "max-age=604800, public"

@@ -1,7 +1,7 @@
 <?php
 
 class ViewPosts {
-    private $posts, $pathToLayoutPost;
+    private $pathToLayoutPost;
     public function __construct() {
         $this->pathToLayoutPost = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR . 'post.layout.php';
     }

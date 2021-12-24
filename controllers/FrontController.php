@@ -12,17 +12,28 @@ function clearStr($str) {
 
 class FrontController {
     public $sessionUserId, $isSuperuser;
-    private $userService, $postController, $request;
+    private $userService, $postController;
 
-    public function __construct($request) {
+    public function __construct($request_uri, $_request) {
         $this->postController = new PostController();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
         header("Cache-Control: must-revalidate");
+        if (empty($request)) {
+            $pageTitle = 'Главная - просто Блог';
+            $pageDescription = 'Наилучший источник информации по теме "Путешествия"';            
+            
+            require "layouts/head.layout.php";
+            require "layouts/menu.layout.php";
+            require "layouts/startbody.layout.php";
+            $this->postController->showLastPosts(10);
+            $this->postController->showMoreTalkedPosts(3);
+            require "layouts/endbody.layout.php";
+        }
         if (!empty($request)) {
             if (isset($request['deletePostById'])) {
-                $this->postController->deletePostById($request['deletePostById']);
+                $this->deletePostById($request['deletePostById']);
             }
             if (isset($request['exit'])) {
                 $this->exitUser();
@@ -46,6 +57,9 @@ class FrontController {
         } else {
             return false;
         }
+    }
+    public function deletePostById ($postId) {
+        $this->postController->deletePostById($postId);
     }
     public function exitUser () {
         $_SESSION['user_id'] = false;
