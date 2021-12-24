@@ -5,12 +5,11 @@ spl_autoload_register(function ($class) {
 
 class PostService {
     public $error;
-    private $_db, $userService;
+    private $_db;
     public function __construct() {
         $this->_db = DbService::getInstance();
-        $userService = new UserService();
     }
-    public function getPostsByNumber($numberOfPosts, $lessThanMaxId = 0) {
+    public function getLastPosts($numberOfPosts, $lessThanMaxId = 0) {
         $posts = [];
         try {
             $numberOfPosts = clearInt($numberOfPosts);
@@ -159,8 +158,6 @@ class PostService {
         try {
             $date = time();
             $titleQuote = $this->_db->quote($title);
-            
-            $fio = $this->userService->getUserInfoById($userId, 'fio');
             $content = $this->_db->quote($content);
             $rating = 0;
             
@@ -186,8 +183,7 @@ class PostService {
             foreach ($tags as $tag) {
                 $this->addTagsToPost($tag, $lastPostId);
             }
-    
-            $sql = "SELECT s.user_id_want_subscribe, u.fio, u.email
+            $sql = "SELECT s.user_id_want_subscribe, u.email
                     FROM subscriptions s 
                     JOIN users u ON u.user_id = s.user_id_want_subscribe
                     WHERE s.user_id = $userId";
@@ -195,8 +191,9 @@ class PostService {
             if ($stmt != false) {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $toEmail = $result['email'];
-                    $fio = $result['fio'];
                     $title = 'Prosto Blog';
+                    $userService = new UserService();
+                    $fio = $userService->getUserInfoById($userId, 'fio');
                     $message = "
                         <h2>$fio опубликовал новый пост:</h2> 
                         <p style='font-size:13pt;'>$title -
@@ -205,8 +202,8 @@ class PostService {
                         <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>Отписаться</a>
                         <p style='font-size:10pt;'>Необходимо прежде <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>войти</a></p>
                     ";
-    
-                    $this->sendMail($toEmail, $title, $message);
+                    $mailService = SendMailService::getInstance();
+                    $mailService->sendMail($toEmail, $title, $message);
                 }
             }
         } catch (PDOException $e) {
@@ -308,24 +305,9 @@ class PostService {
                 return false;
             }
         } catch (PDOException $e) {
-            $error = $e->getMessage();
+            $this->error = $e->getMessage();
         }
         return true;
-    }
-    public function sendMail($toEmail, $title, $message) {
-        require 'sendmail.php';
-    
-        $mail = getConfiguredMail(); //function from sendmail.php
-        $mail->addAddress($toEmail, 'Prosto Blog');
-        $mail->Subject = $title;
-        $mail->msgHTML($message);
-        //$mail->AltBody = 'This is a plain-text message body';
-        //$mail->addAttachment('images/phpmailer_mini.png');
-        if (!$mail->send()) {
-            return false;
-        } else {
-            return true;
-        }
     }
     public function deletePostById($id) {
         try {  

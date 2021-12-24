@@ -145,6 +145,10 @@ while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $results[] = $result;
 }
 var_dump($results); */
+
+/* 
+$arr = json_encode(array('email' => 'prostoblog.local@gmail.com', 'password' => '1Artaxerx2##'));
+file_put_contents('data.json', $arr); */
 $numberOfPosts = 10;
 $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
         a.rating, a.count_comments, a.count_ratings,

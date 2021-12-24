@@ -1,36 +1,39 @@
 <?php
-$pathToPostService = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'PostService.php';
-require $pathToPostService;
-require 'FrontController.php';
-class PostController {
-    private $isSuperuser, $postService, $frontController;
-    public function __construct(){
+spl_autoload_register(function ($class) {
+    if (strpos($class, 'Controller')) {
+        $pathToClass = '';
+    }
+    if (strpos($class, 'Service')) {
+        $pathToClass = 'models' . DIRECTORY_SEPARATOR;
+    }
+    if (strpos($class, 'View')) {
+        $pathToClass = 'viewes' . DIRECTORY_SEPARATOR;
+    }
+    require_once $pathToClass . $class . '.php';
+});
 
+
+class PostController {
+    private $postService, $viewPosts;
+    public function __construct(){
         $this->postService = new PostService();
-        $this->frontController = new FrontController();
-        $this->isSuperuser = $this->frontController->isSuperuser;
+        $this->viewPosts = new ViewPosts();
     }
-    public function getIndexPosts($numberOfPosts) {
-        $posts = $this->postService->getPostsByNumber($numberOfPosts);
-        return $posts;
+    public function showLastPosts($numberOfPosts) {
+        $posts = $this->postService->getLastPosts($numberOfPosts);
+        return $this->viewPosts->renderPosts($posts);
     }
-    public function getMoreTalkedPosts($numberOfPosts) {
+    public function showMoreTalkedPosts($numberOfPosts) {
         $moreTalkedPosts = $this->postService->getMoreTalkedPosts($numberOfPosts);
-        return $moreTalkedPosts;
+        return $this->viewPosts->renderMoreTalkedPosts($moreTalkedPosts);
     }
     public function deletePostById($id) {
         $deletePostId = clearInt($id);
-        if (!empty($this->isSuperuser)) {
-            if ($deletePostId !== '') {
-                $this->postService->deletePostById($deletePostId);
-                header("Location: /");
-            }
+        if ($deletePostId !== '') {
+            $this->postService->deletePostById($deletePostId);
+            header("Location: /");
         }
     }
-    public function exitUser () {
-        $_SESSION['user_id'] = false;
-        setcookie('user_id', '0', 1);
-        header("Location: /");
-    }
 }
+//
 ?>

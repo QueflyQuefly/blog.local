@@ -15,7 +15,7 @@
         ?>  
         </p>
         <?php
-            if (!empty($isSuperuser)) {
+            if (!empty($frontController->isSuperuser)) {
         ?>
             <object>
                 <a class='link' href='index.php?deletePostById=<?=  $post['post_id']  ?>'>
