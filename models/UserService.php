@@ -70,7 +70,7 @@ class UserService {
     }
     public function addUser($email, $fio, $password, $rights = false) {
         try {
-            if (!isEmailUnique($email)) {
+            if (!$this->isEmailUnique($email)) {
                 return false;
             }
             if ($rights === RIGHTS_SUPERUSER) {
@@ -115,7 +115,7 @@ class UserService {
             
             $unchangedEmail = $this->getUserInfoById($userId, 'email');
             if ($unchangedEmail != $email) {
-                if (!isEmailUnique($email)) {
+                if (!$this->isEmailUnique($email)) {
                     return false;
                 }
             }

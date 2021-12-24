@@ -5,9 +5,10 @@ spl_autoload_register(function ($class) {
 
 class PostService {
     public $error;
-    private $_db;
+    private $_db, $userService;
     public function __construct() {
         $this->_db = DbService::getInstance();
+        $userService = new UserService();
     }
     public function getPostsByNumber($numberOfPosts, $lessThanMaxId = 0) {
         $posts = [];
@@ -43,32 +44,27 @@ class PostService {
         }
         return $posts;
     }
-    public function getPostForViewById($postId) {
-        $post = [];
+    public function getPostsByUserId($user_id) {
+        $posts = [];
         try {
-            $postId = clearInt($postId);
-            $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
-                    a.rating, a.count_comments, a.count_ratings, u.fio as author 
-                    FROM posts p 
-                    JOIN users u ON p.user_id = u.user_id 
+            $posts = [];
+            $user_id = $this->_db->quote($user_id);
+            $sql = "SELECT p.post_id, p.title, p.date_time, 
+                    p.content, a.rating, a.count_comments, a.count_ratings, u.fio as author
+                    FROM posts p JOIN users u ON p.user_id = u.user_id 
                     JOIN additional_info_posts a ON a.post_id = p.post_id
-                    WHERE p.post_id = $postId;";
+                    WHERE p.user_id = $user_id;";
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
-                $post = $stmt->fetch(PDO::FETCH_ASSOC);
+                while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
+                    $posts[] = $post;
+                }
             }
-            if (!empty($post)) {
-                $post['content'] = str_replace("<br />
-    <br />","</p>\n<p>", nl2br($post['content']));
-                $regex = '/#(\w+)/um';
-                $post['content'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['content']);
-                $post['title'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['title']);
-                $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
-            }
-        } catch (PDOException $e) {
+        } catch(PDOException $e) {
             $this->error = $e->getMessage();
         }
-        return $post;
+        return $posts;
     }
     public function getMoreTalkedPosts($numberOfPosts = 3) {
         $posts = [];
@@ -114,12 +110,57 @@ class PostService {
         }
         return $posts;
     }
+    public function getPostForViewById($postId) {
+        $post = [];
+        try {
+            $postId = clearInt($postId);
+            $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author 
+                    FROM posts p 
+                    JOIN users u ON p.user_id = u.user_id 
+                    JOIN additional_info_posts a ON a.post_id = p.post_id
+                    WHERE p.post_id = $postId;";
+            $stmt = $this->_db->query($sql);
+            if ($stmt != false) {
+                $post = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+            if (!empty($post)) {
+                $post['content'] = str_replace("<br />
+<br />","</p>\n<p>", nl2br($post['content']));
+                $regex = '/#(\w+)/um';
+                $post['content'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['content']);
+                $post['title'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['title']);
+                $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
+            }
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+        }
+        return $post;
+    }
+    public function getTagsToPostById($postId) {
+        $tags = [];
+        try {
+            $postId = clearInt($postId);
+    
+            $sql = "SELECT tag FROM tag_posts 
+                    WHERE post_id = $postId;";
+            $stmt = $this->_db->query($sql);
+            if ($stmt != false) {
+                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $tags[] = $result;
+                }
+            }
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+        }
+        return $tags;
+    }
     public function addPost($title, $userId, $content) {
         try {
             $date = time();
             $titleQuote = $this->_db->quote($title);
             
-            $fio = getUserInfoById($userId, 'fio');
+            $fio = $this->userService->getUserInfoById($userId, 'fio');
             $content = $this->_db->quote($content);
             $rating = 0;
             
@@ -143,7 +184,7 @@ class PostService {
     
             $tags = $tags[0];
             foreach ($tags as $tag) {
-                addTagsToPost($tag, $lastPostId);
+                $this->addTagsToPost($tag, $lastPostId);
             }
     
             $sql = "SELECT s.user_id_want_subscribe, u.fio, u.email
@@ -165,35 +206,13 @@ class PostService {
                         <p style='font-size:10pt;'>Необходимо прежде <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>войти</a></p>
                     ";
     
-                    sendMail($toEmail, $title, $message);
+                    $this->sendMail($toEmail, $title, $message);
                 }
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
         }
         return true;
-    }
-    public function getPostsByUserId($user_id) {
-        $posts = [];
-        try {
-            $posts = [];
-            $user_id = $this->_db->quote($user_id);
-            $sql = "SELECT p.post_id, p.title, p.date_time, 
-                    p.content, a.rating, a.count_comments, a.count_ratings, u.fio as author
-                    FROM posts p JOIN users u ON p.user_id = u.user_id 
-                    JOIN additional_info_posts a ON a.post_id = p.post_id
-                    WHERE p.user_id = $user_id;";
-            $stmt = $this->_db->query($sql);
-            if ($stmt != false) {
-                while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
-                    $posts[] = $post;
-                }
-            }
-        } catch(PDOException $e) {
-            $this->error = $e->getMessage();
-        }
-        return $posts;
     }
     public function searchPostsByTag($searchword) {
         $results = [];
@@ -278,6 +297,35 @@ class PostService {
             $this->error = $e->getMessage();
         }
         return $results;
+    }
+    public function addTagsToPost($tag, $postId) {
+        try {
+            $tag = $this->_db->quote($tag);
+            $postId = clearInt($postId);
+            $sql = "INSERT INTO tag_posts (tag, post_id) 
+                    VALUES($tag, $postId);";
+            if (!$this->_db->exec($sql)) {
+                return false;
+            }
+        } catch (PDOException $e) {
+            $error = $e->getMessage();
+        }
+        return true;
+    }
+    public function sendMail($toEmail, $title, $message) {
+        require 'sendmail.php';
+    
+        $mail = getConfiguredMail(); //function from sendmail.php
+        $mail->addAddress($toEmail, 'Prosto Blog');
+        $mail->Subject = $title;
+        $mail->msgHTML($message);
+        //$mail->AltBody = 'This is a plain-text message body';
+        //$mail->addAttachment('images/phpmailer_mini.png');
+        if (!$mail->send()) {
+            return false;
+        } else {
+            return true;
+        }
     }
     public function deletePostById($id) {
         try {  
