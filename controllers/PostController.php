@@ -1,31 +1,18 @@
 <?php
-spl_autoload_register(function ($class) {
-    if (strpos($class, 'Controller')) {
-        $pathToClass = '';
-    }
-    if (strpos($class, 'Service')) {
-        $pathToClass = 'models' . DIRECTORY_SEPARATOR;
-    }
-    if (strpos($class, 'View')) {
-        $pathToClass = 'viewes' . DIRECTORY_SEPARATOR;
-    }
-    require_once $pathToClass . $class . '.php';
-});
-
 
 class PostController {
     private $postService, $viewPosts;
-    public function __construct(){
-        $this->postService = new PostService();
-        $this->viewPosts = new ViewPosts();
+    public function __construct(PostService $postService, ViewPosts $viewPosts){
+        $this->postService = $postService;
+        $this->viewPosts = $viewPosts;
     }
-    public function showLastPosts($numberOfPosts) {
+    public function showLastPosts($numberOfPosts, $isSuperuser) {
         $posts = $this->postService->getLastPosts($numberOfPosts);
-        return $this->viewPosts->renderPosts($posts);
+        return $this->viewPosts->renderPosts($posts, $isSuperuser);
     }
-    public function showMoreTalkedPosts($numberOfPosts) {
+    public function showMoreTalkedPosts($numberOfPosts, $isSuperuser) {
         $moreTalkedPosts = $this->postService->getMoreTalkedPosts($numberOfPosts);
-        return $this->viewPosts->renderMoreTalkedPosts($moreTalkedPosts);
+        return $this->viewPosts->renderMoreTalkedPosts($moreTalkedPosts, $isSuperuser);
     }
     public function deletePostById($id) {
         $deletePostId = clearInt($id);
@@ -35,5 +22,3 @@ class PostController {
         }
     }
 }
-//
-?>

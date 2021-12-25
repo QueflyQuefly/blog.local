@@ -3,7 +3,7 @@ spl_autoload_register(function ($class) {
     require "$class.php";
 });
 
-class CabinetService {
+class SubscribeService {
     public $error;
     private $_db;
     public function __construct() {

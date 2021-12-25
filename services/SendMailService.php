@@ -43,6 +43,9 @@ class SendMailService {
             return true;
         }
     }
+    private function __clone(){
+        throw New Exception('It is forbidden');
+    }
 }
 
 

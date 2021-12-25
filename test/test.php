@@ -1,8 +1,8 @@
 <?php
 session_start();
-$file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
-require_once $file_functions;
-
+/* $file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
+require_once $file_functions; */
+require_once '../FactoryMethod.php';
 
 /* $ch = curl_init();
 
@@ -149,7 +149,7 @@ var_dump($results); */
 /* 
 $arr = json_encode(array('email' => 'prostoblog.local@gmail.com', 'password' => '1Artaxerx2##'));
 file_put_contents('data.json', $arr); */
-$numberOfPosts = 10;
+/* $numberOfPosts = 10;
 $sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
         a.rating, a.count_comments, a.count_ratings,
         u.fio as author 
@@ -163,4 +163,37 @@ if ($stmt != false) {
         $posts[] = $result;
     }
 }
-var_dump($posts);
+var_dump($posts); */
+/* 
+for ($i = 0; $i <= 2; $i++) {
+    $posts .= include '../layouts/post.layout.php'; 
+}
+echo $posts; */
+
+$factory = new FactoryMethod();
+$v = $factory->getPostController();
+$posts = array(
+    0 => array(
+            'post_id' => 267,
+            'title' => 1,
+            'user_id' => 1,
+            'date_time' => 1640351274,
+            'content' => 1,
+            'rating' => 0.0,
+            'count_comments' => 1,
+            'count_ratings' => 0,
+            'author' => 'Администратор'
+    ),
+    1 => array(
+        'post_id' => 267,
+        'title' => 1,
+        'user_id' => 1,
+        'date_time' => 1640351274,
+        'content' => 1,
+        'rating' => 0.0,
+        'count_comments' => 1,
+        'count_ratings' => 0,
+        'author' => 'Администратор'
+    )
+);
+$v->showLastPosts(10, true);
