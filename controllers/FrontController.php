@@ -5,7 +5,7 @@ class FrontController {
     public $sessionUserId = false, $isSuperuser = false;
     private $userService, $postController;
 
-    public function __construct($request_uri, $_request, FactoryMethod $factoryMethod) {
+    public function __construct($request_uri, $_request, $startTime, FactoryMethod $factoryMethod) {
         $this->postController = $factoryMethod->getPostController();
         $this->userService = $factoryMethod->getUserService();
 
