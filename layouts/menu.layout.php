@@ -1,8 +1,9 @@
+
 <nav>
     <div class='top'>
         <div id="logo">
             <a class="logo" title="На главную" href='/'>
-                <img id='imglogo' src='images/logo.jpg' alt='Лого'>
+                <img id='imglogo' src='/images/logo.jpg' alt='Лого'>
                 <div id='namelogo'>Просто Блог</div>
             </a>
         </div>

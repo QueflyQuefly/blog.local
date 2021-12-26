@@ -2,10 +2,23 @@
 #ErrorDocument 404 http://blog.local/index.php
 #500 Внутренняя ошибка сервера
 #ErrorDocument 500 http://blog.local/index.php
-Options -Indexes
 <FilesMatch "\.(jpg|css|jpeg|png|gif|swf)$">
+    FallbackResource disabled 
     Header set Cache-Control "max-age=604800, public"
 </FilesMatch>
+Options -Indexes
+Require all granted
+#DirectoryIndex disabled
+DirectorySlash Off
+FallbackResource /index.php
 AddDefaultCharset utf-8
+#<Directory "\images">
+#    FallbackResource disabled  
+#    Header set Cache-Control "max-age=31536000, public"
+#</Directory>
+#<Directory>
+#    FallbackResource disabled  
+#    Header set Cache-Control "max-age=31536000, public"
+#</Directory>
 php_flag display_errors on
 php_value error_reporting 2047

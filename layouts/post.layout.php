@@ -9,7 +9,7 @@
             <?= $linkToDelete ?>
         </div>
         <div class='postimage'>
-            <img src='images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка'>
+            <img src='http://blog.local/images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка'>
         </div>
     </a>
 </div>

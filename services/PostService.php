@@ -139,7 +139,7 @@ class PostService {
         }
         return $post;
     }
-    public function getTagsToPostById($postId) {
+    public function getTagsByPostId($postId) {
         $tags = [];
         try {
             $postId = clearInt($postId);

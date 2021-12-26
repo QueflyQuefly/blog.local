@@ -22,6 +22,7 @@ function clearStr($str) {
 class FactoryMethod {
     private $postController, $dbService, $commentService, $postService, $ratingPostService;
     private $ratingCommentService, $sendMailService, $subscribeService, $userService, $viewPosts;
+    private $commentController, $viewComments;
 
     public function getDbService() {
         if (is_null($this->dbService)) {
@@ -82,5 +83,17 @@ class FactoryMethod {
             $this->viewPosts = new ViewPosts();
         }
         return $this->viewPosts;
+    }
+    public function getCommentController() {
+        if (is_null($this->commentController)) {
+            $this->commentController = new CommentController($this->getCommentService(), $this->getViewComments());
+        }
+        return $this->commentController;
+    }
+    public function getViewComments() {
+        if (is_null($this->viewComments)) {
+            $this->viewComments = new ViewComments();
+        }
+        return $this->viewComments;
     }
 }
