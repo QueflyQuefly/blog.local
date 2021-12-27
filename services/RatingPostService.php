@@ -43,7 +43,7 @@ class RatingPostService {
         }
         return true;
     }
-    public function isUserChangesPostRating($userId, $postId){
+    public function isUserChangedPostRating($userId, $postId){
         try {
             $userId = clearInt($userId);
             $postId = clearInt($postId);

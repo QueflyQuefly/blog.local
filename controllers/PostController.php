@@ -16,6 +16,9 @@ class PostController {
     }
     public function showPost($postId, $isSuperuser) {
         $post = $this->postService->getPostForViewById($postId);
+        if (!$post) {
+            header("Location: /");
+        }
         return $this->viewPosts->renderPost($post, $isSuperuser);
     }
     public function showTagsByPostId($postId) {
@@ -25,8 +28,8 @@ class PostController {
     public function deletePostById($id) {
         $deletePostId = clearInt($id);
         if ($deletePostId !== '') {
-            $this->postService->deletePostById($deletePostId);
             header("Location: /");
+            return $this->postService->deletePostById($deletePostId);
         }
     }
 }

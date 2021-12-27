@@ -20,9 +20,9 @@ function clearStr($str) {
 }
 
 class FactoryMethod {
-    private $postController, $dbService, $commentService, $postService, $ratingPostService;
-    private $ratingCommentService, $sendMailService, $subscribeService, $userService, $viewPosts;
-    private $commentController, $viewComments;
+    private $dbService, $commentService, $postService, $ratingPostService;
+    private $ratingCommentService, $sendMailService, $subscribeService, $userService;
+    private $postController, $commentController, $ratingController, $viewComments, $viewPosts;
 
     public function getDbService() {
         if (is_null($this->dbService)) {
@@ -78,17 +78,23 @@ class FactoryMethod {
         }
         return $this->postController;
     }
-    public function getViewPosts() {
-        if (is_null($this->viewPosts)) {
-            $this->viewPosts = new ViewPosts();
-        }
-        return $this->viewPosts;
-    }
     public function getCommentController() {
         if (is_null($this->commentController)) {
             $this->commentController = new CommentController($this->getCommentService(), $this->getViewComments());
         }
         return $this->commentController;
+    }
+    public function getRatingController() {
+        if (is_null($this->ratingController)) {
+            $this->ratingController = new RatingController($this->getRatingPostService(), $this->getRatingCommentService());
+        }
+        return $this->ratingController;
+    }
+    public function getViewPosts() {
+        if (is_null($this->viewPosts)) {
+            $this->viewPosts = new ViewPosts();
+        }
+        return $this->viewPosts;
     }
     public function getViewComments() {
         if (is_null($this->viewComments)) {

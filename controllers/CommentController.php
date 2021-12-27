@@ -6,19 +6,27 @@ class CommentController {
         $this->commentService = $commentService;
         $this->viewComments = $viewComments;
     }
-    public function showCommentsByPostId($numberOfPosts, $isSuperuser) {
-        $posts = $this->commentService->getCommentsByPostId($numberOfPosts);
-        return $this->viewComments->renderComments($posts, $isSuperuser);
+    public function showCommentsByPostId($postId, $isSuperuser) {
+        $comments = $this->commentService->getCommentsByPostId($postId);
+        return $this->viewComments->renderComments($comments, $isSuperuser);
     }
-    public function showCommentsByUserId($numberOfPosts, $isSuperuser) {
-        $moreTalkedPosts = $this->commentService->getCommentsByUserId($numberOfPosts);
-        return $this->viewComments->renderComments($moreTalkedPosts, $isSuperuser);
+    public function showCommentsByUserId($userId, $isSuperuser) {
+        $comments = $this->commentService->getCommentsByUserId($userId);
+        return $this->viewComments->renderComments($comments, $isSuperuser);
     }
     public function deleteCommentById($id) {
-        $deletePostId = clearInt($id);
-        if ($deletePostId !== '') {
-            $this->commentService->deleteCommentById($deletePostId);
-            header("Location: /");
+        $deleteCommentId = clearInt($id);
+        if ($deleteCommentId !== '') {
+            header("Refresh:0");
+            return $this->commentService->deleteCommentById($deleteCommentId);
         }
+        return false;
+    }
+    public function addComment($postId, $userId, $commentContent) {
+        if ($commentContent !== '') {
+            header("Refresh:0");
+            return $this->commentService->addComment($postId, $userId, $commentContent);
+        }
+        return false;
     }
 }

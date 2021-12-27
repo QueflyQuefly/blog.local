@@ -30,11 +30,12 @@ class CommentService {
         }
         return $comments;
     }
-    function insertComments($postId, $commentAuthorId, $commentDate, $commentContent, $rating) {
+    function addComment($postId, $commentAuthorId, $commentContent, $commentDate = 0, $rating = 0) {
         try {
             $authorId = clearInt($commentAuthorId);
             $postId = clearInt($postId);
             $commentDate = clearInt($commentDate);
+            $commentDate = $commentDate ?: time();
             $content = clearStr($commentContent);
             $content = $this->_db->quote($content);
             $authorId = $this->_db->quote($authorId);
@@ -80,9 +81,12 @@ class CommentService {
         try {
             /* Удаляю комментарий */
             $sql = "DELETE FROM comments WHERE comment_id = $deleteCommentId;";
-            $this->_db->exec($sql);
+            if ($this->_db->exec($sql)) {
+                return true;
+            }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
         }
+        return false;
     }
 }

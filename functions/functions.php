@@ -717,10 +717,10 @@ function getLikedCommentsByUserId($userId) {
     }
     return $comments;
 }
-function changeCommentRating($rating, $comId, $postId, $userId){
+function changeCommentRating($rating, $commentId, $postId, $userId){
     global $db, $error;
     try {
-        $comId = clearInt($comId);
+        $commentId = clearInt($commentId);
         $postId = clearInt($postId);
         
 
@@ -728,17 +728,17 @@ function changeCommentRating($rating, $comId, $postId, $userId){
 
         if ($rating === 'like') {
             $sql = "INSERT INTO rating_comments (user_id, comment_id, post_id) 
-                    VALUES($userId, $comId, $postId);";
+                    VALUES($userId, $commentId, $postId);";
             $db->exec($sql);
 
-            $sql = "UPDATE comments SET rating = rating+1 WHERE comment_id = $comId;";
+            $sql = "UPDATE comments SET rating = rating+1 WHERE comment_id = $commentId;";
             $db->exec($sql); 
         }
         if ($rating === 'unlike') {
-            $sql = "DELETE FROM rating_comments WHERE comment_id = $comId;";
+            $sql = "DELETE FROM rating_comments WHERE comment_id = $commentId;";
             $db->exec($sql);
 
-            $sql = "UPDATE comments SET rating = rating-1 WHERE comment_id = $comId;";
+            $sql = "UPDATE comments SET rating = rating-1 WHERE comment_id = $commentId;";
             $db->exec($sql); 
         }
         $db->commit();
@@ -749,13 +749,13 @@ function changeCommentRating($rating, $comId, $postId, $userId){
     }
     return true;
 }
-function isUserChangedCommentRating($userId, $comId){
+function isUserChangedCommentRating($userId, $commentId){
     global $db, $error;
     try {
         
 
         $sql = "SELECT user_id FROM rating_comments 
-                WHERE user_id = $userId AND comment_id = $comId;";
+                WHERE user_id = $userId AND comment_id = $commentId;";
         $stmt = $db->query($sql);
         if ($stmt != false) {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);

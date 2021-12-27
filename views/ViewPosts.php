@@ -1,13 +1,13 @@
 <?php
 
 class ViewPosts {
-    private $pathToLayouts, $postsView, $postsMoreTalkedView;
+    private $pathToLayouts, $postsView;
     public function __construct() {
         $this->pathToLayouts = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR ;
     }
     public function renderPosts($posts, $isSuperuser = false) {
         if (empty($posts)) {
-            $this->postsView .= "\n<p class='center'>Нет постов для отображения</p>\n"; 
+            $this->postsView = "\n<p class='center'>Нет постов для отображения</p>\n"; 
         } else {
             foreach ($posts as $key => $post) {
                 $class = 'viewpost';
@@ -31,10 +31,11 @@ class ViewPosts {
                 } else {
                     $linkToDelete = '';
                 }
-                $this->postsView .= include $this->pathToLayouts . 'post.layout.php';
+                include $this->pathToLayouts . 'post.layout.php';
             }
+            echo "\n<p class='center'><a class='submit' href='posts.php'>Посмотреть посты за всё время</a></p>\n";
         }
-        return $this->postsView;
+        echo $this->postsView;
     }
     public function renderMoreTalkedPosts($posts, $isSuperuser = false) {
         if (!empty($posts)) {
@@ -59,24 +60,40 @@ class ViewPosts {
                 } else {
                     $linkToDelete = '';
                 }
-                $this->postsMoreTalkedView .= include $this->pathToLayouts . 'post.layout.php';
+                include $this->pathToLayouts . 'post.layout.php';
             }
         }
-        return $this->postsMoreTalkedView;
     }
-    public function renderPost($post, $isSuperuser = false) {
-        $viewPost = include $this->pathToLayouts . 'viewpost.layout.php';
-        if (!empty($isSuperuser)) {
-            $viewPost .=
-                "<div class='singleposttext'>
-                <object>
-                    <a class='list' href='viewsinglepost.php?viewPostById={$post['post_id']}&deletePostById={$post['post_id']}'>
-                        Удалить пост с ID = {$post['post_id']}
-                    </a>
-                </object><br>
-                </div>";
+    public function renderPost($post, $isSuperuser = false, $isUserChangedRating = false) {
+        if ($post['count_ratings'] == 0) {
+            $post['rating'] = "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
+        } else {
+            $post['rating'] = "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
+                    . ", комментариев: " . $post['count_comments'];
         }
-        $viewPost .= include $this->pathToLayouts . 'addcomments.layout.php';
+        $ratingArea = function () {
+            global $post, $isUserChangedRating;
+            if (empty($isUserChangedRating)) {
+                include $this->pathToLayouts . 'ratingpost.layout.php';
+            } else {
+                echo "<p class='singlepostdate'>Оценка принята</p>";
+            }
+        };
+        if (!empty($isSuperuser)) {
+            $linkToDelete =
+            "   <div class='singleposttext'>
+            <object>
+                <a class='list' href='{$post['post_id']}?deletePostById={$post['post_id']}'>
+                    Удалить пост с ID = {$post['post_id']}
+                </a>
+            </object>
+        </div>";
+        } else {
+            $linkToDelete = '';
+        }
+        include $this->pathToLayouts . 'viewpost.layout.php';
+        
+        include $this->pathToLayouts . 'addcomments.layout.php';
     }
     public function renderTags($tags) {
         $viewTags = "<p class='singlepostcontent'>";

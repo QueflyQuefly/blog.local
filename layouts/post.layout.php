@@ -1,6 +1,6 @@
 
 <div class='<?=  $class  ?>'>
-    <a class='postLink' href='viewsinglepost.php?viewPostById=<?= $post['post_id'] ?>'>
+    <a class='postLink' href='viewpost/<?= $post['post_id'] ?>'>
         <div class='posttext'>
             <p class='posttitle'><?= $post['title'] ?></p>
             <p class='postcontent'><?= $post['content'] ?></p>
