@@ -65,6 +65,8 @@ class ViewPosts {
         }
     }
     public function renderPost($post, $isSuperuser = false, $isUserChangedRating = false) {
+        $this->isUserChangedRating = $isUserChangedRating;
+        $this->post = $post;
         if ($post['count_ratings'] == 0) {
             $post['rating'] = "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
         } else {
@@ -72,8 +74,8 @@ class ViewPosts {
                     . ", комментариев: " . $post['count_comments'];
         }
         $ratingArea = function () {
-            global $post, $isUserChangedRating;
-            if (empty($isUserChangedRating)) {
+            if (empty($this->isUserChangedRating)) {
+                $post = $this->post;
                 include $this->pathToLayouts . 'ratingpost.layout.php';
             } else {
                 echo "<p class='singlepostdate'>Оценка принята</p>";
@@ -94,6 +96,11 @@ class ViewPosts {
         include $this->pathToLayouts . 'viewpost.layout.php';
         
         include $this->pathToLayouts . 'addcomments.layout.php';
+        if ($post['count_comments'] == 0) {
+            echo "<p class='center'>Пока никто не оставил комментарий. Будьте первым!</p>";
+        } else {
+            echo "<p class='center'>Комментарии к посту (всего {$post['count_comments']}):</p>";
+        }
     }
     public function renderTags($tags) {
         $viewTags = "<p class='singlepostcontent'>";

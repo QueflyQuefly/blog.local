@@ -9,5 +9,3 @@
                 </form>
             </div>
         </div>
-        
-        <p class='center'>Комментарии к посту (всего <?= $post['count_comments'] ?>):</p>

@@ -7,13 +7,16 @@ class RatingController {
         $this->ratingCommentService = $ratingCommentService;
     }
     public function changePostRating($userId, $postId, $star) {
-        if (!$this->ratingPostService->isUserChangedPostRating($userId, $postId)) {
+        if (!$this->isUserChangedPostRating($userId, $postId)) {
             if ($star !== '') {
                 header("Refresh:0");
                 return $this->ratingPostService->changePostRating($userId, $postId, $star);
             }
         }
         return false;
+    }
+    public function isUserChangedPostRating($userId, $postId) {
+        return $this->ratingPostService->isUserChangedPostRating($userId, $postId);
     }
     public function changeCommentRating($commentId, $postId, $userId) {
         if (!$this->ratingCommentService->isUserChangedCommentRating($userId, $commentId)) {

@@ -19,7 +19,7 @@ class ViewComments {
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
                     <object>
-                        <a class='menuLink' href='{$comment['post_id']}?deleteCommentById={$comment['comment_id']}'>
+                        <a class='link' href='{$comment['post_id']}?deleteCommentById={$comment['comment_id']}'>
                             Удалить комментарий
                         </a>
                     </object>";

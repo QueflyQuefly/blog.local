@@ -1,8 +1,8 @@
 <?php
 session_start();
-/* $file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
-require_once $file_functions; */
-require_once '../FactoryMethod.php';
+$file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
+require_once $file_functions;
+/* require_once '../FactoryMethod.php'; */
 
 /* $ch = curl_init();
 
@@ -170,19 +170,19 @@ for ($i = 0; $i <= 2; $i++) {
 }
 echo $posts; */
 
-$factory = new FactoryMethod();
+/* $factory = new FactoryMethod();
 $v = $factory->getPostController();
 $posts = array(
     0 => array(
-            'post_id' => 267,
-            'title' => 1,
-            'user_id' => 1,
-            'date_time' => 1640351274,
-            'content' => 1,
-            'rating' => 0.0,
-            'count_comments' => 1,
-            'count_ratings' => 0,
-            'author' => 'Администратор'
+        'post_id' => 267,
+        'title' => 1,
+        'user_id' => 1,
+        'date_time' => 1640351274,
+        'content' => 1,
+        'rating' => 0.0,
+        'count_comments' => 1,
+        'count_ratings' => 0,
+        'author' => 'Администратор'
     ),
     1 => array(
         'post_id' => 267,
@@ -196,4 +196,8 @@ $posts = array(
         'author' => 'Администратор'
     )
 );
-$v->showLastPosts(10, true);
+$v->showLastPosts(10, true); */
+/* $deleteCommentId = 1;
+$sql = "UPDATE additional_info_posts SET count_comments = count_comments-1 
+        WHERE post_id = (SELECT post_id FROM comments WHERE comment_id = $deleteCommentId);";
+$db->exec($sql); */

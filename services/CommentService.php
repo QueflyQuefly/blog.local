@@ -79,12 +79,17 @@ class CommentService {
     function deleteCommentById($deleteCommentId) {
         $deleteCommentId = clearInt($deleteCommentId);
         try {
+            $this->_db->beginTransaction();
+            /* Уменьшаю на 1 количество комментариев у поста, которому принадлежит комментарий */
+            $sql = "UPDATE additional_info_posts SET count_comments = count_comments-1 
+                    WHERE post_id = (SELECT post_id FROM comments WHERE comment_id = $deleteCommentId);";
+            $this->_db->exec($sql);
             /* Удаляю комментарий */
             $sql = "DELETE FROM comments WHERE comment_id = $deleteCommentId;";
-            if ($this->_db->exec($sql)) {
-                return true;
-            }
+            $this->_db->exec($sql);
+            $this->_db->commit();
         } catch (PDOException $e) {
+            $this->_db->rollBack();
             $this->error = $e->getMessage();
         }
         return false;

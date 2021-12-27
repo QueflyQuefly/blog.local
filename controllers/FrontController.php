@@ -2,7 +2,7 @@
 session_start();
 
 class FrontController {
-    public $sessionUserId = false, $isSuperuser = false;
+    public $sessionUserId = false, $isSuperuser = false, $isUserChangedPostRating = false;
     private $userService, $postController, $commentController, $ratingController;
 
     public function __construct($requestUri, $_request, $startTime, FactoryMethod $factoryMethod) {
@@ -32,6 +32,9 @@ class FrontController {
             }
             if (isset($_request['post_id']) && isset($_request['addCommentContent'])) {
                 $this->addComment($_request['post_id'], $_request['addCommentContent']);
+            }
+            if (isset($_request['post_id']) && isset($_request['star'])) {
+                $this->changePostRating($_request['post_id'], $_request['star']);
             }
             if (isset($_request['comment_id_like']) && isset($_request['post_id'])) {
                 $this->changeCommentRating($_request['comment_id_like'], $_request['post_id']);
@@ -65,7 +68,9 @@ class FrontController {
         
         require "layouts/head.layout.php";
         require "layouts/menu.layout.php";
-        $this->postController->showPost($postId, $this->isSuperuser());
+        $this->postController->showPost(
+            $postId, $this->isSuperuser(), $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId)
+        );
         $this->postController->showTagsByPostId($postId);
         $this->commentController->showCommentsByPostId($postId, $this->isSuperuser());
 
@@ -105,6 +110,11 @@ class FrontController {
             $this->postController->deletePostById($postId);
             $uri = stristr($_SERVER['REQUEST_URI'], '?delete', true);
             header("Location: $uri");
+        }
+    }
+    public function changePostRating($postId, $star) {
+        if ($this->getUserId()) {
+            $this->ratingController->changePostRating($this->getUserId(), $postId, $star);
         }
     }
     public function deleteCommentById($commentId) {

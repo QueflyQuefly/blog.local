@@ -1,6 +1,7 @@
 
         <div class="rating-area">
             <form action='<?= $post['post_id'] ?>' method='post'>
+                <input type='hidden' name='post_id' value="<?= $post['post_id'] ?>" >
                 <label class='star' title="Оценка «1»" for='star-1'>&#9734;</label>
                 <input type="submit" id="star-1" name="star" value="1">
 

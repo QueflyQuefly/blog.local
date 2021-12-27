@@ -14,12 +14,12 @@ class PostController {
         $moreTalkedPosts = $this->postService->getMoreTalkedPosts($numberOfPosts);
         return $this->viewPosts->renderMoreTalkedPosts($moreTalkedPosts, $isSuperuser);
     }
-    public function showPost($postId, $isSuperuser) {
+    public function showPost($postId, $isSuperuser, $isUserChangedRating = false) {
         $post = $this->postService->getPostForViewById($postId);
         if (!$post) {
             header("Location: /");
         }
-        return $this->viewPosts->renderPost($post, $isSuperuser);
+        return $this->viewPosts->renderPost($post, $isSuperuser, $isUserChangedRating);
     }
     public function showTagsByPostId($postId) {
         $tags = $this->postService->getTagsByPostId($postId);
