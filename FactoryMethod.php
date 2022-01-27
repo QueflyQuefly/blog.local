@@ -22,7 +22,8 @@ function clearStr($str) {
 class FactoryMethod {
     private $dbService, $commentService, $postService, $ratingPostService;
     private $ratingCommentService, $sendMailService, $subscribeService, $userService;
-    private $postController, $commentController, $ratingController, $viewComments, $viewPosts;
+    private $postController, $commentController, $ratingController, $userController;
+    private $viewComments, $viewPosts, $view404;
 
     public function getDbService() {
         if (is_null($this->dbService)) {
@@ -90,6 +91,12 @@ class FactoryMethod {
         }
         return $this->ratingController;
     }
+    public function getUserController() {
+        if (is_null($this->userController)) {
+            $this->userController = new UserController($this->getUserService());
+        }
+        return $this->userController;
+    }
     public function getViewPosts() {
         if (is_null($this->viewPosts)) {
             $this->viewPosts = new ViewPosts();
@@ -101,5 +108,11 @@ class FactoryMethod {
             $this->viewComments = new ViewComments();
         }
         return $this->viewComments;
+    }
+    public function getView404() {
+        if (is_null($this->view404)) {
+            $this->view404 = new View404();
+        }
+        return $this->view404;
     }
 }

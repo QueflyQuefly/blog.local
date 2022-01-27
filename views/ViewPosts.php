@@ -24,7 +24,7 @@ class ViewPosts {
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
                     <object>
-                    <a class='link' href='index.php?deletePostById={$post['post_id']}'>
+                    <a class='link' href='?deletePostById={$post['post_id']}'>
                         Удалить пост с ID = {$post['post_id']}
                     </a>
                     </object>\n";
@@ -53,7 +53,7 @@ class ViewPosts {
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
                     <object>
-                    <a class='link' href='index.php?deletePostById={$post['post_id']}'>
+                    <a class='link' href='?deletePostById={$post['post_id']}'>
                         Удалить пост с ID = {$post['post_id']}
                     </a>
                     </object>\n";

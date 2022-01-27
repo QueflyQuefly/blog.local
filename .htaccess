@@ -10,7 +10,7 @@ Options -Indexes
 Require all granted
 #DirectoryIndex disabled
 DirectorySlash Off
-FallbackResource /index.php
+FallbackResource /
 AddDefaultCharset utf-8
 php_flag display_errors on
 php_value error_reporting 2047

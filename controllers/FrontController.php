@@ -3,15 +3,16 @@ session_start();
 
 class FrontController {
     public $sessionUserId = false, $isSuperuser = false, $isUserChangedPostRating = false;
-    private $userService, $postController, $commentController, $ratingController;
+    private $userController, $postController, $commentController, $ratingController, $view404;
 
     public function __construct($requestUri, $_request, $startTime, FactoryMethod $factoryMethod) {
         ob_start();
         $this->startTime = $startTime;
-        $this->userService = $factoryMethod->getUserService();
+        $this->userController = $factoryMethod->getUserController();
         $this->postController = $factoryMethod->getPostController();
         $this->commentController = $factoryMethod->getCommentController();
         $this->ratingController = $factoryMethod->getRatingController();
+        $this->view404 = $factoryMethod->getView404();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
@@ -77,33 +78,13 @@ class FrontController {
         require "layouts/endbody.layout.php";
     }
     public function show404() {
-        $pageTitle = 'Главная - просто Блог';
-        $pageDescription = 'Прозошла ошибка 404: информация не найдена';            
-        
-        require "layouts/head.layout.php";
-        require "layouts/menu.layout.php";
-        require "layouts/description.layout.php";
-        echo "<a class='link' href='/'>Вернуться на главную</a>";
-        require "layouts/endbody.layout.php";
+        $this->view404->view($this->sessionUserId, $this->isSuperuser);
     }
     public function getUserId() {
-        if (!$this->sessionUserId) {
-            if (!empty($_SESSION['user_id'])) {
-                $this->sessionUserId = $_SESSION['user_id'];
-            } elseif (!empty($_COOKIE['user_id'])) {
-                $this->sessionUserId = $_COOKIE['user_id'];
-            }
-        }
-        return $this->sessionUserId;
+        return $this->userController->getUserId();
     }
     public function isSuperuser() {
-        if (!$this->isSuperuser) {
-            $userId = $this->getUserId();
-            if (!empty($userId) && $this->userService->getUserInfoById($userId, 'rights') === RIGHTS_SUPERUSER) {
-                $this->isSuperuser = true;
-            }
-        }
-        return $this->isSuperuser;
+        return $this->userController->isSuperuser();
     }
     public function deletePostById($postId) {
         if ($this->isSuperuser()) {
@@ -135,11 +116,6 @@ class FrontController {
         }
     }
     public function exitUser() {
-        if ($this->getUserId()) {
-            $_SESSION['user_id'] = false;
-            setcookie('user_id', '0', 1);
-            $uri = stristr($_SERVER['REQUEST_URI'], '?exit', true);
-            header("Location: $uri");
-        }
+        $this->userController->exitUser();
     }
 }

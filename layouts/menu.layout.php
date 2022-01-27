@@ -10,11 +10,11 @@
                 <div id="menu">
                     <ul class='menuList'>
                         <?php
-                            if (empty($this->getUserId())) {
+                            if (empty($sessionUserId)) {
                                 echo "<li><a class='menuLink' href='login.php'>Войти</a></li>\n";
                             } else {
                                 echo "<li><a class='menuLink' href='?exit'>Выйти</a></li>\n";
-                                if (!empty($this->isSuperuser())) {
+                                if (!empty($isSuperuser)) {
                                     echo "\t\t\t\t<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>\n";
                                 }
                             }
