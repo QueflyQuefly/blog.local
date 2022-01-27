@@ -22,6 +22,8 @@ class FrontController {
         switch (array_shift($this->requestUriArray)) {
             case '': $this->showGeneral(); break;
             case 'viewpost': $this->showPost(); break;
+            case 'login': $this->showLogin(); break;
+            case 'reg': $this->showReg(); break;
             default : $this->show404();
         }
         if (!empty($_request)) {
@@ -49,7 +51,7 @@ class FrontController {
         ob_end_flush();
     }
     public function showGeneral() {
-        $pageTitle = 'Главная - просто Блог';
+        $pageTitle = 'Просто Блог - Главная';
         $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
                   
         $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
@@ -64,7 +66,7 @@ class FrontController {
           header ("Location: /404");
         } else {
             $_SESSION['referrer'] = "/viewpost/$postId";
-            $pageTitle = 'Просмотр поста - просто Блог';          
+            $pageTitle = 'Просмотр поста - Просто Блог';          
             
             $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
             $this->postController->showPost(
@@ -77,6 +79,18 @@ class FrontController {
     }
     public function show404() {
         $this->view->view404($this->getUserId(), $this->isSuperuser());
+    }
+    public function showLogin() {
+        $pageTitle = 'Вход - Просто Блог';          
+        $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
+        $this->view->viewLogin();
+        $this->view->viewFooter($this->startTime);
+    }
+    public function showReg() {
+        $pageTitle = 'Регистрация - Просто Блог';          
+        $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
+        $this->view->viewReg();
+        $this->view->viewFooter($this->startTime);
     }
     public function getUserId() {
         return $this->userController->getUserId();

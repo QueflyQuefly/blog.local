@@ -23,4 +23,10 @@ class View {
         echo "<a class='link' href='/'>Вернуться на главную</a>";
         require "layouts/endbody.layout.php";
     }
+    public function viewLogin() {
+        require "layouts/login.layout.php";
+    }
+    public function viewReg() {
+        require "layouts/reg.layout.php";
+    }
 }

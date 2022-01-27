@@ -66,34 +66,7 @@ if (isset($_GET['msg'])) {
 </head>
 <body>
 <div class='container'>
-    <div class='center'>
-        <div class='form'>
-            <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
-            <p class='label'>Регистрация</p>
-            <form action='reg.php' method='post'>
-                <input type='email' name='email' required autofocus minlength="1" maxlength='50'  autocomplete="on" placeholder='Введите email' class='text'><br>
-                <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='ФИО или псевдоним' class='text'><br>
-                <input type='password' name='password' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите пароль' class='text'><br>
-                <img src="noise-picture.php">
-                <input type='text' name='variable_of_captcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Введите код с картинки' class='text'><br>
-                <?php
-                    if (!empty($forAdmin)) {
-                        echo $forAdmin;
-                    }
-                ?>
-                <div class='msg'>
-                    <p class='error'>
-                        <?php
-                            if (!empty($msg)) {
-                                echo $msg;
-                            }
-                        ?>
-                    </p>
-                </div>
-                <div id='right'><input type='submit' value='Создать аккаунт' class='submit'></div>
-            </form>
-        </div>
-    </div>
+    
 </div>
 </body>
 </html>

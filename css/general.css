@@ -520,6 +520,124 @@ footer{
 img[alt="www.000webhost.com"] {
     display:none;
 }
+.formcenter{
+    /* border: 1px solid lightgray; */
+    width: 60%;
+    height: 90vmin;
+    position: relative;
+    text-align: center;
+    margin: auto;
+}
+.formform{
+    border: 1px solid lightgray;
+    height:60%;
+    width:80%;
+    margin: 1% auto;
+    
+}
+.formmsg{
+    /* border: 1px solid lightgray; */
+    height:10%;
+    width:50%;
+    margin: -1% auto 5% auto;
+    text-align:center;
+}
+#left{
+    float:left;
+    margin-left: 15%;
+    margin-top: 1vmin;
+}
+#right{
+    float:right;
+    margin-right: 20%;
+}
+
+.formlogo{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    text-decoration: none;
+    color: currentColor;
+}
+.formlogo:hover{
+    text-decoration: none;
+    color: currentColor;
+}
+.formlogo:active{
+    text-decoration: none;
+    color: currentColor;
+}
+.formlogo{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 20pt;
+    text-align:center;
+}
+.formlabel{
+    font-size: 17pt;
+    text-align:center;
+}
+
+.formtext{
+    background-color:white;
+    color: black;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    font-size: 12.5pt;
+    outline: none;
+    border: 0.3vmin solid lightgray;
+    width: 50%;
+    height: 35px;
+    margin: 5px 25%;
+    padding-left: 1vmin;
+    transition: 0ms;
+}    
+.formtext:focus {
+    border:0.3vmin solid rgb(1, 90, 255);
+}
+.formtext:focus:hover {
+    border:0.3vmin solid rgb(1, 90, 255);
+}
+.formtext:hover {
+    border:0.3vmin solid gray;
+}
+/* buttons */
+.formbutton{
+    text-decoration: none;
+    color:rgb(1, 90, 255);
+    text-align: left;
+    padding: 2vmin 2vmin;
+    cursor: pointer;
+}
+.formsubmit{
+    padding: 1vmin 3.5vmin;
+    background-color:rgb(1, 90, 255);
+    color:white;
+    border:0;
+    font-size: 12pt;
+}
+.formsubmit:hover{
+    background-color:rgb(0, 18, 177);
+    cursor: pointer;
+}
+.formradio {
+    text-align:left;
+    margin-left: 5vmin;
+}
+/* messages */
+.formerror{
+    /* position: absolute; */
+    text-align:center;
+    font-size: 10pt;
+    color:crimson;
+    margin: 0;
+    padding:0;
+}
+.formok{
+    /* position: absolute; */
+    text-align:center;
+    font-size: 10pt;
+    color:rgb(7, 128, 71);
+    margin: 0;
+    padding:0;
+}
 /* @media (min-width: 300px) and (max-width: 1200.98px) {
     * {
         font-size: 1.2em;
