@@ -27,7 +27,7 @@ class UserController {
     public function exitUser() {
         if ($this->getUserId()) {
             $_SESSION['user_id'] = false;
-            setcookie('user_id', '0', 1);
+            setcookie('user_id', '0', 1, '/');
             $uri = stristr($_SERVER['REQUEST_URI'], '?exit', true);
             header("Location: $uri");
         }

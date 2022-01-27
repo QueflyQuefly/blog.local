@@ -23,7 +23,7 @@ class FactoryMethod {
     private $dbService, $commentService, $postService, $ratingPostService;
     private $ratingCommentService, $sendMailService, $subscribeService, $userService;
     private $postController, $commentController, $ratingController, $userController;
-    private $viewComments, $viewPosts, $view404;
+    private $viewComments, $viewPosts, $view;
 
     public function getDbService() {
         if (is_null($this->dbService)) {
@@ -109,10 +109,10 @@ class FactoryMethod {
         }
         return $this->viewComments;
     }
-    public function getView404() {
-        if (is_null($this->view404)) {
-            $this->view404 = new View404();
+    public function getView() {
+        if (is_null($this->view)) {
+            $this->view = new View();
         }
-        return $this->view404;
+        return $this->view;
     }
 }

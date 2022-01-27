@@ -3,7 +3,7 @@ session_start();
 
 class FrontController {
     public $sessionUserId = false, $isSuperuser = false, $isUserChangedPostRating = false;
-    private $userController, $postController, $commentController, $ratingController, $view404;
+    private $userController, $postController, $commentController, $ratingController, $view;
 
     public function __construct($requestUri, $_request, $startTime, FactoryMethod $factoryMethod) {
         ob_start();
@@ -12,7 +12,7 @@ class FrontController {
         $this->postController = $factoryMethod->getPostController();
         $this->commentController = $factoryMethod->getCommentController();
         $this->ratingController = $factoryMethod->getRatingController();
-        $this->view404 = $factoryMethod->getView404();
+        $this->view = $factoryMethod->getView();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
@@ -44,41 +44,39 @@ class FrontController {
                 $this->exitUser();
             }
         }
+    }
+    public function __destruct() {
         ob_end_flush();
     }
     public function showGeneral() {
         $pageTitle = 'Главная - просто Блог';
-        $pageDescription = 'Наилучший источник информации по теме "Путешествия"';            
-        
-        require "layouts/head.layout.php";
-        require "layouts/menu.layout.php";
-        require "layouts/description.layout.php";
+        $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
+                  
+        $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
         $this->postController->showLastPosts(10, $this->isSuperuser());
         $this->postController->showMoreTalkedPosts(3, $this->isSuperuser());
-        require "layouts/endbody.layout.php";
+        $this->view->viewFooter($this->startTime);
     }
     public function showPost() {
         $postId = array_shift($this->requestUriArray);
         $postId = clearInt($postId);
         if ($postId < 1) {
-            header("Location: /");
+          header ("Location: /404");
+        } else {
+            $_SESSION['referrer'] = "/viewpost/$postId";
+            $pageTitle = 'Просмотр поста - просто Блог';          
+            
+            $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
+            $this->postController->showPost(
+                $postId, $this->isSuperuser(), $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId)
+            );
+            $this->postController->showTagsByPostId($postId);
+            $this->commentController->showCommentsByPostId($postId, $this->isSuperuser());
+            $this->view->viewFooter($this->startTime);
         }
-        $_SESSION['referrer'] = "/viewpost/$postId";
-
-        $pageTitle = 'Просмотр поста - просто Блог';          
-        
-        require "layouts/head.layout.php";
-        require "layouts/menu.layout.php";
-        $this->postController->showPost(
-            $postId, $this->isSuperuser(), $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId)
-        );
-        $this->postController->showTagsByPostId($postId);
-        $this->commentController->showCommentsByPostId($postId, $this->isSuperuser());
-
-        require "layouts/endbody.layout.php";
     }
     public function show404() {
-        $this->view404->view($this->sessionUserId, $this->isSuperuser);
+        $this->view->view404($this->getUserId(), $this->isSuperuser());
     }
     public function getUserId() {
         return $this->userController->getUserId();
