@@ -17,8 +17,10 @@ class PostController {
     public function showPost($postId, $isSuperuser, $isUserChangedRating = false) {
         $post = $this->postService->getPostForViewById($postId);
         if (!$post) {
-            header("Location: /");
+            header ("Location: /404");
+            exit;
         }
+        $_SESSION['referrer'] = "/viewpost/$postId";
         return $this->viewPosts->renderPost($post, $isSuperuser, $isUserChangedRating);
     }
     public function showTagsByPostId($postId) {

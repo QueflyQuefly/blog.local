@@ -2,8 +2,9 @@
 session_start();
 
 class FrontController {
-    public $sessionUserId = false, $isSuperuser = false, $isUserChangedPostRating = false;
-    private $userController, $postController, $commentController, $ratingController, $view;
+    public $msg, $error;
+    private $view;
+    private $userController, $postController, $commentController, $ratingController;
 
     public function __construct($requestUri, $_request, $startTime, FactoryMethod $factoryMethod) {
         ob_start();
@@ -45,12 +46,74 @@ class FrontController {
             if (isset($_request['exit'])) {
                 $this->exitUser();
             }
+            if (isset($_request['email'])) {
+                $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
+                $email = clearStr($_POST['email']);
+                $password = $_POST['password'];
+                if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
+                    if ($this->userController->isUser($email, $password)) {
+                        setcookie('user_id', $this->userController->getUserIdByEmail($email), strtotime('+2 days'));
+
+                        if (!empty($_SESSION['referrer'])) {
+                            header("Location: {$_SESSION['referrer']}");
+                        } else {
+                            header("Location: /");
+                        }
+                    } else {
+                        $this->error = "Неверный логин или пароль";
+                        header("Location: login/?msg=$this->error");
+                    }
+                } else {
+                    $this->error = "Неверно введен код с Captcha";
+                    header("Location: login/?msg=$this->error");
+                }
+            }
+            if (isset($_request['regemail'])) {
+                $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
+                $regemail = clearStr($_POST['regemail']);
+                $regfio = clearStr($_POST['regfio']);
+                $regpassword = $_POST['regpassword'];
+                $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
+                if (!preg_match($regex, $regemail)) {
+                    $error = "Неверный формат regemail";
+                    header("Location: /reg/?msg=$error");
+                }   
+                if ($regemail !== '' && $regfio !== '' && $regpassword !== '') {
+                    $regpassword = password_hash($regpassword, PASSWORD_BCRYPT);
+                    if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
+                        if (isset($_POST['add_admin']) && $this->isSuperuser() === true) {
+                            if (!$this->userController->addUser($regemail, $regfio, $regpassword, RIGHTS_SUPERUSER)) {
+                                $this->error = "Пользователь с таким email уже зарегистрирован";
+                                header("Location: /reg/?msg=$this->error"); 
+                            } else {
+                                header("Location: /");
+                            } 
+                        } else {
+                            if (!$this->userController->addUser($regemail, $regfio, $regpassword)) {
+                                $this->error = "Пользователь с таким email уже зарегистрирован";
+                                header("Location: /reg/?msg=$this->error"); 
+                            } else {
+                                $sessionUserId = $this->userController->getUserIdByEmail($regemail);
+                                setcookie('user_id', $sessionUserId, strtotime('+2 days'));
+                                header("Location: /");
+                            } 
+                        }
+                    } else {
+                        $this->error = "Неверно введен код с Captcha";
+                        header("Location: /reg/?msg=$this->error");
+                    }
+                } else { 
+                    $this->error = "Заполните все поля";
+                    header("Location: /reg/?msg=$this->error");
+                }
+            }
         }
     }
     public function __destruct() {
         ob_end_flush();
     }
     public function showGeneral() {
+        $_SESSION['referrer'] = '/';
         $pageTitle = 'Просто Блог - Главная';
         $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
                   
@@ -61,16 +124,16 @@ class FrontController {
     }
     public function showPost() {
         $postId = array_shift($this->requestUriArray);
-        $postId = clearInt($postId);
         if ($postId < 1) {
           header ("Location: /404");
         } else {
-            $_SESSION['referrer'] = "/viewpost/$postId";
-            $pageTitle = 'Просмотр поста - Просто Блог';          
-            
+            $postId = clearInt($postId);
+            $pageTitle = 'Просмотр поста - Просто Блог';
+
             $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
             $this->postController->showPost(
-                $postId, $this->isSuperuser(), $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId)
+                $postId, $this->isSuperuser(), 
+                $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId)
             );
             $this->postController->showTagsByPostId($postId);
             $this->commentController->showCommentsByPostId($postId, $this->isSuperuser());
@@ -89,7 +152,7 @@ class FrontController {
     public function showReg() {
         $pageTitle = 'Регистрация - Просто Блог';          
         $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
-        $this->view->viewReg();
+        $this->view->viewReg($this->isSuperuser());
         $this->view->viewFooter($this->startTime);
     }
     public function getUserId() {

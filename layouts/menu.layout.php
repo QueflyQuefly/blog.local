@@ -11,7 +11,7 @@
                     <ul class='menuList'>
                         <?php
                             if (empty($sessionUserId)) {
-                                echo "<li><a class='menuLink' href='login'>Войти</a></li>\n";
+                                echo "<li><a class='menuLink' href='/login'>Войти</a></li>\n";
                             } else {
                                 echo "<li><a class='menuLink' href='?exit'>Выйти</a></li>\n";
                                 if (!empty($isSuperuser)) {

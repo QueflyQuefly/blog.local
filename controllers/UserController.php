@@ -6,7 +6,7 @@ class UserController {
         $this->userService = $userService;
     }
     public function getUserId() {
-        if (!$this->sessionUserId) {
+        if (is_null($this->sessionUserId)) {
             if (!empty($_SESSION['user_id'])) {
                 $this->sessionUserId = $_SESSION['user_id'];
             } elseif (!empty($_COOKIE['user_id'])) {
@@ -16,13 +16,22 @@ class UserController {
         return $this->sessionUserId;
     }
     public function isSuperuser() {
-        if (!$this->isSuperuser) {
+        if (is_null($this->isSuperuser)) {
             $userId = $this->getUserId();
             if (!empty($userId) && $this->userService->getUserInfoById($userId, 'rights') === RIGHTS_SUPERUSER) {
                 $this->isSuperuser = true;
             }
         }
         return $this->isSuperuser;
+    }
+    public function isUser($login, $password) {
+        return $this->userService->isUser($login, $password);
+    }
+    public function getUserIdByEmail($email) {
+        return $this->userService->getUserIdByEmail($email);
+    }
+    public function addUser($email, $fio, $password, $rights = false) {
+        return $this->userService->addUser($email, $fio, $password, $rights);
     }
     public function exitUser() {
         if ($this->getUserId()) {
