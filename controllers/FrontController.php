@@ -25,6 +25,7 @@ class FrontController {
             case 'viewpost': $this->showPost(); break;
             case 'login': $this->showLogin(); break;
             case 'reg': $this->showReg(); break;
+            case 'addpost': $this->showAddpost(); break;
             default : $this->show404();
         }
         if (!empty($_request)) {
@@ -107,6 +108,54 @@ class FrontController {
                     header("Location: /reg/?msg=$this->error");
                 }
             }
+            if (isset($_request['addPostZag'])) {
+                $title = clearStr($_POST['addPostZag']);
+                $content = clearStr($_POST['addPostContent']);
+                if ($title !== '' && $content !== '') {
+                    /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
+                        switch($_FILES['addPostImg']["error"]){
+                            case UPLOAD_ERR_INI_SIZE:
+                                $error = "Превышен максимально допустимый размер";
+                                header("Location: /addpost/?msg=$error");
+                                break;
+                            case UPLOAD_ERR_FORM_SIZE:
+                                $error = "Превышено значение $maxSizeOfUploadImage байт";
+                                header("Location: /addpost/?msg=$error");
+                                break;
+                            case UPLOAD_ERR_PARTIAL:
+                                $error = "Файл загружен частично";
+                                header("Location: /addpost/?msg=$error");
+                                break;
+                            case UPLOAD_ERR_NO_FILE:
+                                $error = "Файл не был загружен";
+                                header("Location: /addpost/?msg=$error");
+                                break;
+                            case UPLOAD_ERR_NO_TMP_DIR:
+                                $error = "Отсутствует временная папка";
+                                header("Location: /addpost/?msg=$error");
+                                break;
+                            case UPLOAD_ERR_CANT_WRITE:
+                                $error = "Не удалось записать файл на диск";
+                                header("Location: /addpost/?msg=$error");
+                        }
+                    } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
+                        if (!$this->postController->addPost($title, $sessionUserId, $content)) {
+                            $msg =  "Произошла ошибка при добавлении поста";
+                            header("Location: /addpost/?msg=$msg");
+                        } else {
+                            /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
+                            $msg =  "Пост добавлен";
+                            header("Location: /addpost/?msg=$msg");
+                        }
+                    /* } else {
+                        $error = "Изображение имеет недопустимое расширение (не jpg)";
+                        header("Location: /addpost/?msg=$error");
+                    }  */         
+                } else {
+                    $error = "Заполните все поля";
+                    header("Location: /addpost/?msg=$error");
+                }
+            }
         }
     }
     public function __destruct() {
@@ -153,6 +202,16 @@ class FrontController {
         $pageTitle = 'Регистрация - Просто Блог';          
         $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
         $this->view->viewReg($this->isSuperuser());
+        $this->view->viewFooter($this->startTime);
+    }
+    public function showAddpost() {
+        $_SESSION['referrer'] = '/addpost';
+        if (!$this->getUserId()) {
+            header ("Location: /login");
+        }
+        $pageTitle = 'Добавление поста - Просто Блог';
+        $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
+        $this->view->viewAddpost();
         $this->view->viewFooter($this->startTime);
     }
     public function getUserId() {

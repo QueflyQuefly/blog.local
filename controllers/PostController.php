@@ -6,6 +6,9 @@ class PostController {
         $this->postService = $postService;
         $this->viewPosts = $viewPosts;
     }
+    public function addPost($title, $userId, $content) {
+        $this->postService->addPost($title, $userId, $content);
+    }
     public function showLastPosts($numberOfPosts, $isSuperuser, $lessThanMaxPostId = 0) {
         $posts = $this->postService->getLastPosts($numberOfPosts, $lessThanMaxPostId);
         return $this->viewPosts->renderPosts($posts, $isSuperuser);
