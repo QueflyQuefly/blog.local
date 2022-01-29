@@ -91,7 +91,8 @@ class CommentService {
         } catch (PDOException $e) {
             $this->_db->rollBack();
             $this->error = $e->getMessage();
+            return false;
         }
-        return false;
+        return true;
     }
 }

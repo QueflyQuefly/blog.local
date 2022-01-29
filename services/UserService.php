@@ -18,7 +18,7 @@ class UserService {
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                $id = $result['user_id'];
+                $id = $result['user_id'] ?? null;
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();

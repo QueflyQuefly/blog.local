@@ -23,10 +23,10 @@ if (isset($_POST['view']) && $isSuperuser === true) {
         header("Location: adminusers.php");
     }
     if ($_POST['view'] === 'addAdmin') {
-        header("Location: /reg.php");
+        header("Location: /reg");
     }
     if ($_POST['view'] === 'viewStab') {
-        header("Location: /stab_db.php");
+        header("Location: /stab");
     }
 }
 
@@ -38,18 +38,17 @@ if (isset($_POST['view']) && $isSuperuser === true) {
     <meta charset='UTF-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Администрирование - Просто Блог</title>
-    <link rel='stylesheet' href='../css/form.css'>
+    <link rel='stylesheet' href='/css/general.css'>
 </head>
 <body>
 <div class='container'>
     <div class='center'>
-        <div class='form'>
-            <p class='logo'><a class="logo" title='На главную' href='/'>Просто Блог</a></p>
-            <p class='label'>Администрирование</p>
+        <div class='formentry'>
+            <p class='formname'>Администрирование</p>
             <?php 
                 if (empty($isSuperuser)) { 
             ?>
-                <div class='msg'>
+                <div class='formmsg'>
                     <p class='error'>Необходимо <a class='link' href='/login.php'>войти</a> как администратор</p>
                 </div>
             <?php 
@@ -59,16 +58,16 @@ if (isset($_POST['view']) && $isSuperuser === true) {
 
                 <div class='radio'>
                     <input type='radio' id='radio1' name='view' value='viewUsers' class='radio'>
-                    <label for='radio1'>К управлению пользователями</label>
+                    <label class='formlabel' for='radio1'>К управлению пользователями</label>
 
                     <br><input type='radio' id='radio2' name='view' value='viewPosts' class='radio'>
-                    <label for='radio2'>К управлению постами</label>
+                    <label class='formlabel' for='radio2'>К управлению постами</label>
 
                     <br><input type='radio' id='radio3' name='view' value='addAdmin' class='radio'>
-                    <label for='radio3'>Добавить администратора</label>
+                    <label class='formlabel' for='radio3'>Добавить администратора</label>
 
                     <br><input type='radio' id='radio4' name='view' value='viewStab' class='radio'>
-                    <label for='radio4'>Стаб БД</label>
+                    <label class='formlabel' for='radio4'>Стаб БД</label>
                 </div>
 
                 <br><div id='right'><input type='submit' value='Перейти' class='submit'></div>

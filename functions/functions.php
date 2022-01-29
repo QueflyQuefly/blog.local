@@ -34,7 +34,7 @@ function getUserIdByEmail($email) {
         $stmt = $db->query($sql);
         if ($stmt != false) {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            $id = $result['user_id'];
+            $id = $result['user_id'] ?? null;
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
@@ -867,31 +867,6 @@ function isSubscribedUser($userIdWantSubscribe, $userId){
     return false;
 }
 /* functions for table subscriptions */
-
-
-/* functions for stab_db.php  */
-function isNounForTag($text){
-    $symbol1 = 'а';
-    $symbol2 = 'ь';
-    $tags = [];
-
-    $text = mb_strtolower(clearStr($text));
-    $text = str_replace('.', ' ', $text);
-    $words = explode(' ', $text);
-    if (!empty($words)) {
-        foreach ($words as $word) {
-            $lastSymbol = mb_substr($word, -1);
-            if (mb_strlen($word) > 8 && (mb_strtolower($lastSymbol) === $symbol1 
-                || mb_strtolower($lastSymbol) === $symbol2)) {
-                $tags[] = "#" . $word;
-                $tags = array_unique($tags);
-            }
-        }
-    }
-    return $tags;
-}
-/* functions for stab_db.php  */
-
 
 /* function for send email  */
 function sendMail($toEmail, $title, $message) {

@@ -12,6 +12,64 @@ class PostService {
     public function __construct() {
         $this->_db = DbService::getInstance();
     }
+    public function addPost($title, $userId, $content) {
+        try {
+            $date = time();
+            $userId = clearInt($userId);
+            $titleQuote = $this->_db->quote($title);
+            $contentQuote = $this->_db->quote($content);
+            
+            $sql = "INSERT INTO posts (title, user_id, date_time, content) 
+                    VALUES($titleQuote, $userId, $date, $contentQuote);";
+            if (!$this->_db->exec($sql)) {
+                return false;
+            }
+            $lastPostId = $this->_db->lastInsertId();
+    
+            $sql = "INSERT INTO additional_info_posts 
+                    (post_id, rating, count_comments, count_ratings) 
+                    VALUES($lastPostId, 0.0, 0, 0);";
+            if (!$this->_db->exec($sql)) {
+                return false;
+            }
+            $allText = $title . " " . $content;
+            if (strpos($allText, '#') !== false) {
+                $regex = '/#\w+/um';
+                preg_match_all($regex, $allText, $tags);
+        
+                $tags = $tags[0];
+                foreach ($tags as $tag) {
+                    $this->addTagsToPost($tag, $lastPostId);
+                }
+            }
+            $sql = "SELECT s.user_id_want_subscribe, u.email
+                    FROM subscriptions s 
+                    JOIN users u ON u.user_id = s.user_id_want_subscribe
+                    WHERE s.user_id = $userId";
+            $stmt = $this->_db->query($sql);
+            if ($stmt != false) {
+                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $toEmail = $result['email'];
+                    $title = 'Prosto Blog';
+                    $userService = new UserService();
+                    $fio = $userService->getUserInfoById($userId, 'fio');
+                    $message = "
+                        <h2>$fio опубликовал новый пост:</h2> 
+                        <p style='font-size:13pt;'>$title -
+                        <a href='bloglocal.000webhostapp.com/viewsinglepost.php?viewpostById=$lastPostId'>Перейти к посту</a></p>
+                        <pre>Это письмо отправлено вам, потому что вы подписаны на этого автора</pre>
+                        <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>Отписаться</a>
+                        <p style='font-size:10pt;'>Необходимо прежде <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>войти</a></p>
+                    ";
+                    $mailService = SendMailService::getInstance();
+                    $mailService->sendMail($toEmail, $title, $message);
+                }
+            }
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+        }
+        return true;
+    }
     public function getLastPosts($numberOfPosts, $lessThanMaxId = 0) {
         $posts = [];
         try {
@@ -156,63 +214,6 @@ class PostService {
             $this->error = $e->getMessage();
         }
         return $tags;
-    }
-    public function addPost($title, $userId, $content) {
-        try {
-            $date = time();
-            $titleQuote = $this->_db->quote($title);
-            $content = $this->_db->quote($content);
-            $rating = 0;
-            
-            $sql = "INSERT INTO posts (title, user_id, date_time, content, rating) 
-                    VALUES($titleQuote, $userId, $date, $content, $rating);";
-            if (!$this->_db->exec($sql)) {
-                return false;
-            }
-            $lastPostId = $this->_db->lastInsertId();
-    
-            $sql = "INSERT INTO additional_info_posts 
-                    (post_id, rating, count_comments, count_ratings) 
-                    VALUES($lastPostId, 0.0 , 0, 0);";
-            if (!$this->_db->exec($sql)) {
-                return false;
-            }
-    
-            $regex = '/#\w+/um';
-            $allText = $title . " " . $content;
-            preg_match_all($regex, $allText, $tags);
-    
-            $tags = $tags[0];
-            foreach ($tags as $tag) {
-                $this->addTagsToPost($tag, $lastPostId);
-            }
-            $sql = "SELECT s.user_id_want_subscribe, u.email
-                    FROM subscriptions s 
-                    JOIN users u ON u.user_id = s.user_id_want_subscribe
-                    WHERE s.user_id = $userId";
-            $stmt = $this->_db->query($sql);
-            if ($stmt != false) {
-                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $toEmail = $result['email'];
-                    $title = 'Prosto Blog';
-                    $userService = new UserService();
-                    $fio = $userService->getUserInfoById($userId, 'fio');
-                    $message = "
-                        <h2>$fio опубликовал новый пост:</h2> 
-                        <p style='font-size:13pt;'>$title -
-                        <a href='bloglocal.000webhostapp.com/viewsinglepost.php?viewpostById=$lastPostId'>Перейти к посту</a></p>
-                        <pre>Это письмо отправлено вам, потому что вы подписаны на этого автора</pre>
-                        <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>Отписаться</a>
-                        <p style='font-size:10pt;'>Необходимо прежде <a href='bloglocal.000webhostapp.com/cabinet.php?user=$userId&unsubscribe'>войти</a></p>
-                    ";
-                    $mailService = SendMailService::getInstance();
-                    $mailService->sendMail($toEmail, $title, $message);
-                }
-            }
-        } catch (PDOException $e) {
-            $this->error = $e->getMessage();
-        }
-        return true;
     }
     public function searchPostsByTag($searchword) {
         $results = [];

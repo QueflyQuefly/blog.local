@@ -3,7 +3,7 @@ session_start();
 
 class FrontController {
     public $msg, $error;
-    private $view;
+    private $stabService, $view;
     private $userController, $postController, $commentController, $ratingController;
 
     public function __construct($requestUri, $_request, $startTime, FactoryMethod $factoryMethod) {
@@ -14,6 +14,7 @@ class FrontController {
         $this->commentController = $factoryMethod->getCommentController();
         $this->ratingController = $factoryMethod->getRatingController();
         $this->view = $factoryMethod->getView();
+        $this->stabService = $factoryMethod->getStabService();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
@@ -21,31 +22,69 @@ class FrontController {
         $this->requestUriArray = explode('/', $requestUri);
         array_shift($this->requestUriArray);
         switch (array_shift($this->requestUriArray)) {
-            case '': $this->showGeneral(); break;
-            case 'viewpost': $this->showPost(); break;
-            case 'login': $this->showLogin(); break;
-            case 'reg': $this->showReg(); break;
-            case 'addpost': $this->showAddpost(); break;
+            case '': 
+                $this->showGeneral(); 
+                break;
+            case 'viewpost': 
+                $this->showPost(); 
+                break;
+            case 'login': 
+                $this->showLogin(); 
+                break;
+            case 'reg': 
+                $this->showReg(); 
+                break;
+            case 'addpost': 
+                $this->showAddpost(); 
+                break;
+            case 'stab': 
+                @set_time_limit(6000);
+                
+                $numberOfLoopIterations = $_GET['number'] ?? 10;
+                $this->showStab($numberOfLoopIterations);
+                break;
             default : $this->show404();
         }
         if (!empty($_request)) {
             if (isset($_request['deletePostById'])) {
-                $this->deletePostById($_request['deletePostById']);
+                if ($this->isSuperuser()) {
+                    $this->deletePostById($_request['deletePostById']);
+                } else {
+                    header ("Location: /login");
+                }
             }
             if (isset($_request['deleteCommentById'])) {
-                $this->deleteCommentById($_request['deleteCommentById']);
+                if ($this->isSuperuser()) {
+                    $this->deleteCommentById($_request['deleteCommentById']);
+                } else {
+                    header ("Location: /login");
+                }
             }
             if (isset($_request['post_id']) && isset($_request['addCommentContent'])) {
-                $this->addComment($_request['post_id'], $_request['addCommentContent']);
+                if ($this->getUserId()) {
+                    $this->addComment($_request['post_id'], $_request['addCommentContent']);
+                } else {
+                    header ("Location: /login");
+                }
             }
             if (isset($_request['post_id']) && isset($_request['star'])) {
-                $this->changePostRating($_request['post_id'], $_request['star']);
+                if ($this->getUserId()) {
+                    $this->changePostRating($_request['post_id'], $_request['star']);
+                } else {
+                    header ("Location: /login");
+                }
             }
             if (isset($_request['comment_id_like']) && isset($_request['post_id'])) {
-                $this->changeCommentRating($_request['comment_id_like'], $_request['post_id']);
+                if ($this->getUserId()) {
+                    $this->changeCommentRating($_request['comment_id_like'], $_request['post_id']);
+                } else {
+                    header ("Location: /login");
+                }
             }
             if (isset($_request['exit'])) {
-                $this->exitUser();
+                if ($this->getUserId()) {
+                    $this->exitUser();
+                }
             }
             if (isset($_request['email'])) {
                 $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
@@ -82,7 +121,7 @@ class FrontController {
                 if ($regemail !== '' && $regfio !== '' && $regpassword !== '') {
                     $regpassword = password_hash($regpassword, PASSWORD_BCRYPT);
                     if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
-                        if (isset($_POST['add_admin']) && $this->isSuperuser() === true) {
+                        if (isset($_POST['add_admin']) && $this->isSuperuser()) {
                             if (!$this->userController->addUser($regemail, $regfio, $regpassword, RIGHTS_SUPERUSER)) {
                                 $this->error = "Пользователь с таким email уже зарегистрирован";
                                 header("Location: /reg/?msg=$this->error"); 
@@ -139,7 +178,7 @@ class FrontController {
                                 header("Location: /addpost/?msg=$error");
                         }
                     } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-                        if (!$this->postController->addPost($title, $sessionUserId, $content)) {
+                        if (!$this->postController->addPost($title, $this->getUserId(), $content)) {
                             $msg =  "Произошла ошибка при добавлении поста";
                             header("Location: /addpost/?msg=$msg");
                         } else {
@@ -212,6 +251,28 @@ class FrontController {
         $pageTitle = 'Добавление поста - Просто Блог';
         $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
         $this->view->viewAddpost();
+        $this->view->viewFooter($this->startTime);
+    }
+    public function showStab($numberOfLoopIterations) {
+        $_SESSION['referrer'] = '/stab';
+        if (!$this->isSuperuser()) {
+            header ("Location: /login");
+        }
+        $this->stabService->stabDb($numberOfLoopIterations);
+        $errors = $this->stabService->getErrors();
+        $pageTitle = 'Стаб - Просто Блог';
+        $pageDescription = '';
+        if (empty($errors)) {
+            $pageDescription = "Подключение к БД: успешно</p><p>Создано $numberOfLoopIterations новый(-ых) пользователь(-ей, -я), 
+            $numberOfLoopIterations новый(-ых) пост(-ов, -а) и несколько(до 12) комментариев к каждому.<br>
+            Создание 100 постов занимает примерно 10 секунд.";
+        } else {
+            foreach ($errors as $error) {
+                $pageDescription .= $error . "<br>";
+            }
+        }
+        $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
+        $this->view->viewStab();
         $this->view->viewFooter($this->startTime);
     }
     public function getUserId() {

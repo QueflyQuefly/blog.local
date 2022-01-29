@@ -15,13 +15,13 @@
                             } else {
                                 echo "<li><a class='menuLink' href='?exit'>Выйти</a></li>\n";
                                 if (!empty($isSuperuser)) {
-                                    echo "\t\t\t\t<li><a class='menuLink' href='admin/admin.php'>Админка</a></li>\n";
+                                    echo "\t\t\t\t<li><a class='menuLink' href='/admin/admin.php'>Админка</a></li>\n";
                                 }
                             }
                         ?>
-                        <li><a class='menuLink' href='cabinet.php'>Мой профиль</a></li>
-                        <li><a class='menuLink' href='search.php'>Поиск</a></li>
-                        <li><a class='menuLink' href='addpost.php'>Создать новый пост</a></li>
+                        <li><a class='menuLink' href='/cabinet.php'>Мой профиль</a></li>
+                        <li><a class='menuLink' href='/search.php'>Поиск</a></li>
+                        <li><a class='menuLink' href='/addpost'>Создать новый пост</a></li>
                     </ul>
                 </div>
             </div>

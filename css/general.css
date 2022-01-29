@@ -495,14 +495,6 @@ hr{
 .link:active{
     text-decoration:currentColor;
 }
-.error{
-    /* position: absolute; */
-    text-align:center;
-    font-size: 12pt;
-    color:crimson;
-    margin: 0;
-    padding:0;
-}
 .center{
     margin-left: 10%;
     font-size: 13pt;
@@ -620,9 +612,113 @@ img[alt="www.000webhost.com"] {
     text-align:left;
     margin-left: 5vmin;
 }
+
+/* addpost */
+.addpostcontainer{
+    width: 90%;
+    height: 100%;
+    margin: -3% auto 0 auto;
+}
+.addpostform{
+    height:75vmin;
+    width:100%;
+    margin: 1% auto;
+    overflow-y:auto;
+    text-align:center;
+}
+.addpostmsg{
+    height:3vmin;
+    width:50%;
+    margin: -2% auto 0 auto;
+    text-align:center;
+}
+.addpostlabel{
+    font-size: 17pt;
+    text-align:center;
+}
+.addpostname{
+    background-color:white;
+    color: black;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    font-size: 12pt;
+    outline: none;
+    border: 0.3vmin solid lightgray;
+    width: 80%;
+    padding: 1.5vmin;
+    padding-left: 2%;
+    margin: 5px auto;
+    transition: 400ms;
+}    
+.addpostname:hover {
+    border:0.3vmin solid gray;
+}
+.addpostname:focus {
+    border:0.3vmin solid rgb(1, 90, 255);
+}
+.addpostauthor{
+    background-color:white;
+    color: black;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    font-size: 12pt;
+    outline: none;
+    border: 0.3vmin solid lightgray;
+    width: 50%;
+    padding: 1.5vmin;
+    margin: 5px auto;
+    margin-right: 40vmin;
+    transition: 400ms;
+}    
+.addpostauthor:hover {
+    border:0.3vmin solid gray;
+}
+.addpostauthor:focus {
+    border:0.3vmin solid rgb(1, 90, 255);
+}
+.addpostimg{
+    background-color:white;
+    color:lightcoral;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    font-size: 12pt;
+    outline: none;
+    border: 0.3vmin solid lightgray;
+    width: 80%;
+    padding: 1%;
+    margin: 5px auto;
+    transition: 400ms;
+}    
+.addpostimg:hover {
+    border:0.3vmin solid gray;
+    cursor:pointer;
+}
+.addpostimg:focus {
+    border:0.3vmin solid rgb(1, 90, 255);
+}
+.addpostsubmit{
+    padding: 8px 25px;
+    background-color:rgb(1, 90, 255);
+    color:white;
+    border:0;
+    font-size: 12pt;
+}
+.addpostsubmit:hover{
+    background-color:rgb(0, 18, 177);
+    cursor: pointer;
+}
+#addposttextarea{
+    height:33vmin;
+    width: 150vmin;
+    padding:1%;
+    font-size: 12pt;
+    margin: 1% 1.5%;
+    resize: none;
+}
+/* addpost */
+
 /* messages */
-.formerror{
-    /* position: absolute; */
+.error{
     text-align:center;
     font-size: 10pt;
     color:crimson;
@@ -630,8 +726,7 @@ img[alt="www.000webhost.com"] {
     padding:0;
     height: 1vmin;
 }
-.formok{
-    /* position: absolute; */
+.ok{
     text-align:center;
     font-size: 10pt;
     color:rgb(7, 128, 71);

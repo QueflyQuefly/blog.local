@@ -12,7 +12,7 @@
                 }
             ?>
             <div class='formmsg'>
-                <p class='formerror'>
+                <p class='error'>
                     <?php
                         if (!empty($_GET['msg'])) {
                             echo clearStr($_GET['msg']);

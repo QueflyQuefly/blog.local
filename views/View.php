@@ -34,7 +34,10 @@ class View {
         require "layouts/reg.layout.php";
     }
     public function viewAddpost() {
-        $maxSizeOfUploadImage = 4096000; // 4 megabytes
+        $maxSizeOfUploadImage = 4 * 1024 * 1024; // 4 megabytes
         require "layouts/addpost.layout.php";
+    }
+    public function viewStab() {
+        require "layouts/stab.layout.php";
     }
 }

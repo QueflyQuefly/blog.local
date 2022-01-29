@@ -20,17 +20,11 @@ function clearStr($str) {
 }
 
 class FactoryMethod {
-    private $dbService, $commentService, $postService, $ratingPostService;
+    private $commentService, $postService, $ratingPostService, $stabService;
     private $ratingCommentService, $sendMailService, $subscribeService, $userService;
     private $postController, $commentController, $ratingController, $userController;
     private $viewComments, $viewPosts, $view;
 
-    public function getDbService() {
-        if (is_null($this->dbService)) {
-            $this->dbService = new DbService();
-        }
-        return $this->dbService;
-    }
     public function getCommentService() {
         if (is_null($this->commentService)) {
             $this->commentService = new CommentService();
@@ -72,6 +66,12 @@ class FactoryMethod {
             $this->userService = new UserService();
         }
         return $this->userService;
+    }
+    public function getStabService() {
+        if (is_null($this->stabService)) {
+            $this->stabService = new StabService($this->getUserService(), $this->getCommentService(), $this->getRatingPostService(), $this->getRatingCommentService());
+        }
+        return $this->stabService;
     }
     public function getPostController() {
         if (is_null($this->postController)) {
