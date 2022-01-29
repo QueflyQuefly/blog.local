@@ -1,6 +1,7 @@
 
-<div class='<?=  $class  ?>'>
-    <a class='postLink' href='viewpost/<?= $post['post_id'] ?>'>
+<?php // needed $class, $post, $linkToDelete ?>
+<div class='<?= $class ?>'>
+    <a class='postLink' href='/viewpost/<?= $post['post_id'] ?>'>
         <div class='posttext'>
             <p class='posttitle'><?= $post['title'] ?></p>
             <p class='postcontent'><?= $post['content'] ?></p>
@@ -9,7 +10,7 @@
             <?= $linkToDelete ?>
         </div>
         <div class='postimage'>
-            <img src='http://blog.local/images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка'>
+            <img src='/images/PostImgId<?= $post['post_id'] ?>.jpg' alt='Картинка'>
         </div>
     </a>
 </div>

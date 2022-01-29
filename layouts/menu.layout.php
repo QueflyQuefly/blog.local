@@ -1,4 +1,4 @@
-
+        <?php // needed $sessionUserId, $isSuperuser?>
         <nav>
             <div class='top'>
                 <div id="logo">

@@ -514,45 +514,28 @@ img[alt="www.000webhost.com"] {
 }
 .formentry{
     border: 1px solid lightgray;
-    height:60vmin;
+    height: 100%;
     width:55%;
+    padding-bottom: 5%;
     margin: 1% auto;
     text-align: center;
 }
 .formmsg{
-    /* border: 1px solid lightgray; */
     height:10%;
     width:50%;
     margin: -1% auto 5% auto;
     text-align:center;
 }
 #left{
+    position: relative;
     float:left;
     margin-left: 15%;
     margin-top: 1vmin;
 }
 #right{
+    position: relative;
     float:right;
     margin-right: 20%;
-}
-
-.formlogo{
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    text-decoration: none;
-    color: currentColor;
-}
-.formlogo:hover{
-    text-decoration: none;
-    color: currentColor;
-}
-.formlogo:active{
-    text-decoration: none;
-    color: currentColor;
-}
-.formlogo{
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 20pt;
-    text-align:center;
 }
 .formname{
     font-size: 17pt;

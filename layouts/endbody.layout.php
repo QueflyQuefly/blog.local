@@ -1,4 +1,4 @@
-
+    <?php // needed $startTime ?>
     </div>
 </div>
 <footer>

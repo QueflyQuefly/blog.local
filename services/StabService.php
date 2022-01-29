@@ -27,12 +27,12 @@ class StabService {
             2 => 'Ночная Россия -',
             3 => 'Пизанская башня -',
             4 => 'Италия и Швейцария -',
-            5 => 'В моём путешествии США -',
+            5 => 'Одни впечатления: США -',
             6 => 'Беларусь -',
             7 => 'Я просто обожаю Испанию, ведь Испания -',
             8 => 'Сербия и Черногория -',
-            9 => 'Франция -',
-            10 => 'Страна разваливается. Канада -',
+            9 => 'Есть и плюсы, и минусы. Франция -',
+            10 => 'Мне запомнилась эта страна, ведь Канада -',
             11 => 'Солнечный Белиз -',
             12 => 'Таиланд удивил -',
         ]; 
@@ -152,7 +152,7 @@ class StabService {
                     }
 
                     $randomLike = mt_rand(0, 1000);
-                    if (!$this->commentService->addComment($postId, $randomUser, $dateOfComment, $commentContent, $randomLike)) {
+                    if (!$this->commentService->addComment($postId, $randomUser, $commentContent, $dateOfComment, $randomLike)) {
                         $this->errors[] = "Комментарий к посту № $postId от пользователя с id = $randomUser не создан";
                         continue;
                     }

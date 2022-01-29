@@ -40,4 +40,7 @@ class View {
     public function viewStab() {
         require "layouts/stab.layout.php";
     }
+    public function viewPagination($nameOfPath, $numberOfPosts, $page) {
+        require "layouts/pagination.layout.php";
+    }
 }

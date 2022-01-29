@@ -37,6 +37,11 @@ class FrontController {
             case 'addpost': 
                 $this->showAddpost(); 
                 break;
+            case 'posts':
+                $numberOfPosts = $_GET['number'] ?? 25;
+                $pageOfPosts = $_GET['page'] ?? 1;
+                $this->showPosts($numberOfPosts, $pageOfPosts);
+                break;
             case 'stab': 
                 @set_time_limit(6000);
                 
@@ -206,7 +211,7 @@ class FrontController {
         $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
                   
         $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
-        $this->postController->showLastPosts(10, $this->isSuperuser());
+        $this->postController->showPosts(10, $this->isSuperuser(), true);
         $this->postController->showMoreTalkedPosts(3, $this->isSuperuser());
         $this->view->viewFooter($this->startTime);
     }
@@ -273,6 +278,15 @@ class FrontController {
         }
         $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
         $this->view->viewStab();
+        $this->view->viewFooter($this->startTime);
+    }
+    public function showPosts($numberOfPosts, $pageOfPosts) {
+        $_SESSION['referrer'] = "posts.php";
+        $pageTitle = 'Все посты - Просто блог';
+        $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
+        $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
+        $this->view->viewPagination('posts', $numberOfPosts, $pageOfPosts);
+        $this->postController->showPosts($numberOfPosts,  $this->isSuperuser(), $pageOfPosts * $numberOfPosts - $numberOfPosts);
         $this->view->viewFooter($this->startTime);
     }
     public function getUserId() {

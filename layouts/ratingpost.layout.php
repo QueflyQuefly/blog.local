@@ -1,4 +1,4 @@
-
+        <?php // needed $post ?>
         <div class="rating-area">
             <form action='<?= $post['post_id'] ?>' method='post'>
                 <input type='hidden' name='post_id' value="<?= $post['post_id'] ?>" >

@@ -1,4 +1,4 @@
-
+    <?php // needed $maxSizeOfUploadImage ?>
     <div class='addpostcontainer'>
         <div class='addpostmsg'>
             <?php

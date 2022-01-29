@@ -1,4 +1,4 @@
-
+        <?php // needed $post ?>
         <div class='addcomments' id='comment'>
             <p class='center'>Добавьте комментарий:</p>
             <div class='addcomment'>

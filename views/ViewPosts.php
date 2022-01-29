@@ -5,7 +5,7 @@ class ViewPosts {
     public function __construct() {
         $this->pathToLayouts = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR ;
     }
-    public function renderPosts($posts, $isSuperuser = false) {
+    public function renderPosts($posts, $isSuperuser = false, $showButton = false) {
         if (empty($posts)) {
             $this->postsView = "\n<p class='center'>Нет постов для отображения</p>\n"; 
         } else {
@@ -33,7 +33,9 @@ class ViewPosts {
                 }
                 include $this->pathToLayouts . 'post.layout.php';
             }
-            echo "\n<p class='center'><a class='submit' href='posts.php'>Посмотреть посты за всё время</a></p>\n";
+            if ($showButton) {
+                echo "\n<p class='center'><a class='submit' href='posts.php'>Посмотреть посты за всё время</a></p>\n";
+            }
         }
         echo $this->postsView;
     }

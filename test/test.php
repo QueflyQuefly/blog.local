@@ -196,7 +196,7 @@ $posts = array(
         'author' => 'Администратор'
     )
 );
-$v->showLastPosts(10, true); */
+$v->showPosts(10, true); */
 /* $deleteCommentId = 1;
 $sql = "UPDATE additional_info_posts SET count_comments = count_comments-1 
         WHERE post_id = (SELECT post_id FROM comments WHERE comment_id = $deleteCommentId);";

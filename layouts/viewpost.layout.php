@@ -1,4 +1,4 @@
-
+    <?php // needed $post, $linkToDelete ?>
     <div id='singleposttitle'>
         <p class='singleposttitle'><?= $post['title'] ?></p>
     </div>
