@@ -22,7 +22,7 @@ function clearStr($str) {
 class FactoryMethod {
     private $commentService, $postService, $ratingPostService, $stabService;
     private $ratingCommentService, $sendMailService, $subscribeService, $userService;
-    private $postController, $commentController, $ratingController, $userController;
+    private $postController, $commentController, $ratingController, $userController, $subscribeController;
     private $viewComments, $viewPosts, $view;
 
     public function getCommentService() {
@@ -96,6 +96,12 @@ class FactoryMethod {
             $this->userController = new UserController($this->getUserService());
         }
         return $this->userController;
+    }
+    public function getSubscribeController() {
+        if (is_null($this->subscribeController)) {
+            $this->subscribeController = new SubscribeController($this->getSubscribeService());
+        }
+        return $this->subscribeController;
     }
     public function getViewPosts() {
         if (is_null($this->viewPosts)) {

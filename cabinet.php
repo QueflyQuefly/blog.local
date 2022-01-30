@@ -27,13 +27,13 @@ if (isset($_GET['user'])) {
             header("Location: cabinet.php");
         }
         if (!empty($isSuperuser)) {
-            $showInfoAndLinksToDelete = true;
+            $showEmailAndLinksToDelete = true;
         }
     }
 } elseif (!empty($sessionUserId)) {
     $userId = $sessionUserId;
     $user = getUserInfoById($userId);
-    $showInfoAndLinksToDelete = true;
+    $showEmailAndLinksToDelete = true;
     $linkToChangeUserInfo = true;
     $_SESSION['referrer'] = 'cabinet.php';
 } else {
@@ -44,7 +44,7 @@ if (isset($_GET['exit']) && !empty($sessionUserId)) {
     setcookie('user_id', '0', 1);
     header("Location: cabinet.php?user=$userId");
 }
-if (!empty($showInfoAndLinksToDelete)) {
+if (!empty($showEmailAndLinksToDelete)) {
     if (isset($_GET['deletePostById'])) {
         $deletePostId = clearInt($_GET['deletePostById']);
         if ($deletePostId !== '') {
@@ -159,7 +159,7 @@ $year = date("Y", time());
     <div class='content'>
         <div id='desc'><p><?= $user['fio'] ?> </p>
             <?php
-                if (!empty($showInfoAndLinksToDelete)) {
+                if (!empty($showEmailAndLinksToDelete)) {
                     echo "<p>E-mail: {$user['email']}</p>";
                 }
                 if ($user['rights'] === RIGHTS_SUPERUSER) {
@@ -241,7 +241,7 @@ $year = date("Y", time());
                     ?>  
                     </p>
                     <?php
-                        if (!empty($showInfoAndLinksToDelete)) {
+                        if (!empty($showEmailAndLinksToDelete)) {
                     ?>
                         <object>
                             <a class='link' href='cabinet.php?user=<?= $userId ?>&deletePostById=<?=  $post['post_id']  ?>'>
@@ -285,7 +285,7 @@ $year = date("Y", time());
                         <p class='commentcontent'><?= $comment['content'] ?></p>
                         <p class='commentcontent'>
                         <?php
-                            if (!empty($showInfoAndLinksToDelete)) {
+                            if (!empty($showEmailAndLinksToDelete)) {
                         ?>
                             <object>
                                 <a class='link' href='cabinet.php?user=<?= $userId ?>&deleteCommentById=<?=  $comment['comment_id']  ?>'>
@@ -333,7 +333,7 @@ $year = date("Y", time());
                     ?>  
                     </p>
                     <?php
-                        if (!empty($showInfoAndLinksToDelete)) {
+                        if (!empty($showEmailAndLinksToDelete)) {
                     ?>
                         <object>
                             <a class='link' href='cabinet.php?user=<?= $userId ?>&deletePostById=<?=  $post['post_id']  ?>'>
@@ -379,7 +379,7 @@ $year = date("Y", time());
                         <p class='commentcontent'><?=  $comment['content']  ?></p>
                         <p class='commentcontent'>
                         <?php
-                            if (!empty($showInfoAndLinksToDelete)) {
+                            if (!empty($showEmailAndLinksToDelete)) {
                         ?>
                             <object>
                                 <a class='link' href='cabinet.php?user=<?= $userId ?>&deleteCommentById=<?=  $comment['comment_id']  ?>'>

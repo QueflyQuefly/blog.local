@@ -20,6 +20,8 @@ class UserController {
             $userId = $this->getUserId();
             if (!empty($userId) && $this->userService->getUserInfoById($userId, 'rights') === RIGHTS_SUPERUSER) {
                 $this->isSuperuser = true;
+            } else {
+                $this->isSuperuser = false;
             }
         }
         return $this->isSuperuser;
@@ -32,6 +34,9 @@ class UserController {
     }
     public function addUser($email, $fio, $password, $rights = false) {
         return $this->userService->addUser($email, $fio, $password, $rights);
+    }
+    public function getUserInfoById($getUserInfoById, $whatNeeded = '') {
+        return $this->userService->getUserInfoById($getUserInfoById, $whatNeeded);
     }
     public function exitUser() {
         if ($this->getUserId()) {

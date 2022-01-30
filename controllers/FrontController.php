@@ -4,17 +4,18 @@ session_start();
 class FrontController {
     public $msg, $error;
     private $stabService, $view;
-    private $userController, $postController, $commentController, $ratingController;
+    private $userController, $postController, $commentController, $ratingController, $subscribeController;
 
     public function __construct($requestUri, $_request, $startTime, FactoryMethod $factoryMethod) {
         ob_start();
         $this->startTime = $startTime;
+        $this->stabService = $factoryMethod->getStabService();
         $this->userController = $factoryMethod->getUserController();
         $this->postController = $factoryMethod->getPostController();
         $this->commentController = $factoryMethod->getCommentController();
         $this->ratingController = $factoryMethod->getRatingController();
+        $this->subscribeController = $factoryMethod->getSubscribeController();
         $this->view = $factoryMethod->getView();
-        $this->stabService = $factoryMethod->getStabService();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
@@ -44,9 +45,19 @@ class FrontController {
                 break;
             case 'stab': 
                 @set_time_limit(6000);
-                
                 $numberOfLoopIterations = $_GET['number'] ?? 10;
                 $this->showStab($numberOfLoopIterations);
+                break;
+            case 'cabinet':
+                $userId = $_GET['user'] ?? $this->getUserId();
+                $user = $this->userController->getUserInfoById($userId);
+                if ($this->getUserId() == $userId || $this->isSuperuser()) {
+                    $showEmailAndLinksToDelete = true;
+                    if ($this->getUserId() == $userId) {
+                        $linkToChangeUserInfo = true;
+                    }
+                }
+                $this->showCabinet($user, $showEmailAndLinksToDelete ?? false, $linkToChangeUserInfo ?? false);
                 break;
             default : $this->show404();
         }
@@ -281,12 +292,44 @@ class FrontController {
         $this->view->viewFooter($this->startTime);
     }
     public function showPosts($numberOfPosts, $pageOfPosts) {
-        $_SESSION['referrer'] = "posts.php";
+        $_SESSION['referrer'] = "/posts";
         $pageTitle = 'Все посты - Просто блог';
         $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
         $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
         $this->view->viewPagination('posts', $numberOfPosts, $pageOfPosts);
         $this->postController->showPosts($numberOfPosts,  $this->isSuperuser(), $pageOfPosts * $numberOfPosts - $numberOfPosts);
+        $this->view->viewFooter($this->startTime);
+    }
+    public function showCabinet($user, $showEmailAndLinksToDelete, $linkToChangeUserInfo) {
+        $_SESSION['referrer'] = "/cabinet";
+        $pageTitle = $user['fio'] . " - Просто блог";
+        $pageDescription = $user['fio'];
+        if ($showEmailAndLinksToDelete) {
+            $pageDescription .= "<p>E-mail: {$user['email']}</p>";
+        }
+        if ($user['rights'] === RIGHTS_SUPERUSER) {
+            $pageDescription .= "<p style='font-size: 13pt; color: green;'>Является администратором этого сайта</p>";
+        }
+        if (!empty($linkToChangeUserInfo)) {
+            if (!isset($_GET['changeinfo'])) {
+                $pageDescription .= "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Изменить параметры профиля' 
+                        href='/cabinet/?changeinfo'>Изменить параметры профиля</a>\n";
+            } else {
+                $pageDescription .= "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Отмена' 
+                        href='/cabinet'>Отмена</a>\n";
+            }
+        }
+        if ($this->getUserId() != $user['user_id']) {
+            if (!$this->subscribeController->isSubscribedUser($user['user_id'], $this->getUserId())) {
+                $pageDescription .= "<p><a class='link' title='Подписаться' style='font-size:14pt' 
+                        href='/cabinet/?user={$user['user_id']}&subscribe'>Подписаться</a></p>";
+            } else {
+                $pageDescription .= "<p><a class='link' title='Отменить подписку' style='font-size:14pt' 
+                        href='/cabinet/user={$user['user_id']}&unsubscribe'>Отменить подписку</a></p>";
+            }
+        }
+        $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
+        //$this->postController->showPosts($numberOfPosts,  $this->isSuperuser());
         $this->view->viewFooter($this->startTime);
     }
     public function getUserId() {

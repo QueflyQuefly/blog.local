@@ -1,13 +1,68 @@
 <?php
-spl_autoload_register(function ($class) {
-    require "$class.php";
-});
 
 class UserService {
     public $error;
     private $_db;
     public function __construct() {
         $this->_db = DbService::getInstance();
+    }
+    public function addUser($email, $fio, $password, $rights = false) {
+        try {
+            if (!$this->isEmailUnique($email)) {
+                return false;
+            }
+            if ($rights === RIGHTS_SUPERUSER) {
+                $rights = $this->_db->quote(RIGHTS_SUPERUSER);
+            } else {
+                $rights = $this->_db->quote(RIGHTS_USER);
+            }
+            
+            $email = $this->_db->quote($email);
+            $fio = $this->_db->quote($fio);
+            $date = time();
+            $password = $this->_db->quote($password);
+    
+            $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
+                    VALUES ($email, $fio, $password, $date, $rights);";
+            if (!$this->_db->exec($sql)) {
+                return false;
+            }
+    
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+        }
+        return true;
+    }
+    public function isEmailUnique($email) {
+        try {
+            $email = $this->_db->quote($email);
+            $sql = "SELECT user_id FROM users WHERE email = $email;";
+            $stmt = $this->_db->query($sql);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!empty($result['user_id'])){
+                return false; //если есть совпадения, то логин не является уникальным
+            }
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+        }
+        return true;
+    }
+    public function isUser($email, $password) {
+        try {
+            $email = $this->_db->quote($email);
+            $sql = "SELECT user_id, pass_word FROM users 
+                    WHERE email = $email;";
+            $stmt = $this->_db->query($sql);
+            if ($stmt != false) {
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (password_verify($password, $result['pass_word'])) {
+                    return true;
+                }
+            }
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+        }
+        return false;
     }
     public function getUserIdByEmail($email) {
         $id = null;
@@ -51,64 +106,6 @@ class UserService {
         }
         return $users;
     }
-    public function isUser($email, $password) {
-        try {
-            $email = $this->_db->quote($email);
-            $sql = "SELECT user_id, pass_word FROM users 
-                    WHERE email = $email;";
-            $stmt = $this->_db->query($sql);
-            if ($stmt != false) {
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                if (password_verify($password, $result['pass_word'])) {
-                    return true;
-                }
-            }
-        } catch (PDOException $e) {
-            $this->error = $e->getMessage();
-        }
-        return false;
-    }
-    public function addUser($email, $fio, $password, $rights = false) {
-        try {
-            if (!$this->isEmailUnique($email)) {
-                return false;
-            }
-            if ($rights === RIGHTS_SUPERUSER) {
-                $rights = $this->_db->quote(RIGHTS_SUPERUSER);
-            } else {
-                $rights = $this->_db->quote(RIGHTS_USER);
-            }
-            
-            $email = $this->_db->quote($email);
-            $fio = $this->_db->quote($fio);
-            $date = time();
-            $password = $this->_db->quote($password);
-    
-            $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
-                    VALUES ($email, $fio, $password, $date, $rights);";
-            if (!$this->_db->exec($sql)) {
-                return false;
-            }
-    
-        } catch (PDOException $e) {
-            $this->error = $e->getMessage();
-        }
-        return true;
-    }
-    public function isEmailUnique($email) {
-        try {
-            $email = $this->_db->quote($email);
-            $sql = "SELECT user_id FROM users WHERE email = $email;";
-            $stmt = $this->_db->query($sql);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!empty($result['user_id'])){
-                return false; //если есть совпадения, то логин не является уникальным
-            }
-        } catch (PDOException $e) {
-            $this->error = $e->getMessage();
-        }
-        return true;
-    }
     public function updateUser($userId, $email, $fio, $password) {
         try {
             $userId = clearInt($userId);
@@ -139,7 +136,7 @@ class UserService {
         }
         return true;
     }
-    public function getUserInfoById($userId, $whatNeeded = ''){
+    public function getUserInfoById($userId, $whatNeeded = '') {
         $userId = clearInt($userId);
         $result = null;
         try {
@@ -148,7 +145,7 @@ class UserService {
                 case 'fio': $query = 'fio'; break;
                 case 'rights': $query = 'rights'; break;
                 case 'date_time': $query = 'date_time'; break;
-                default:  $query = 'email, fio, date_time, rights';
+                default:  $query = 'user_id, email, fio, date_time, rights';
             }
             $sql = "SELECT $query FROM users WHERE user_id = $userId;";
             $stmt = $this->_db->query($sql);

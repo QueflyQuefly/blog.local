@@ -7,7 +7,7 @@ class ViewPosts {
     }
     public function renderPosts($posts, $isSuperuser = false, $showButton = false) {
         if (empty($posts)) {
-            $this->postsView = "\n<p class='center'>Нет постов для отображения</p>\n"; 
+            $this->postsView = "\n<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>\n"; 
         } else {
             foreach ($posts as $key => $post) {
                 $class = 'viewpost';
@@ -21,6 +21,7 @@ class ViewPosts {
                     $post['rating'] = "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
                             . ", комментариев: " . $post['count_comments'];
                 }
+                $linkToDelete = '';
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
                     <object>
@@ -28,8 +29,6 @@ class ViewPosts {
                         Удалить пост с ID = {$post['post_id']}
                     </a>
                     </object>\n";
-                } else {
-                    $linkToDelete = '';
                 }
                 include $this->pathToLayouts . 'post.layout.php';
             }
@@ -52,6 +51,7 @@ class ViewPosts {
                     $post['rating'] = "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
                             . ", комментариев: " . $post['count_comments'];
                 }
+                $linkToDelete = '';
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
                     <object>
@@ -59,8 +59,6 @@ class ViewPosts {
                         Удалить пост с ID = {$post['post_id']}
                     </a>
                     </object>\n";
-                } else {
-                    $linkToDelete = '';
                 }
                 include $this->pathToLayouts . 'post.layout.php';
             }
@@ -83,6 +81,7 @@ class ViewPosts {
                 echo "<p class='singlepostdate'>Оценка принята</p>";
             }
         };
+        $linkToDelete = '';
         if (!empty($isSuperuser)) {
             $linkToDelete =
             "   <div class='singleposttext'>
@@ -92,8 +91,6 @@ class ViewPosts {
                 </a>
             </object>
         </div>";
-        } else {
-            $linkToDelete = '';
         }
         include $this->pathToLayouts . 'viewpost.layout.php';
         

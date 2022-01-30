@@ -13,6 +13,14 @@ class PostController {
         $posts = $this->postService->getLastPosts($numberOfPosts, $lessThanMaxPostId);
         return $this->viewPosts->renderPosts($posts, $isSuperuser);
     }
+    public function showPostsByUserId($userId, $isSuperuser) {
+        $posts = $this->postService->getPostsByUserId($userId);
+        return $this->viewPosts->renderPosts($posts, $isSuperuser);
+    }
+    public function showLikedPostsByUserId($userId, $isSuperuser) {
+        $posts = $this->postService->getLikedPostsByUserId($userId);
+        return $this->viewPosts->renderPosts($posts, $isSuperuser);
+    }
     public function showMoreTalkedPosts($numberOfPosts, $isSuperuser) {
         $moreTalkedPosts = $this->postService->getMoreTalkedPosts($numberOfPosts);
         return $this->viewPosts->renderMoreTalkedPosts($moreTalkedPosts, $isSuperuser);
