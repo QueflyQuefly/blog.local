@@ -19,7 +19,7 @@
                                 }
                             }
                         ?>
-                        <li><a class='menuLink' href='/cabinet.php'>Мой профиль</a></li>
+                        <li><a class='menuLink' href='/cabinet'>Мой профиль</a></li>
                         <li><a class='menuLink' href='/search.php'>Поиск</a></li>
                         <li><a class='menuLink' href='/addpost'>Создать новый пост</a></li>
                     </ul>

@@ -2,7 +2,7 @@
 session_start();
 
 class FrontController {
-    public $msg, $error;
+    public $msg, $error, $maxSizeOfUploadImage = 4 * 1024 * 1024; //4 megabytes
     private $stabService, $view;
     private $userController, $postController, $commentController, $ratingController, $subscribeController;
 
@@ -32,6 +32,7 @@ class FrontController {
             case 'posts': $this->showPosts(); break;
             case 'stab': $this->showStab(); break;
             case 'cabinet': $this->showCabinet(); break;
+            case 'search': $this->showSearch(); break;
             default : $this->show404();
         }
         if (!empty($_request)) {
@@ -217,17 +218,16 @@ class FrontController {
         if (!$this->getUserId()) {
             header ("Location: /login");
         }
-        $maxSizeOfUploadImage = 4 * 1024 * 1024; //4 megabytes
-        $this->view->viewAddpost($this->getUserId(), $this->isSuperuser(), $this->startTime, $maxSizeOfUploadImage);
+        $this->view->viewAddpost($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->maxSizeOfUploadImage);
     }
     public function showStab() {
         @set_time_limit(6000);
-        $numberOfLoopIterations = $_GET['number'] ?? 10;
-        $numberOfLoopIterations = clearInt($numberOfLoopIterations);
         $_SESSION['referrer'] = '/stab';
         if (!$this->isSuperuser()) {
             header ("Location: /login");
         }
+        $numberOfLoopIterations = $_GET['number'] ?? 10;
+        $numberOfLoopIterations = clearInt($numberOfLoopIterations);
         $this->stabService->stabDb($numberOfLoopIterations);
         $errors = $this->stabService->getErrors();
         $this->view->viewStab($this->getUserId(), $this->isSuperuser(), $numberOfLoopIterations, $errors, $this->startTime);
@@ -253,6 +253,11 @@ class FrontController {
         $linkToChangeUserInfo ?? false;
         $_SESSION['referrer'] = "/cabinet";
         $this->view->viewCabinet($user, $showEmailAndLinksToDelete, $linkToChangeUserInfo, $this->getUserId(), $this->isSuperuser(), $this->startTime);
+    }
+    public function showSearch() {
+        $search = $_GET['search'] ?? '';
+        $_SESSION['referrer'] = "/search/?search=$search";
+        $this->view->viewSearch($this->getUserId(), $this->isSuperuser(), $this->startTime, $search);
     }
     public function getUserId() {
         return $this->userController->getUserId();

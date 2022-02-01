@@ -14,6 +14,10 @@ class CommentController {
         $comments = $this->commentService->getCommentsByUserId($userId);
         return $this->viewComments->renderComments($comments, $isSuperuser);
     }
+    public function showLikedCommentsByUserId($userId, $isSuperuser) {
+        $comments = $this->commentService->getLikedCommentsByUserId($userId);
+        return $this->viewComments->renderComments($comments, $isSuperuser);
+    }
     public function deleteCommentById($id) {
         $deleteCommentId = clearInt($id);
         if ($deleteCommentId !== '') {

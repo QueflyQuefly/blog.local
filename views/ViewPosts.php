@@ -67,6 +67,7 @@ class ViewPosts {
     public function renderPost($post, $isSuperuser = false, $isUserChangedRating = false) {
         $this->isUserChangedRating = $isUserChangedRating;
         $this->post = $post;
+        $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         if ($post['count_ratings'] == 0) {
             $post['rating'] = "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
         } else {

@@ -92,7 +92,18 @@ class View extends ViewNested{
             }
         }
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
+
+        echo "<br><div class='contentsinglepost'><p class='posttitle'>Посты от автора &copy; {$user['fio']}:</p></div>";
         $this->postController->showPostsByUserId($user['user_id'], $showEmailAndLinksToDelete);
+
+        echo "<div class='contentsinglepost'><p class='posttitle'>Комментарии автора &copy; {$user['fio']}:</p></div>";
+        $this->commentController->showCommentsByUserId($user['user_id'], $showEmailAndLinksToDelete);
+
+        echo "<div class='contentsinglepost'><p class='posttitle'>Оценённые посты &copy; ${user['fio']}:</p></div>";
+        $this->postController->showLikedPostsByUserId($user['user_id'], $showEmailAndLinksToDelete);
+
+        echo "<div class='contentsinglepost'><p class='posttitle'>Понравившиеся комментарии &copy; ${user['fio']}:</p></div>";
+        $this->commentController->showLikedCommentsByUserId($user['user_id'], $showEmailAndLinksToDelete);
         parent::viewFooterLayout($startTime);
     }
     public function viewPosts($sessionUserId, $isSuperuser, $startTime, $numberOfPosts, $pageOfPosts) {
@@ -101,6 +112,21 @@ class View extends ViewNested{
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
         parent::viewPaginationLayout('posts', $numberOfPosts, $pageOfPosts);
         $this->postController->showPosts($numberOfPosts,  $isSuperuser, $pageOfPosts * $numberOfPosts - $numberOfPosts);
+        parent::viewFooterLayout($startTime);
+    }
+    public function viewSearch($sessionUserId, $isSuperuser, $startTime, $search) {
+        $pageTitle = 'Поиск - Просто блог';
+        $pageDescription = 'Поиск поста или автора';
+        parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
+        parent::viewSearchLayout($search);
+        echo "<div class='searchdescription'><div class='posttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
+        $description = "<div class='posttext'>Поиск автора осуществляется по ФИО</div>\n</div>";
+        if (!empty($isSuperuser)) {
+            $description = "<div class='posttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
+        }
+        echo $description;
+
+        //$this->postController->showPosts($numberOfPosts,  $isSuperuser, $pageOfPosts * $numberOfPosts - $numberOfPosts);
         parent::viewFooterLayout($startTime);
     }
 }

@@ -149,21 +149,19 @@ var_dump($results); */
 /* 
 $arr = json_encode(array('email' => 'prostoblog.local@gmail.com', 'password' => '1Artaxerx2##'));
 file_put_contents('data.json', $arr); */
-/* $numberOfPosts = 10;
-$sql = "SELECT p.post_id, p.title, p.user_id, p.date_time, p.content, 
-        a.rating, a.count_comments, a.count_ratings,
-        u.fio as author 
-        FROM posts p 
-        JOIN additional_info_posts a ON a.post_id = p.post_id 
-        JOIN users u ON p.user_id = u.user_id 
-        ORDER BY p.post_id DESC LIMIT 10, $numberOfPosts;";
+$numberOfPosts = 10;
+$sql = "SELECT p.post_id, p.title, p.date_time, 
+p.content, a.rating, a.count_comments, a.count_ratings, u.fio as author
+FROM posts p JOIN users u ON p.user_id = u.user_id 
+JOIN additional_info_posts a ON a.post_id = p.post_id
+WHERE p.user_id = 1;";
 $stmt = $db->query($sql);
 if ($stmt != false) {
     while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $posts[] = $result;
     }
 }
-var_dump($posts); */
+var_dump($posts);
 /* 
 for ($i = 0; $i <= 2; $i++) {
     $posts .= include '../layouts/post.layout.php'; 

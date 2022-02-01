@@ -98,16 +98,15 @@ class PostService {
         }
         return $posts;
     }
-    public function getPostsByUserId($user_id) {
+    public function getPostsByUserId($userId) {
         $posts = [];
         try {
-            $posts = [];
-            $user_id = $this->_db->quote($user_id);
+            $userId = clearInt($userId);
             $sql = "SELECT p.post_id, p.title, p.date_time, 
                     p.content, a.rating, a.count_comments, a.count_ratings, u.fio as author
                     FROM posts p JOIN users u ON p.user_id = u.user_id 
                     JOIN additional_info_posts a ON a.post_id = p.post_id
-                    WHERE p.user_id = $user_id;";
+                    WHERE p.user_id = $userId ORDER BY p.date_time DESC;";
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -122,14 +121,14 @@ class PostService {
     public function getLikedPostsByUserId($userId) {
         $posts = [];
         try {
-            
+            $userId = clearInt($userId);
             $sql = "SELECT r.post_id, p.title, r.user_id, p.date_time, p.content, 
                     a.rating, a.count_comments, a.count_ratings, u.fio as author 
                     FROM rating_posts r 
                     JOIN posts p ON p.post_id = r.post_id 
                     JOIN users u ON u.user_id = r.user_id 
                     JOIN additional_info_posts a ON a.post_id = p.post_id 
-                    WHERE r.user_id = $userId ORDER BY post_date_time DESC;";// LIMIT 30
+                    WHERE r.user_id = $userId ORDER BY p.date_time DESC;";// LIMIT 30
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -205,7 +204,6 @@ class PostService {
                 $regex = '/#(\w+)/um';
                 $post['content'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['content']);
                 $post['title'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['title']);
-                $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();

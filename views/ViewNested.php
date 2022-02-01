@@ -31,4 +31,7 @@ class ViewNested{
     public function viewPaginationLayout($nameOfPath, $numberOfPosts, $page) {
         require "layouts/pagination.layout.php";
     }
+    public function viewSearchLayout($search) {
+        require "layouts/search.layout.php";
+    }
 }

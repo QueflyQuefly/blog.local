@@ -7,7 +7,7 @@ class ViewComments {
     }
     public function renderComments($comments, $isSuperuser = false) {
         if (empty($comments)) {
-            $this->commentView .= "\n<div class='contentsinglepost'><p class='center'>Нет комментариев для отображения</p></div>\n"; 
+            $this->commentView = "\n<div class='contentsinglepost'><p class='center'>Нет комментариев для отображения</p></div>\n"; 
         } else {
             foreach ($comments as $comment) {
                 $comment['content'] = nl2br(clearStr($comment['content']));
@@ -21,9 +21,9 @@ class ViewComments {
                         </a>
                     </object>";
                 }
-                $this->commentView .= include $this->pathToLayouts . 'comment.layout.php';
+                include $this->pathToLayouts . 'comment.layout.php';
             }
         }
-        return $this->commentView;
+        echo $this->commentView;
     }
 }
