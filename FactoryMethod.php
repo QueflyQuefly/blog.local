@@ -23,7 +23,7 @@ class FactoryMethod {
     private $commentService, $postService, $ratingPostService, $stabService;
     private $ratingCommentService, $sendMailService, $subscribeService, $userService;
     private $postController, $commentController, $ratingController, $userController, $subscribeController;
-    private $viewComments, $viewPosts, $view;
+    private $viewComments, $viewPosts, $viewNested, $view;
 
     public function getCommentService() {
         if (is_null($this->commentService)) {
@@ -115,9 +115,15 @@ class FactoryMethod {
         }
         return $this->viewComments;
     }
+    public function getViewNested() {
+        if (is_null($this->viewNested)) {
+            $this->viewNested= new ViewNested();
+        }
+        return $this->viewNested;
+    }
     public function getView() {
         if (is_null($this->view)) {
-            $this->view = new View();
+            $this->view= new View($this->getPostController(), $this->getCommentController());
         }
         return $this->view;
     }

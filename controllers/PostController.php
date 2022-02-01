@@ -9,17 +9,17 @@ class PostController {
     public function addPost($title, $userId, $content) {
         return $this->postService->addPost($title, $userId, $content);
     }
-    public function showPosts($numberOfPosts, $isSuperuser, $lessThanMaxPostId = 0) {
+    public function showPosts($numberOfPosts, $isSuperuser, $lessThanMaxPostId = 0, $showButton = false) {
         $posts = $this->postService->getLastPosts($numberOfPosts, $lessThanMaxPostId);
-        return $this->viewPosts->renderPosts($posts, $isSuperuser);
+        return $this->viewPosts->renderPosts($posts, $isSuperuser, $showButton);
     }
     public function showPostsByUserId($userId, $isSuperuser) {
         $posts = $this->postService->getPostsByUserId($userId);
         return $this->viewPosts->renderPosts($posts, $isSuperuser);
     }
-    public function showLikedPostsByUserId($userId, $isSuperuser) {
+    public function showLikedPostsByUserId($userId, $showEmailAndLinksToDelete) {
         $posts = $this->postService->getLikedPostsByUserId($userId);
-        return $this->viewPosts->renderPosts($posts, $isSuperuser);
+        return $this->viewPosts->renderPosts($posts, $showEmailAndLinksToDelete);
     }
     public function showMoreTalkedPosts($numberOfPosts, $isSuperuser) {
         $moreTalkedPosts = $this->postService->getMoreTalkedPosts($numberOfPosts);

@@ -7,7 +7,7 @@
             <img class='captcha' src="/noise-picture.php"><br>
             <label class='formlabel'>Введите код с картинки выше: <input type='login' name='variable_of_captcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Код с captcha' class='formtext'></label>
             <div class='formmsg'>
-            <p class='error'>
+                <p class='error'>
                     <?php
                         if (!empty($_GET['msg'])) {
                             echo clearStr($_GET['msg']);

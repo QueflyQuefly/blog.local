@@ -111,7 +111,6 @@ class PostService {
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
                     $posts[] = $post;
                 }
             }

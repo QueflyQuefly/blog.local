@@ -25,7 +25,7 @@ if (isset($_POST['view']) && $isSuperuser === true) {
     if ($_POST['view'] === 'addAdmin') {
         header("Location: /reg");
     }
-    if ($_POST['view'] === 'viewStab') {
+    if ($_POST['view'] === 'viewStabLayout') {
         header("Location: /stab");
     }
 }
@@ -66,7 +66,7 @@ if (isset($_POST['view']) && $isSuperuser === true) {
                     <br><input type='radio' id='radio3' name='view' value='addAdmin' class='radio'>
                     <label class='formlabel' for='radio3'>Добавить администратора</label>
 
-                    <br><input type='radio' id='radio4' name='view' value='viewStab' class='radio'>
+                    <br><input type='radio' id='radio4' name='view' value='viewStabLayout' class='radio'>
                     <label class='formlabel' for='radio4'>Стаб БД</label>
                 </div>
 

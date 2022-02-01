@@ -24,7 +24,7 @@ if (isset($_GET['user'])) {
     if (!empty($sessionUserId)) {
         $link = "<a class='menuLink' href='{$_SERVER['REQUEST_URI']}&exit'>Выйти</a>";
         if ($userId == $sessionUserId) {
-            header("Location: cabinet.php");
+            header("Location: /cabinet");
         }
         if (!empty($isSuperuser)) {
             $showEmailAndLinksToDelete = true;
@@ -35,7 +35,7 @@ if (isset($_GET['user'])) {
     $user = getUserInfoById($userId);
     $showEmailAndLinksToDelete = true;
     $linkToChangeUserInfo = true;
-    $_SESSION['referrer'] = 'cabinet.php';
+    $_SESSION['referrer'] = '/cabinet';
 } else {
     header("Location: login.php");
 }
@@ -61,14 +61,14 @@ if (!empty($showEmailAndLinksToDelete)) {
     }
 }
 if (!empty($linkToChangeUserInfo)) {
-    if (isset($_POST['email']) && isset($_POST['fio']) && isset($_POST['password'])) {
-        $email = clearStr($_POST['email']);
-        $fio = clearStr($_POST['fio']);
-        $password = $_POST['password'];
+    if (isset($_POST['change_email']) && isset($_POST['change_fio']) && isset($_POST['change_password'])) {
+        $email = clearStr($_POST['change_email']);
+        $fio = clearStr($_POST['change_fio']);
+        $password = $_POST['change_password'];
         $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
         if (!preg_match($regex, $email)) {
             $msg = "Неверный формат email";
-            header("Location: cabinet.php?changeinfo&msg=$msg");
+            header("Location: cabinet.php?change_info&msg=$msg");
         }   
         if ($email && $fio) {
             if ($password != '') {
@@ -78,14 +78,14 @@ if (!empty($linkToChangeUserInfo)) {
             }
             if (!updateUser($sessionUserId, $email, $fio, $password)) {
                 $msg = "Пользователь с таким email уже зарегистрирован";
-                header("Location: cabinet.php?changeinfo&msg=$msg"); 
+                header("Location: cabinet.php?change_info&msg=$msg"); 
             } else {
                 $msg = "Изменения сохранены";
                 header("Location: cabinet.php?msg=$msg");
             }
         } else { 
             $msg = "Заполните все поля";
-            header("Location: cabinet.php?changeinfo&msg=$msg");
+            header("Location: cabinet.php?change_info&msg=$msg");
         }
     }
 }
@@ -97,7 +97,7 @@ if (isset($_GET['subscribe'])) {
         toSubscribeUser($sessionUserId, $userId);
         header("Location: cabinet.php?user=$userId");
     } else {
-        header("Location: login.php");
+        header("Location: /login");
     }
 }
 if (isset($_GET['unsubscribe'])) {
@@ -105,7 +105,7 @@ if (isset($_GET['unsubscribe'])) {
         toUnsubscribeUser($sessionUserId, $userId);
         header("Location: cabinet.php?user=$userId");
     } else {
-        header("Location: login.php");
+        header("Location: /login");
     }
 }
 
@@ -119,7 +119,7 @@ $year = date("Y", time());
 <head>
     <meta charset='UTF-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $user['fio'] ?>. Профиль - Просто блог</title>
+    <title><?= $user['change_fio'] ?>. Профиль - Просто блог</title>
     <link rel='stylesheet' href='css/general.css'>
     <link rel="shortcut icon" href="/images/logo.jpg" type="image/x-icon">
 </head>
@@ -166,9 +166,9 @@ $year = date("Y", time());
                     echo "<p style='font-size: 13pt; color: green;'>Является администратором этого сайта</p>";
                 }
                 if (!empty($linkToChangeUserInfo)) {
-                    if (!isset($_GET['changeinfo'])) {
+                    if (!isset($_GET['change_info'])) {
                         echo "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Изменить параметры профиля' 
-                                href='cabinet.php?changeinfo'>Изменить параметры профиля</a>\n";
+                                href='cabinet.php?change_info'>Изменить параметры профиля</a>\n";
                     } else {
                         echo "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Отмена' 
                                 href='cabinet.php'>Отмена</a>\n";
@@ -187,26 +187,26 @@ $year = date("Y", time());
         </div>
         
         <?php
-            if (isset($_GET['changeinfo']) && !empty($linkToChangeUserInfo)) {
+            if (isset($_GET['change_info']) && !empty($linkToChangeUserInfo)) {
             ?>
-            <div class='viewcomment'>
+            <div style='margin-left: -35vmin; margin-bottom: 10vmin;'>
                 <div class='form'>
                     <form action='cabinet.php' method='post'>
-                        <input type='email' name='email' required autofocus minlength="1" maxlength='50' autocomplete="on" placeholder='Введите новый email' class='text' value='<?= $user['email'] ?>'><br>
-                        <input type='login' name='fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='Новый псевдоним' class='text' value='<?= $user['fio'] ?>'><br>
-                        <input type='password' name='password' minlength="0" maxlength='20' autocomplete="new-password" placeholder='Новый пароль; оставьте пустым, если не хотите менять' class='text'><br>
+                        <input type='email' name='change_email' required autofocus minlength="1" maxlength='50' autocomplete="on" placeholder='Введите новый email' class='formtext' value='<?= $user['email'] ?>'><br>
+                        <input type='login' name='change_fio' required minlength="1" maxlength='50' autocomplete="on" placeholder='Новый псевдоним' class='formtext' value='<?= $user['fio'] ?>'><br>
+                        <input type='password' name='change_password' minlength="0" maxlength='20' autocomplete="new-password" placeholder='Новый пароль; оставьте пустым, если не хотите менять' class='formtext'><br>
                 <?php
                     if (!empty($msg)) {
                         echo "<div class='msg'><p class='error'>$msg</p></div>";
                     }
                 ?>
-                        <div id='right'><input type='submit' style='margin-left:5vmin' value='Сохранить' class='submit'></div>
+                        <div id='right'><input type='submit' style='margin-left:5vmin; margin-bottom: 5vmin;' value='Сохранить' class='submit'></div>
                     </form>
                 </div>
             </div>
             <?php
                 } elseif (!empty($msg)) {
-                    echo "<p class='list' style='font-size:13pt'>$msg</p>";
+                    echo "<p style='font-size:13pt; margin-left:33vmin'>$msg</p>";
                 }
             ?>
             <?php 
@@ -216,7 +216,7 @@ $year = date("Y", time());
                 } else {
                     $countPosts = count($posts);
                 }
-                echo "<div class='contentsinglepost'><p class='posttitle'>Посты от автора &copy; 
+                echo "<br><div class='contentsinglepost'><p class='posttitle'>Посты от автора &copy; 
                         {$user['fio']} (всего $countPosts):</p></div>";
                 if (empty($posts)) {
                     echo "<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>"; 

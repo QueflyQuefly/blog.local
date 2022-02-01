@@ -15,7 +15,8 @@ class FrontController {
         $this->commentController = $factoryMethod->getCommentController();
         $this->ratingController = $factoryMethod->getRatingController();
         $this->subscribeController = $factoryMethod->getSubscribeController();
-        $this->view = $factoryMethod->getView();
+        $this->viewNested= $factoryMethod->getViewNested();
+        $this->view= $factoryMethod->getView();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
@@ -23,42 +24,14 @@ class FrontController {
         $this->requestUriArray = explode('/', $requestUri);
         array_shift($this->requestUriArray);
         switch (array_shift($this->requestUriArray)) {
-            case '': 
-                $this->showGeneral(); 
-                break;
-            case 'viewpost': 
-                $this->showPost(); 
-                break;
-            case 'login': 
-                $this->showLogin(); 
-                break;
-            case 'reg': 
-                $this->showReg(); 
-                break;
-            case 'addpost': 
-                $this->showAddpost(); 
-                break;
-            case 'posts':
-                $numberOfPosts = $_GET['number'] ?? 25;
-                $pageOfPosts = $_GET['page'] ?? 1;
-                $this->showPosts($numberOfPosts, $pageOfPosts);
-                break;
-            case 'stab': 
-                @set_time_limit(6000);
-                $numberOfLoopIterations = $_GET['number'] ?? 10;
-                $this->showStab($numberOfLoopIterations);
-                break;
-            case 'cabinet':
-                $userId = $_GET['user'] ?? $this->getUserId();
-                $user = $this->userController->getUserInfoById($userId);
-                if ($this->getUserId() == $userId || $this->isSuperuser()) {
-                    $showEmailAndLinksToDelete = true;
-                    if ($this->getUserId() == $userId) {
-                        $linkToChangeUserInfo = true;
-                    }
-                }
-                $this->showCabinet($user, $showEmailAndLinksToDelete ?? false, $linkToChangeUserInfo ?? false);
-                break;
+            case '': $this->showGeneral(); break;
+            case 'viewpost': $this->showPost(); break;
+            case 'login': $this->showLogin(); break;
+            case 'reg': $this->showReg(); break;
+            case 'addpost': $this->showAddpost(); break;
+            case 'posts': $this->showPosts(); break;
+            case 'stab': $this->showStab(); break;
+            case 'cabinet': $this->showCabinet(); break;
             default : $this->show404();
         }
         if (!empty($_request)) {
@@ -218,13 +191,7 @@ class FrontController {
     }
     public function showGeneral() {
         $_SESSION['referrer'] = '/';
-        $pageTitle = 'Просто Блог - Главная';
-        $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
-                  
-        $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
-        $this->postController->showPosts(10, $this->isSuperuser(), true);
-        $this->postController->showMoreTalkedPosts(3, $this->isSuperuser());
-        $this->view->viewFooter($this->startTime);
+        $this->view->viewGeneral($this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showPost() {
         $postId = array_shift($this->requestUriArray);
@@ -232,105 +199,60 @@ class FrontController {
           header ("Location: /404");
         } else {
             $postId = clearInt($postId);
-            $pageTitle = 'Просмотр поста - Просто Блог';
-
-            $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
-            $this->postController->showPost(
-                $postId, $this->isSuperuser(), 
-                $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId)
-            );
-            $this->postController->showTagsByPostId($postId);
-            $this->commentController->showCommentsByPostId($postId, $this->isSuperuser());
-            $this->view->viewFooter($this->startTime);
+            $this->view->viewPost($postId, $this->getUserId(), $this->isSuperuser(), $this->startTime, $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId));
         }
     }
     public function show404() {
-        $this->view->view404($this->getUserId(), $this->isSuperuser());
+        $this->view->view404($this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showLogin() {
-        $pageTitle = 'Вход - Просто Блог';          
-        $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
-        $this->view->viewLogin();
-        $this->view->viewFooter($this->startTime);
+        $this->view->viewLogin($this->getUserId(), $this->isSuperuser(), $this->startTime);
+
     }
     public function showReg() {
-        $pageTitle = 'Регистрация - Просто Блог';          
-        $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
-        $this->view->viewReg($this->isSuperuser());
-        $this->view->viewFooter($this->startTime);
+        $this->view->showReg($this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showAddpost() {
         $_SESSION['referrer'] = '/addpost';
         if (!$this->getUserId()) {
             header ("Location: /login");
         }
-        $pageTitle = 'Добавление поста - Просто Блог';
-        $this->view->viewHead($this->getUserId(), $this->isSuperuser(), $pageTitle);
-        $this->view->viewAddpost();
-        $this->view->viewFooter($this->startTime);
+        $maxSizeOfUploadImage = 4 * 1024 * 1024; //4 megabytes
+        $this->view->viewAddpost($this->getUserId(), $this->isSuperuser(), $this->startTime, $maxSizeOfUploadImage);
     }
-    public function showStab($numberOfLoopIterations) {
+    public function showStab() {
+        @set_time_limit(6000);
+        $numberOfLoopIterations = $_GET['number'] ?? 10;
+        $numberOfLoopIterations = clearInt($numberOfLoopIterations);
         $_SESSION['referrer'] = '/stab';
         if (!$this->isSuperuser()) {
             header ("Location: /login");
         }
         $this->stabService->stabDb($numberOfLoopIterations);
         $errors = $this->stabService->getErrors();
-        $pageTitle = 'Стаб - Просто Блог';
-        $pageDescription = '';
-        if (empty($errors)) {
-            $pageDescription = "Подключение к БД: успешно</p><p>Создано $numberOfLoopIterations новый(-ых) пользователь(-ей, -я), 
-            $numberOfLoopIterations новый(-ых) пост(-ов, -а) и несколько(до 12) комментариев к каждому.<br>
-            Создание 100 постов занимает примерно 10 секунд.";
-        } else {
-            foreach ($errors as $error) {
-                $pageDescription .= $error . "<br>";
-            }
-        }
-        $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
-        $this->view->viewStab();
-        $this->view->viewFooter($this->startTime);
+        $this->view->viewStab($this->getUserId(), $this->isSuperuser(), $numberOfLoopIterations, $errors, $this->startTime);
     }
-    public function showPosts($numberOfPosts, $pageOfPosts) {
+    public function showPosts() {
+        $numberOfPosts = $_GET['number'] ?? 25;
+        $numberOfPosts = clearInt($numberOfPosts);
+        $pageOfPosts = $_GET['page'] ?? 1;
+        $pageOfPosts = clearInt($pageOfPosts);
         $_SESSION['referrer'] = "/posts";
-        $pageTitle = 'Все посты - Просто блог';
-        $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
-        $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
-        $this->view->viewPagination('posts', $numberOfPosts, $pageOfPosts);
-        $this->postController->showPosts($numberOfPosts,  $this->isSuperuser(), $pageOfPosts * $numberOfPosts - $numberOfPosts);
-        $this->view->viewFooter($this->startTime);
+        $this->view->viewPosts($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfPosts, $pageOfPosts);
     }
-    public function showCabinet($user, $showEmailAndLinksToDelete, $linkToChangeUserInfo) {
+    public function showCabinet() {
+        $userId = $_GET['user'] ?? $this->getUserId();
+        $user = $this->userController->getUserInfoById($userId);
+        if ($this->getUserId() == $userId || $this->isSuperuser()) {
+            $showEmailAndLinksToDelete = true;
+            if ($this->getUserId() == $userId) {
+                $linkToChangeUserInfo = true;
+            }
+        }
+        $showEmailAndLinksToDelete ?? false;
+        $linkToChangeUserInfo ?? false;
         $_SESSION['referrer'] = "/cabinet";
-        $pageTitle = $user['fio'] . " - Просто блог";
-        $pageDescription = $user['fio'];
-        if ($showEmailAndLinksToDelete) {
-            $pageDescription .= "<p>E-mail: {$user['email']}</p>";
-        }
-        if ($user['rights'] === RIGHTS_SUPERUSER) {
-            $pageDescription .= "<p style='font-size: 13pt; color: green;'>Является администратором этого сайта</p>";
-        }
-        if (!empty($linkToChangeUserInfo)) {
-            if (!isset($_GET['changeinfo'])) {
-                $pageDescription .= "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Изменить параметры профиля' 
-                        href='/cabinet/?changeinfo'>Изменить параметры профиля</a>\n";
-            } else {
-                $pageDescription .= "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Отмена' 
-                        href='/cabinet'>Отмена</a>\n";
-            }
-        }
-        if ($this->getUserId() != $user['user_id']) {
-            if (!$this->subscribeController->isSubscribedUser($user['user_id'], $this->getUserId())) {
-                $pageDescription .= "<p><a class='link' title='Подписаться' style='font-size:14pt' 
-                        href='/cabinet/?user={$user['user_id']}&subscribe'>Подписаться</a></p>";
-            } else {
-                $pageDescription .= "<p><a class='link' title='Отменить подписку' style='font-size:14pt' 
-                        href='/cabinet/user={$user['user_id']}&unsubscribe'>Отменить подписку</a></p>";
-            }
-        }
-        $this->view->viewHeadWithDesc($this->getUserId(), $this->isSuperuser(), $pageTitle, $pageDescription);
-        //$this->postController->showPosts($numberOfPosts,  $this->isSuperuser());
-        $this->view->viewFooter($this->startTime);
+        $this->view->viewCabinet($user, $showEmailAndLinksToDelete, $linkToChangeUserInfo, $this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function getUserId() {
         return $this->userController->getUserId();
