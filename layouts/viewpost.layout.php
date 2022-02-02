@@ -1,4 +1,4 @@
-    <?php // needed $post, $linkToDelete ?>
+<?php // needed $post:array, $linkToDelete:string ?>
     <div id='singleposttitle'>
         <p class='singleposttitle'><?= $post['title'] ?></p>
     </div>

@@ -6,17 +6,17 @@ class FrontController {
     private $stabService, $view;
     private $userController, $postController, $commentController, $ratingController, $subscribeController;
 
-    public function __construct($requestUri, $_request, $startTime, FactoryMethod $factoryMethod) {
+    public function __construct($requestUri, $_request, $startTime, Factory $factory) {
         ob_start();
         $this->startTime = $startTime;
-        $this->stabService = $factoryMethod->getStabService();
-        $this->userController = $factoryMethod->getUserController();
-        $this->postController = $factoryMethod->getPostController();
-        $this->commentController = $factoryMethod->getCommentController();
-        $this->ratingController = $factoryMethod->getRatingController();
-        $this->subscribeController = $factoryMethod->getSubscribeController();
-        $this->viewNested= $factoryMethod->getViewNested();
-        $this->view= $factoryMethod->getView();
+        $this->stabService = $factory->getStabService();
+        $this->userController = $factory->getUserController();
+        $this->postController = $factory->getPostController();
+        $this->commentController = $factory->getCommentController();
+        $this->ratingController = $factory->getRatingController();
+        $this->subscribeController = $factory->getSubscribeController();
+        $this->viewNested= $factory->getViewNested();
+        $this->view= $factory->getView();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
@@ -33,6 +33,8 @@ class FrontController {
             case 'stab': $this->showStab(); break;
             case 'cabinet': $this->showCabinet(); break;
             case 'search': $this->showSearch(); break;
+            case 'admin': $this->showAdmin(); break;
+            case 'adminusers': $this->showAdminUsers(); break;
             default : $this->show404();
         }
         if (!empty($_request)) {
@@ -83,7 +85,6 @@ class FrontController {
                 if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
                     if ($this->userController->isUser($email, $password)) {
                         setcookie('user_id', $this->userController->getUserIdByEmail($email), strtotime('+2 days'));
-
                         if (!empty($_SESSION['referrer'])) {
                             header("Location: {$_SESSION['referrer']}");
                         } else {
@@ -185,6 +186,42 @@ class FrontController {
                     header("Location: /addpost/?msg=$error");
                 }
             }
+            if (isset($_request['change_email']) && isset($_request['change_fio']) && isset($_request['change_password'])) {
+                $email = clearStr($_POST['change_email']);
+                $fio = clearStr($_POST['change_fio']);
+                $password = $_POST['change_password'];
+                $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
+                if (!preg_match($regex, $email)) {
+                    $msg = "Неверный формат email";
+                    header("Location: /cabinet/?changeinfo&msg=$msg");
+                }   
+                if ($email && $fio) {
+                    if ($password != '') {
+                        $password = password_hash($password, PASSWORD_BCRYPT);
+                    } else {
+                        $password = false;
+                    }
+                    if (!$this->userController->updateUser($this->getUserId(), $email, $fio, $password)) {
+                        $msg = "Пользователь с таким email уже зарегистрирован";
+                        header("Location: /cabinet/?changeinfo&msg=$msg"); 
+                    } else {
+                        $msg = "Изменения сохранены";
+                        header("Location: /cabinet/?msg=$msg");
+                    }
+                } else { 
+                    $msg = "Заполните все поля";
+                    header("Location: /cabinet/?changeinfo&msg=$msg");
+                }
+            }
+            if (isset($_request['view']) && $this->isSuperuser()) {
+                switch($_request['view']) {
+                    case 'viewPosts': header("Location: /posts"); break;
+                    case 'viewUsers': header("Location: /adminusers"); break;
+                    case 'addAdmin': header("Location: /reg"); break;
+                    case 'viewStab': header("Location: /stab"); break;
+                    default: header("Location: /");
+                }
+            }
         }
     }
     public function __destruct() {
@@ -211,7 +248,7 @@ class FrontController {
 
     }
     public function showReg() {
-        $this->view->showReg($this->getUserId(), $this->isSuperuser(), $this->startTime);
+        $this->view->viewReg($this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showAddpost() {
         $_SESSION['referrer'] = '/addpost';
@@ -258,6 +295,34 @@ class FrontController {
         $search = $_GET['search'] ?? '';
         $_SESSION['referrer'] = "/search/?search=$search";
         $this->view->viewSearch($this->getUserId(), $this->isSuperuser(), $this->startTime, $search);
+    }
+    public function showAdmin() {
+        $_SESSION['referrer'] = "/admin";
+        if (empty($this->isSuperuser())) {
+            if(!empty($this->getUserId())) {
+                header("Location: /");
+            } else {
+                header("Location: /login");
+            }
+        } else {
+            $this->view->viewAdmin($this->getUserId(), $this->isSuperuser(), $this->startTime);
+        }
+    }
+    public function showAdminUsers() {
+        $_SESSION['referrer'] = "/adminusers";
+        if (empty($this->isSuperuser())) {
+            if(!empty($this->getUserId())) {
+                header("Location: /");
+            } else {
+                header("Location: /login");
+            }
+        } else {
+            $numberOfUsers = $_GET['number'] ?? 50;
+            $numberOfUsers = clearInt($numberOfUsers);
+            $pageOfUsers = $_GET['page'] ?? 1;
+            $pageOfUsers = clearInt($pageOfUsers);
+            $this->view->viewAdminUsers($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfUsers, $pageOfUsers);
+        }
     }
     public function getUserId() {
         return $this->userController->getUserId();

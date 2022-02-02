@@ -1,9 +1,10 @@
 <?php
 
 class UserController {
-    private $sessionUserId, $isSuperuser, $userService;
-    public function __construct(UserService $userService){
+    private $sessionUserId, $isSuperuser, $userService, $viewUsers;
+    public function __construct(UserService $userService, ViewUsers $viewUsers){
         $this->userService = $userService;
+        $this->viewUsers = $viewUsers;
     }
     public function getUserId() {
         if (is_null($this->sessionUserId)) {
@@ -29,6 +30,9 @@ class UserController {
     public function isUser($login, $password) {
         return $this->userService->isUser($login, $password);
     }
+    public function updateUser($sessionUserId, $email, $fio, $password) {
+        return $this->userService->updateUser($sessionUserId, $email, $fio, $password);
+    }
     public function getUserIdByEmail($email) {
         return $this->userService->getUserIdByEmail($email);
     }
@@ -37,6 +41,14 @@ class UserController {
     }
     public function getUserInfoById($getUserInfoById, $whatNeeded = '') {
         return $this->userService->getUserInfoById($getUserInfoById, $whatNeeded);
+    }
+    public function showSearchUsers($searchWord, $isSuperuser) {
+        $users = $this->userService->searchUsersByFioAndEmail($searchWord, $isSuperuser);
+        return $this->viewUsers->renderUsers($users, 'search/?search=' . $searchWord, $isSuperuser);
+    }
+    public function showAdminUsers($isSuperuser, $numberOfUsers = 50, $pageOfUsers = 1) {
+        $users = $this->userService->getUsersByNumber($numberOfUsers, $numberOfUsers * $pageOfUsers - $numberOfUsers);
+        return $this->viewUsers->renderUsers($users, 'adminusers', $isSuperuser);
     }
     public function exitUser() {
         if ($this->getUserId()) {

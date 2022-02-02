@@ -1,17 +1,18 @@
 <?php
 
 class View extends ViewNested{
-    private $postController, $commentController;
-    public function __construct(PostController $postController, CommentController $commentController) {
+    private $postController, $commentController, $userController;
+    public function __construct(PostController $postController, CommentController $commentController, UserController $userController) {
         $this->postController = $postController;
         $this->commentController = $commentController;
+        $this->userController = $userController;
     }
     public function viewGeneral($sessionUserId, $isSuperuser, $startTime) {
         $pageTitle = 'Просто Блог - Главная';
         $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
         $showButtonSeeAll = true;
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
-        $this->postController->showPosts(10, $isSuperuser, 0, $showButtonSeeAll);
+        $this->postController->showLastPosts(10, $isSuperuser, 0, $showButtonSeeAll);
         $this->postController->showMoreTalkedPosts(3, $isSuperuser);
         parent::viewFooterLayout($startTime);
     }
@@ -92,7 +93,12 @@ class View extends ViewNested{
             }
         }
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
-
+        if (!empty($linkToChangeUserInfo) && isset($_GET['changeinfo'])) {
+            parent::viewChangeUserInfo($user);
+        }
+        if (!empty($_GET['msg'])) {
+            echo "<p class='ok' style='margin-left: -70vmin; font-size: 12pt;'>" . clearStr($_GET['msg']) . "</p>";
+        }
         echo "<br><div class='contentsinglepost'><p class='posttitle'>Посты от автора &copy; {$user['fio']}:</p></div>";
         $this->postController->showPostsByUserId($user['user_id'], $showEmailAndLinksToDelete);
 
@@ -111,22 +117,40 @@ class View extends ViewNested{
         $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
         parent::viewPaginationLayout('posts', $numberOfPosts, $pageOfPosts);
-        $this->postController->showPosts($numberOfPosts,  $isSuperuser, $pageOfPosts * $numberOfPosts - $numberOfPosts);
+        $this->postController->showLastPosts($numberOfPosts,  $isSuperuser, $pageOfPosts * $numberOfPosts - $numberOfPosts);
         parent::viewFooterLayout($startTime);
     }
-    public function viewSearch($sessionUserId, $isSuperuser, $startTime, $search) {
+    public function viewSearch($sessionUserId, $isSuperuser, $startTime, $searchWords) {
         $pageTitle = 'Поиск - Просто блог';
-        $pageDescription = 'Поиск поста или автора';
+        $pageDescription = 'Поиск поста или пользователя';
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
-        parent::viewSearchLayout($search);
+        parent::viewSearchLayout($searchWords);
         echo "<div class='searchdescription'><div class='posttext'>Поиск поста осуществляется по заголовку, автору или по хештэгу, и по его содержимому, если ищете словосочетание</div>\n"; 
         $description = "<div class='posttext'>Поиск автора осуществляется по ФИО</div>\n</div>";
         if (!empty($isSuperuser)) {
             $description = "<div class='posttext'>Поиск автора осуществляется по ФИО и логину(email)</div>\n</div>"; 
         }
         echo $description;
-
-        //$this->postController->showPosts($numberOfPosts,  $isSuperuser, $pageOfPosts * $numberOfPosts - $numberOfPosts);
+        if (!empty($searchWords)) {
+            echo "<div class='singleposttext'><p class='center' style='font-size: 15pt;'>Результаты поиска (посты): </p>\n</div>"; 
+            $this->postController->showSearchPosts($searchWords, $isSuperuser);
+            echo "<div class='singleposttext'><p class='center' style='font-size: 15pt;'>Результаты поиска (пользователи): </p>\n</div>"; 
+            $this->userController->showSearchUsers($searchWords, $isSuperuser);
+        }
+        parent::viewFooterLayout($startTime);
+    }
+    public function viewAdmin($sessionUserId, $isSuperuser, $startTime) {
+            $pageTitle = 'Администрирование - Просто Блог';          
+            parent::viewHeadAndMenuLayouts($sessionUserId, $isSuperuser, $pageTitle);
+            parent::viewAdminLayout();
+            parent::viewFooterLayout($startTime);
+    }
+    public function viewAdminUsers($sessionUserId, $isSuperuser, $startTime, $numberOfUsers, $pageOfUsers) {
+        $pageTitle = 'Все пользователи - Просто блог';
+        $pageDescription = 'Управление пользователями';
+        parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
+        parent::viewPaginationLayout('adminusers', $numberOfUsers, $pageOfUsers);
+        $this->userController->showAdminUsers($isSuperuser, $numberOfUsers, $pageOfUsers);
         parent::viewFooterLayout($startTime);
     }
 }

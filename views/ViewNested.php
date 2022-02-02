@@ -34,4 +34,13 @@ class ViewNested{
     public function viewSearchLayout($search) {
         require "layouts/search.layout.php";
     }
+    public function viewUserLayout($user, $isSuperuser, $searh) {
+        require "layouts/user.layout.php";
+    }
+    public function viewAdminLayout() {
+        require "layouts/admin.layout.php";
+    }
+    public function viewChangeUserInfo($user) {
+        require "layouts/changeuserinfo.layout.php";
+    }
 }

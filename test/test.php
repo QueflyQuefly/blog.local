@@ -1,8 +1,7 @@
 <?php
 session_start();
-$file_functions = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
-require_once $file_functions;
-/* require_once '../FactoryMethod.php'; */
+require_once '../Factory.php';
+$factory = new Factory();
 
 /* $ch = curl_init();
 
@@ -149,7 +148,7 @@ var_dump($results); */
 /* 
 $arr = json_encode(array('email' => 'prostoblog.local@gmail.com', 'password' => '1Artaxerx2##'));
 file_put_contents('data.json', $arr); */
-$numberOfPosts = 10;
+/* $numberOfPosts = 10;
 $sql = "SELECT p.post_id, p.title, p.date_time, 
 p.content, a.rating, a.count_comments, a.count_ratings, u.fio as author
 FROM posts p JOIN users u ON p.user_id = u.user_id 
@@ -161,15 +160,14 @@ if ($stmt != false) {
         $posts[] = $result;
     }
 }
-var_dump($posts);
+var_dump($posts); */
 /* 
 for ($i = 0; $i <= 2; $i++) {
     $posts .= include '../layouts/post.layout.php'; 
 }
 echo $posts; */
 
-/* $factory = new FactoryMethod();
-$v = $factory->getPostController();
+/*
 $posts = array(
     0 => array(
         'post_id' => 267,
@@ -199,3 +197,7 @@ $v->showPosts(10, true); */
 $sql = "UPDATE additional_info_posts SET count_comments = count_comments-1 
         WHERE post_id = (SELECT post_id FROM comments WHERE comment_id = $deleteCommentId);";
 $db->exec($sql); */
+
+/* 
+$postController = $factory->getPostController();
+*/

@@ -1,5 +1,5 @@
 
-        <?php // needed $nameOfPath, $numberOfPosts and $page ?>
+<?php // needed $nameOfPath:string, $numberOfPosts:int and $page:int ?>
         <div class='singleposttext'>
             <label for='number'>Количество: </label>
             <select id='number' class='select' name="number" onchange="window.location.href=this.options[this.selectedIndex].value">

@@ -9,8 +9,11 @@ class PostController {
     public function addPost($title, $userId, $content) {
         return $this->postService->addPost($title, $userId, $content);
     }
-    public function showPosts($numberOfPosts, $isSuperuser, $lessThanMaxPostId = 0, $showButton = false) {
+    public function showLastPosts($numberOfPosts, $isSuperuser, $lessThanMaxPostId = 0, $showButton = false) {
         $posts = $this->postService->getLastPosts($numberOfPosts, $lessThanMaxPostId);
+        return $this->viewPosts->renderPosts($posts, $isSuperuser, $showButton);
+    }
+    public function showPosts($posts, $isSuperuser, $showButton = false) {
         return $this->viewPosts->renderPosts($posts, $isSuperuser, $showButton);
     }
     public function showPostsByUserId($userId, $isSuperuser) {
@@ -41,8 +44,19 @@ class PostController {
     public function deletePostById($id) {
         $deletePostId = clearInt($id);
         if ($deletePostId !== '') {
-            header("Location: /");
+            header("Refresh:0");
             return $this->postService->deletePostById($deletePostId);
         }
+    }
+    public function showSearchPosts($searchWords, $isSuperuser) {
+        $posts = [];
+        if (!empty($searchWords)) {
+            //$posts = $this->postService->searchPostsByContent($searchWords);
+            $posts = $this->postService->searchPostsByZagAndAuthor($searchWords);
+            if (strpos($searchWords, '#') !== false) {
+                //$posts = $this->postService->searchPostsByTag($searchWords);
+            }
+        }
+        $this->showPosts($posts, $isSuperuser);
     }
 }

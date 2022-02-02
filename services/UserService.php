@@ -158,27 +158,27 @@ class UserService {
         }
         return $result;
     }
-    public function searchUsersByFioAndEmail($searchword, $rights = RIGHTS_USER) {
+    public function searchUsersByFioAndEmail($searchword, $isSuperuser = false) {
         $results = [];
         try {
             $searchword = clearStr($searchword);
             $searchword = '%' . $searchword . '%';
             $searchword = $this->_db->quote($searchword);
-            $sql = "SELECT id, user_id, fio, email, date_time, rights 
+            $sql = "SELECT user_id, fio, email, date_time, rights 
                     FROM users WHERE fio LIKE $searchword;";
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $results[$result['id']] = $result;
+                    $results[$result['user_id']] = $result;
                 }
             }
-            if ($rights === RIGHTS_SUPERUSER) {
-                $sql = "SELECT id, user_id, fio, email, date_time, rights 
+            if ($isSuperuser) {
+                $sql = "SELECT user_id, fio, email, date_time, rights 
                         FROM users WHERE email LIKE $searchword;";
                 $stmt = $this->_db->query($sql);
                 if ($stmt != false) {
                     while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                        $results[$result['id']] = $result;
+                        $results[$result['user_id']] = $result;
                     }
                 }
             }

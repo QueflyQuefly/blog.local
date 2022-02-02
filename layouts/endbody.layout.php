@@ -1,4 +1,4 @@
-    <?php // needed $startTime ?>
+<?php // needed $startTime:float ?>
     </div>
 </div>
 <footer>

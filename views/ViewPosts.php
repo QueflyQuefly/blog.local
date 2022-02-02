@@ -7,7 +7,7 @@ class ViewPosts {
     }
     public function renderPosts($posts, $isSuperuser = false, $showButton = false) {
         if (empty($posts)) {
-            $this->postsView = "\n<div class='contentsinglepost'><p class='center'>Нет постов для отображения</p></div>\n"; 
+            $this->postsView = "\n<div class='contentsinglepost'><p class='center' style='color: rgb(200, 50, 50);'>Нет постов для отображения</p></div>\n"; 
         } else {
             foreach ($posts as $key => $post) {
                 $class = 'viewpost';
@@ -24,16 +24,16 @@ class ViewPosts {
                 $linkToDelete = '';
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
-                    <object>
-                    <a class='link' href='?deletePostById={$post['post_id']}'>
-                        Удалить пост с ID = {$post['post_id']}
-                    </a>
-                    </object>\n";
+                    <input type='submit' form='deletePostById{$post['post_id']}' value='Удалить пост с ID = {$post['post_id']}' class='link'>
+                    <form id='deletePostById{$post['post_id']}' action='' method='post'>
+                        <input type='hidden' value='{$post['post_id']}' name='deletePostById'>
+                    </form>
+                    ";
                 }
                 include $this->pathToLayouts . 'post.layout.php';
             }
             if ($showButton) {
-                echo "\n<p class='center'><a class='submit' href='posts.php'>Посмотреть посты за всё время</a></p>\n";
+                echo "\n<p class='center'><a class='formsubmit' href='/posts'>Посмотреть посты за всё время</a></p>\n";
             }
         }
         echo $this->postsView;
@@ -65,7 +65,6 @@ class ViewPosts {
         }
     }
     public function renderPost($post, $isSuperuser = false, $isUserChangedRating = false) {
-        $this->isUserChangedRating = $isUserChangedRating;
         $this->post = $post;
         $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         if ($post['count_ratings'] == 0) {
@@ -75,7 +74,7 @@ class ViewPosts {
                     . ", комментариев: " . $post['count_comments'];
         }
         $ratingArea = function () {
-            if (empty($this->isUserChangedRating)) {
+            if (empty($isUserChangedRating)) {
                 $post = $this->post;
                 include $this->pathToLayouts . 'ratingpost.layout.php';
             } else {

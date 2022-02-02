@@ -1,4 +1,4 @@
-            <?php // needed $comment, $linkToDelete ?>
+<?php // needed $comment:array, $linkToDelete:string ?>
             <div class='viewcomment' id='comment<?=  $comment['comment_id'] ?>'>
                 <p class='commentauthor'>
                     <a class='menuLink' href='cabinet.php?user=<?=  $comment['user_id'] ?>'><?=  $comment['author'] ?></a>

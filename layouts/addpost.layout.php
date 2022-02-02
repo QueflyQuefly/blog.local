@@ -1,4 +1,4 @@
-    <?php // needed $maxSizeOfUploadImage ?>
+<?php // needed $maxSizeOfUploadImage:int ?>
     <div class='addpostcontainer'>
         <div class='addpostmsg'>
             <?php
@@ -24,7 +24,7 @@
                 <br>
                 <br>
                 <label id='input' for='addposttextarea' class='addpost'>Содержание поста: </label>
-                <br><textarea class='text' title='Содержание' required minlength="1" maxlength='4000' spellcheck="true"  wrap='hard' name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='addposttextarea'></textarea><br>
+                <br><textarea title='Содержание' required minlength="1" maxlength='4000' spellcheck="true"  wrap='hard' name='addPostContent' placeholder="Добавление содержания. Количество символов: от 20 до 4000 с пробелами" id='addposttextarea'></textarea><br>
                 
                 <input type='submit' value='Добавить пост' class='addpostsubmit'>
             </form>

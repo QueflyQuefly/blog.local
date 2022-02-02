@@ -15,11 +15,11 @@ class ViewComments {
                 $linkToDelete = '';
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
-                    <object>
-                        <a class='link' href='{$comment['post_id']}?deleteCommentById={$comment['comment_id']}'>
-                            Удалить комментарий
-                        </a>
-                    </object>";
+                    <input type='submit' form='deleteComment{$comment['comment_id']}' value='Удалить комментарий' class='link'>
+                    <form id='deleteComment{$comment['comment_id']}' class='hide' action='' method='post'>
+                        <input type='hidden' value='{$comment['comment_id']}' name='deleteCommentById'>
+                    </form>
+                    ";
                 }
                 include $this->pathToLayouts . 'comment.layout.php';
             }

@@ -19,11 +19,11 @@ function clearStr($str) {
     return trim(strip_tags($str));
 }
 
-class FactoryMethod {
+class Factory {
     private $commentService, $postService, $ratingPostService, $stabService;
     private $ratingCommentService, $sendMailService, $subscribeService, $userService;
     private $postController, $commentController, $ratingController, $userController, $subscribeController;
-    private $viewComments, $viewPosts, $viewNested, $view;
+    private $viewComments, $viewPosts, $viewNested, $viewUsers, $view;
 
     public function getCommentService() {
         if (is_null($this->commentService)) {
@@ -93,7 +93,7 @@ class FactoryMethod {
     }
     public function getUserController() {
         if (is_null($this->userController)) {
-            $this->userController = new UserController($this->getUserService());
+            $this->userController = new UserController($this->getUserService(), $this->getViewUsers());
         }
         return $this->userController;
     }
@@ -120,10 +120,16 @@ class FactoryMethod {
             $this->viewNested= new ViewNested();
         }
         return $this->viewNested;
+    }    
+    public function getViewUsers() {
+        if (is_null($this->viewUsers)) {
+            $this->viewUsers= new ViewUsers();
+        }
+        return $this->viewUsers;
     }
     public function getView() {
         if (is_null($this->view)) {
-            $this->view= new View($this->getPostController(), $this->getCommentController());
+            $this->view= new View($this->getPostController(), $this->getCommentController(), $this->getUserController());
         }
         return $this->view;
     }

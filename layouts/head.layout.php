@@ -1,4 +1,4 @@
-<?php // needed $pageTitle ?>
+<?php // needed $pageTitle:string ?>
 <!DOCTYPE html>
 <html>
 

@@ -228,18 +228,19 @@ class PostService {
         }
         return $tags;
     }
-    public function searchPostsByTag($searchword) {
+    public function searchPostsByTag($searchWord) {
         $results = [];
         try {
-            $searchword = clearStr($searchword);
-            $searchword = '%' . $searchword . '%';
-            $searchword = $this->_db->quote($searchword);
+            $searchWord = clearStr($searchWord);
+            $searchWord = '%' . $searchWord . '%';
+            $searchWord = $this->_db->quote($searchWord);
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                    a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
-                    FROM posts p JOIN users u
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author
+                    FROM posts p
                     JOIN additional_info_posts a ON a.post_id = p.post_id
-                    ON p.user_id = u.user_id JOIN tag_posts t ON p.post_id = t.post_id 
-                    WHERE tag LIKE $searchword;";// LIMIT 30
+                    JOIN users u ON p.user_id = u.user_id 
+                    JOIN tag_posts t ON p.post_id = t.post_id 
+                    WHERE t.tag LIKE $searchWord;";// LIMIT 30
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -251,19 +252,18 @@ class PostService {
         }
         return $results;
     }
-    public function searchPostsByZagAndAuthor($searchword) {
+    public function searchPostsByZagAndAuthor($searchWord) {
         $results = [];
         try {
-            $searchword = clearStr($searchword);
-            $searchword = '%' . $searchword . '%';
-            $searchword = $this->_db->quote($searchword);
+            $searchWord = clearStr($searchWord);
+            $searchWord = '%' . $searchWord . '%';
+            $searchWord = $this->_db->quote($searchWord);
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                    a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author
                     FROM posts p 
                     JOIN users u ON p.user_id = u.user_id 
-                    JOIN tag_posts t ON p.post_id = t.post_id 
                     JOIN additional_info_posts a ON a.post_id = p.post_id 
-                    WHERE fio LIKE $searchword;";// LIMIT 30
+                    WHERE u.fio LIKE $searchWord;";// LIMIT 30
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -271,12 +271,11 @@ class PostService {
                 }
             }
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                    a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author
                     FROM posts p 
                     JOIN users u ON p.user_id = u.user_id 
-                    JOIN tag_posts t ON p.post_id = t.post_id 
                     JOIN additional_info_posts a ON a.post_id = p.post_id
-                    WHERE post_title LIKE $searchword;";// LIMIT 30
+                    WHERE p.title LIKE $searchWord;";// LIMIT 30
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -288,19 +287,19 @@ class PostService {
         }
         return $results;
     }
-    public function searchPostsByContent($searchwords) {
+    public function searchPostsByContent($searchWords) {
         $results = [];
         try {
-            $searchwords = clearStr($searchwords);
-            $searchwords = '%' . $searchwords . '%';
-            $searchwords = $this->_db->quote($searchwords);
+            $searchWords = clearStr($searchWords);
+            $searchWords = '%' . $searchWords . '%';
+            $searchWords = $this->_db->quote($searchWords);
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
                     a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
                     FROM posts p 
                     JOIN users u ON p.user_id = u.user_id 
                     JOIN tag_posts t ON p.post_id = t.post_id 
                     JOIN additional_info_posts a ON a.post_id = p.post_id
-                    WHERE post_content LIKE $searchwords;";// LIMIT 30
+                    WHERE p.content LIKE $searchWords;";// LIMIT 30
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
