@@ -64,8 +64,9 @@ class ViewPosts {
             }
         }
     }
-    public function renderPost($post, $isSuperuser = false, $isUserChangedRating = false) {
+    public function renderPost($post, $tags, $isSuperuser = false, $isUserChangedRating = false) {
         $this->post = $post;
+        $this->isUserChangedRating = $isUserChangedRating;
         $post['date_time'] = date("d.m.Y в H:i", $post['date_time']);
         if ($post['count_ratings'] == 0) {
             $post['rating'] = "Нет оценок. Будьте первым! Kомментариев: " . $post['count_comments'];
@@ -73,8 +74,14 @@ class ViewPosts {
             $post['rating'] = "Рейтинг: " . $post['rating'] . ", оценок: " . $post['count_ratings']
                     . ", комментариев: " . $post['count_comments'];
         }
+        $post['content'] = str_replace("<br />
+<br />","</p>\n<p>", nl2br($post['content']));
+        $regex = '/#(\w+)/um';
+        $post['content'] = preg_replace($regex, "<a class='link' href='/search/search=%23$1'>$0</a>", $post['content']);
+        $post['title'] = preg_replace($regex, "<a class='link' href='/search/search=%23$1'>$0</a>", $post['title']);
+        
         $ratingArea = function () {
-            if (empty($isUserChangedRating)) {
+            if (empty($this->isUserChangedRating)) {
                 $post = $this->post;
                 include $this->pathToLayouts . 'ratingpost.layout.php';
             } else {
@@ -93,26 +100,24 @@ class ViewPosts {
         </div>";
         }
         include $this->pathToLayouts . 'viewpost.layout.php';
-        
+        $this->renderTags($tags);
         include $this->pathToLayouts . 'addcomments.layout.php';
         if ($post['count_comments'] == 0) {
-            echo "<p class='center'>Пока никто не оставил комментарий. Будьте первым!</p>";
+            echo "<p class='center'>Оставьте комментарий первым!</p>";
         } else {
             echo "<p class='center'>Комментарии к посту (всего {$post['count_comments']}):</p>";
         }
     }
     public function renderTags($tags) {
-        $viewTags = "<p class='singlepostcontent'>";
+        echo "<p class='singleposttext'> Тэги: ";
         if ($tags) {
-            $viewTags .= "Тэги: ";
             foreach ($tags as $tag) {
                 $tagLink = substr($tag['tag'], 1);
-                $viewTags .= "<a class='link' href='search/search=%23$tagLink'>{$tag['tag']}</a> ";
+                echo "<a class='link' href='/search/?search=%23$tagLink'>{$tag['tag']}</a> \n";
             }
         } else {
-            $viewTags .= "Нет тэгов";
+            echo "Нет тэгов";
         }
-        $viewTags .= "</p>";
-        return $viewTags;
+        echo "</p>";
     }
 }

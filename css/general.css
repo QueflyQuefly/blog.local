@@ -222,7 +222,6 @@ nav .menuList li{
 }
 #singleposttitle::first-letter{
     font-size: 32pt;
-    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 /* rating area */
@@ -283,13 +282,13 @@ nav .menuList li{
 }
 /* addcomments */
 .addcomments{
-    padding: 1vmin;
+    padding: 2vmin;
     width: 130vmin;
     margin: 1% auto;
 }
 .addcomments:hover{
     border: 0.3vmin solid lightgray;
-    padding:0.7vmin;
+    padding:1.7vmin;
 }
 .addcomment{
     padding-left: 5%;
@@ -668,7 +667,6 @@ hr{
     padding: 5px;
     text-decoration: none;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 12pt;
     border: none;
     background-color: transparent;
     cursor:pointer;

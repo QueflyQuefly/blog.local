@@ -28,35 +28,36 @@ class PostController {
         $moreTalkedPosts = $this->postService->getMoreTalkedPosts($numberOfPosts);
         return $this->viewPosts->renderMoreTalkedPosts($moreTalkedPosts, $isSuperuser);
     }
-    public function showPost($postId, $isSuperuser, $isUserChangedRating = false) {
+    public function showPost($postId, $tags, $isSuperuser, $isUserChangedRating = false) {
         $post = $this->postService->getPostForViewById($postId);
         if (!$post) {
             header ("Location: /404");
             exit;
         }
         $_SESSION['referrer'] = "/viewpost/$postId";
-        return $this->viewPosts->renderPost($post, $isSuperuser, $isUserChangedRating);
-    }
-    public function showTagsByPostId($postId) {
-        $tags = $this->postService->getTagsByPostId($postId);
-        return $this->viewPosts->renderTags($tags);
-    }
-    public function deletePostById($id) {
-        $deletePostId = clearInt($id);
-        if ($deletePostId !== '') {
-            header("Refresh:0");
-            return $this->postService->deletePostById($deletePostId);
-        }
+        return $this->viewPosts->renderPost($post, $tags, $isSuperuser, $isUserChangedRating);
     }
     public function showSearchPosts($searchWords, $isSuperuser) {
         $posts = [];
         if (!empty($searchWords)) {
-            //$posts = $this->postService->searchPostsByContent($searchWords);
-            $posts = $this->postService->searchPostsByZagAndAuthor($searchWords);
+            $posts += $this->postService->searchPostsByContent($searchWords);
+            $posts += $this->postService->searchPostsByZagAndAuthor($searchWords);
             if (strpos($searchWords, '#') !== false) {
-                //$posts = $this->postService->searchPostsByTag($searchWords);
+                $posts += $this->postService->searchPostsByTag($searchWords);
             }
         }
+        krsort($posts);
         $this->showPosts($posts, $isSuperuser);
+    }
+    public function getTagsByPostId($postId) {
+        $tags = $this->postService->getTagsByPostId($postId);
+        return $tags;
+    }
+    public function deletePostById($postId) {
+        $deletePostId = clearInt($postId);
+        if ($deletePostId !== '') {
+            header("Refresh:0");
+            return $this->postService->deletePostById($deletePostId);
+        }
     }
 }

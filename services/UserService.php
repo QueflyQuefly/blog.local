@@ -109,27 +109,33 @@ class UserService {
     public function updateUser($userId, $email, $fio, $password) {
         try {
             $userId = clearInt($userId);
-            
-            $unchangedEmail = $this->getUserInfoById($userId, 'email');
-            if ($unchangedEmail != $email) {
+            if ($email !== $this->getUserInfoById($userId, 'email')) {
                 if (!$this->isEmailUnique($email)) {
+                    return false;
+                } else {
+                    $email = $this->_db->quote($email);
+                    $sql = "UPDATE users SET email = $email
+                            WHERE user_id = $userId;";
+                    if (!$this->_db->exec($sql)) {
+                        return false;
+                    }
+                }
+            }
+            if ($fio !== $this->getUserInfoById($userId, 'fio')) {
+                $fio = $this->_db->quote($fio);
+                $sql = "UPDATE users SET fio = $fio 
+                        WHERE user_id = $userId;";
+                if (!$this->_db->exec($sql)) {
                     return false;
                 }
             }
-            $email = $this->_db->quote($email);
-            $fio = $this->_db->quote($fio);
-    
-            $sql = "UPDATE users SET email = $email, fio = $fio 
-                    WHERE user_id = $userId;";
-            if (!$this->_db->exec($sql)) {
-                return false;
-            }
-    
             if ($password !== false) {
                 $password = $this->_db->quote($password);
                 $sql = "UPDATE users SET pass_word = $password 
                         WHERE user_id = $userId;";
-                $this->_db->exec($sql);
+                if (!$this->_db->exec($sql)) {
+                    return false;
+                }
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();

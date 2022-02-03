@@ -270,26 +270,37 @@ class FrontController {
         $this->view->viewStab($this->getUserId(), $this->isSuperuser(), $numberOfLoopIterations, $errors, $this->startTime);
     }
     public function showPosts() {
+        $_SESSION['referrer'] = "/posts";
         $numberOfPosts = $_GET['number'] ?? 25;
         $numberOfPosts = clearInt($numberOfPosts);
         $pageOfPosts = $_GET['page'] ?? 1;
         $pageOfPosts = clearInt($pageOfPosts);
-        $_SESSION['referrer'] = "/posts";
         $this->view->viewPosts($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfPosts, $pageOfPosts);
     }
     public function showCabinet() {
-        $userId = $_GET['user'] ?? $this->getUserId();
-        $user = $this->userController->getUserInfoById($userId);
-        if ($this->getUserId() == $userId || $this->isSuperuser()) {
-            $showEmailAndLinksToDelete = true;
-            if ($this->getUserId() == $userId) {
-                $linkToChangeUserInfo = true;
-            }
-        }
-        $showEmailAndLinksToDelete ?? false;
-        $linkToChangeUserInfo ?? false;
         $_SESSION['referrer'] = "/cabinet";
-        $this->view->viewCabinet($user, $showEmailAndLinksToDelete, $linkToChangeUserInfo, $this->getUserId(), $this->isSuperuser(), $this->startTime);
+        $userId = $_GET['user'] ?? $this->getUserId();
+        if ($userId == false) {
+            header("Location: /login");
+        } else {
+            $user = $this->userController->getUserInfoById($userId);
+            if ($this->getUserId() == $userId || $this->isSuperuser()) {
+                $showEmailAndLinksToDelete = true;
+                if ($this->getUserId() == $userId) {
+                    $linkToChangeUserInfo = true;
+                }
+            }
+            $showEmailAndLinksToDelete ?? false;
+            $linkToChangeUserInfo ?? false;
+            $this->view->viewCabinet(
+                $user, 
+                $showEmailAndLinksToDelete, 
+                $linkToChangeUserInfo, 
+                $this->getUserId(), 
+                $this->isSuperuser(), 
+                $this->startTime
+            );
+        }
     }
     public function showSearch() {
         $search = $_GET['search'] ?? '';

@@ -198,13 +198,6 @@ class PostService {
             if ($stmt != false) {
                 $post = $stmt->fetch(PDO::FETCH_ASSOC);
             }
-            if (!empty($post)) {
-                $post['content'] = str_replace("<br />
-<br />","</p>\n<p>", nl2br($post['content']));
-                $regex = '/#(\w+)/um';
-                $post['content'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['content']);
-                $post['title'] = preg_replace($regex, "<a class='link' href='search.php?search=%23$1'>$0</a>", $post['title']);
-            }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
         }
@@ -214,7 +207,6 @@ class PostService {
         $tags = [];
         try {
             $postId = clearInt($postId);
-    
             $sql = "SELECT tag FROM tag_posts 
                     WHERE post_id = $postId;";
             $stmt = $this->_db->query($sql);
@@ -294,10 +286,9 @@ class PostService {
             $searchWords = '%' . $searchWords . '%';
             $searchWords = $this->_db->quote($searchWords);
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
-                    a.rating, a.count_comments, a.count_ratings, u.fio as author, t.tag 
+                    a.rating, a.count_comments, a.count_ratings, u.fio as author
                     FROM posts p 
                     JOIN users u ON p.user_id = u.user_id 
-                    JOIN tag_posts t ON p.post_id = t.post_id 
                     JOIN additional_info_posts a ON a.post_id = p.post_id
                     WHERE p.content LIKE $searchWords;";// LIMIT 30
             $stmt = $this->_db->query($sql);

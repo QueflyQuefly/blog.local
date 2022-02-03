@@ -27,8 +27,8 @@ class View extends ViewNested{
     public function viewPost($postId, $sessionUserId, $isSuperuser, $startTime, $isUserChangedPostRating) {
         $pageTitle = 'Просмотр поста - Просто Блог';
         parent::viewHeadAndMenuLayouts($sessionUserId, $isSuperuser, $pageTitle);
-        $this->postController->showPost($postId, $isSuperuser, $isUserChangedPostRating);
-        $this->postController->showTagsByPostId($postId);
+        $tags = $this->postController->getTagsByPostId($postId);
+        $this->postController->showPost($postId, $tags, $isSuperuser, $isUserChangedPostRating);
         $this->commentController->showCommentsByPostId($postId, $isSuperuser);
         parent::viewFooterLayout($startTime);
     }
