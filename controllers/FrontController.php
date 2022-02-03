@@ -52,6 +52,13 @@ class FrontController {
                     header ("Location: /login");
                 }
             }
+            if (isset($_request['deleteUserById'])) {
+                if ($this->isSuperuser()) {
+                    $this->deleteUserById($_request['deleteUserById']);
+                } else {
+                    header ("Location: /login");
+                }
+            }
             if (isset($_request['post_id']) && isset($_request['addCommentContent'])) {
                 if ($this->getUserId()) {
                     $this->addComment($_request['post_id'], $_request['addCommentContent']);
@@ -112,23 +119,19 @@ class FrontController {
                 if ($regemail !== '' && $regfio !== '' && $regpassword !== '') {
                     $regpassword = password_hash($regpassword, PASSWORD_BCRYPT);
                     if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
+                        $addSuperuser = false;
                         if (isset($_POST['add_admin']) && $this->isSuperuser()) {
-                            if (!$this->userController->addUser($regemail, $regfio, $regpassword, RIGHTS_SUPERUSER)) {
-                                $this->error = "Пользователь с таким email уже зарегистрирован";
-                                header("Location: /reg/?msg=$this->error"); 
-                            } else {
-                                header("Location: /");
-                            } 
-                        } else {
-                            if (!$this->userController->addUser($regemail, $regfio, $regpassword)) {
-                                $this->error = "Пользователь с таким email уже зарегистрирован";
-                                header("Location: /reg/?msg=$this->error"); 
-                            } else {
-                                $sessionUserId = $this->userController->getUserIdByEmail($regemail);
-                                setcookie('user_id', $sessionUserId, strtotime('+2 days'));
-                                header("Location: /");
-                            } 
+                            $addSuperuser = true;
                         }
+                        if (!$this->userController->addUser($regemail, $regfio, $regpassword, $addSuperuser)) {
+                            $this->error = "Пользователь с таким email уже зарегистрирован";
+                            header("Location: /reg/?msg=$this->error");
+                        } else {
+                            if (!$addSuperuser) {
+                                setcookie('user_id', $this->userController->getUserIdByEmail($regemail), strtotime('+2 days'));
+                            }
+                            header("Location: /");
+                        } 
                     } else {
                         $this->error = "Неверно введен код с Captcha";
                         header("Location: /reg/?msg=$this->error");
@@ -213,6 +216,10 @@ class FrontController {
                     header("Location: /cabinet/?changeinfo&msg=$msg");
                 }
             }
+            if (isset($_GET['user']) && (isset($_request['subscribe']) || isset($_request['unsubscribe']))) {
+                header("Refresh:0");
+                $this->subscribeController->subscribeUser($this->getUserId(), $_GET['user']);
+            }
             if (isset($_request['view']) && $this->isSuperuser()) {
                 switch($_request['view']) {
                     case 'viewPosts': header("Location: /posts"); break;
@@ -284,14 +291,14 @@ class FrontController {
             header("Location: /login");
         } else {
             $user = $this->userController->getUserInfoById($userId);
+            $showEmailAndLinksToDelete = false;
+            $linkToChangeUserInfo = false;
             if ($this->getUserId() == $userId || $this->isSuperuser()) {
                 $showEmailAndLinksToDelete = true;
                 if ($this->getUserId() == $userId) {
                     $linkToChangeUserInfo = true;
                 }
             }
-            $showEmailAndLinksToDelete ?? false;
-            $linkToChangeUserInfo ?? false;
             $this->view->viewCabinet(
                 $user, 
                 $showEmailAndLinksToDelete, 
@@ -335,42 +342,50 @@ class FrontController {
             $this->view->viewAdminUsers($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfUsers, $pageOfUsers);
         }
     }
+    public function changePostRating($postId, $star) {
+        if ($this->getUserId()) {
+            header("Refresh:0");
+            return $this->ratingController->changePostRating($this->getUserId(), $postId, $star);
+        }
+    }
+    public function deletePostById($postId) {
+        if ($this->isSuperuser()) {
+            header("Refresh:0");
+            return $this->postController->deletePostById($postId);
+        }
+    }
+    public function addComment($postId, $commentContent) {
+        if ($this->getUserId()) {
+            header("Refresh:0");
+            return $this->commentController->addComment($postId, $this->getUserId(), $commentContent);
+        }
+    }
+    public function changeCommentRating($commentId, $postId) {
+        if ($this->getUserId()) {
+            header("Refresh:0");
+            return $this->ratingController->changeCommentRating($commentId, $postId, $this->getUserId());
+        }
+    }
+    public function deleteCommentById($commentId) {
+        if ($this->isSuperuser()) {
+            header("Refresh:0");
+            return $this->commentController->deleteCommentById($commentId);
+        }
+    }
     public function getUserId() {
         return $this->userController->getUserId();
     }
     public function isSuperuser() {
         return $this->userController->isSuperuser();
     }
-    public function deletePostById($postId) {
-        if ($this->isSuperuser()) {
-            $this->postController->deletePostById($postId);
-            $uri = stristr($_SERVER['REQUEST_URI'], '?delete', true);
-            header("Location: $uri");
-        }
-    }
-    public function changePostRating($postId, $star) {
-        if ($this->getUserId()) {
-            $this->ratingController->changePostRating($this->getUserId(), $postId, $star);
-        }
-    }
-    public function deleteCommentById($commentId) {
-        if ($this->isSuperuser()) {
-            $this->commentController->deleteCommentById($commentId);
-            $uri = stristr($_SERVER['REQUEST_URI'], '?delete', true);
-            header("Location: $uri#comment");
-        }
-    }
-    public function addComment($postId, $commentContent) {
-        if ($this->getUserId()) {
-            $this->commentController->addComment($postId, $this->getUserId(), $commentContent);
-        }
-    }
-    public function changeCommentRating($commentId, $postId) {
-        if ($this->getUserId()) {
-            $this->ratingController->changeCommentRating($commentId, $postId, $this->getUserId());
-        }
-    }
     public function exitUser() {
+        header("Refresh:0");
         $this->userController->exitUser();
+    }
+    public function deleteUserById($userId) {
+        if ($this->isSuperuser()) {
+            header("Refresh:0");
+            return $this->userController->deleteUserById($userId);
+        }
     }
 }

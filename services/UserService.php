@@ -6,28 +6,24 @@ class UserService {
     public function __construct() {
         $this->_db = DbService::getInstance();
     }
-    public function addUser($email, $fio, $password, $rights = false) {
+    public function addUser($email, $fio, $password, $addSuperuser) {
         try {
             if (!$this->isEmailUnique($email)) {
                 return false;
             }
-            if ($rights === RIGHTS_SUPERUSER) {
+            $rights = $this->_db->quote(RIGHTS_USER);
+            if ($addSuperuser) {
                 $rights = $this->_db->quote(RIGHTS_SUPERUSER);
-            } else {
-                $rights = $this->_db->quote(RIGHTS_USER);
             }
-            
             $email = $this->_db->quote($email);
             $fio = $this->_db->quote($fio);
             $date = time();
             $password = $this->_db->quote($password);
-    
             $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
                     VALUES ($email, $fio, $password, $date, $rights);";
             if (!$this->_db->exec($sql)) {
                 return false;
             }
-    
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
         }

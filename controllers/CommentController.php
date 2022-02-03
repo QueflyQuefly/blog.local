@@ -21,14 +21,12 @@ class CommentController {
     public function deleteCommentById($id) {
         $deleteCommentId = clearInt($id);
         if ($deleteCommentId !== '') {
-            header("Refresh:0");
             return $this->commentService->deleteCommentById($deleteCommentId);
         }
         return false;
     }
     public function addComment($postId, $userId, $commentContent) {
         if ($commentContent !== '') {
-            header("Refresh:0");
             return $this->commentService->addComment($postId, $userId, $commentContent);
         }
         return false;

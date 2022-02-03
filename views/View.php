@@ -1,11 +1,12 @@
 <?php
 
 class View extends ViewNested{
-    private $postController, $commentController, $userController;
-    public function __construct(PostController $postController, CommentController $commentController, UserController $userController) {
+    private $postController, $commentController, $userController, $subscribeController;
+    public function __construct(PostController $postController, CommentController $commentController, UserController $userController, SubscribeController $subscribeController) {
         $this->postController = $postController;
         $this->commentController = $commentController;
         $this->userController = $userController;
+        $this->subscribeController = $subscribeController;
     }
     public function viewGeneral($sessionUserId, $isSuperuser, $startTime) {
         $pageTitle = 'Просто Блог - Главная';
@@ -84,12 +85,20 @@ class View extends ViewNested{
                         href='/cabinet'>Отмена</a>\n";
             }
         } elseif ($sessionUserId != $user['user_id']) {
-            if (!$this->subscribeController->isSubscribedUser($user['user_id'], $sessionUserId)) {
-                $pageDescription .= "<p><a class='link' title='Подписаться' style='font-size:14pt' 
-                        href='/cabinet/?user={$user['user_id']}&subscribe'>Подписаться</a></p>";
+            if (!$this->subscribeController->isSubscribedUser($sessionUserId, $user['user_id'])) {
+                $pageDescription .= "
+                        <input type='submit' style='font-size:13pt;' form='subscribe' value='Подписаться' class='link'>
+                        <form id='subscribe' action='' method='post'>
+                            <input type='hidden' name='subscribe'>
+                        </form>
+                        ";
             } else {
-                $pageDescription .= "<p><a class='link' title='Отменить подписку' style='font-size:14pt' 
-                        href='/cabinet/user={$user['user_id']}&unsubscribe'>Отменить подписку</a></p>";
+                $pageDescription .= "
+                        <input type='submit' style='font-size:13pt;' form='subscribe' value='Отписаться' class='link'>
+                        <form id='subscribe' action='' method='post'>
+                            <input type='hidden' name='unsubscribe'>
+                        </form>
+                        ";
             }
         }
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);

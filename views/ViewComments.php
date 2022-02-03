@@ -7,7 +7,7 @@ class ViewComments {
     }
     public function renderComments($comments, $isSuperuser = false) {
         if (empty($comments)) {
-            $this->commentView = "\n<div class='contentsinglepost'><p class='center'>Нет комментариев для отображения</p></div>\n"; 
+            $this->commentView = "\n<div class='contentsinglepost'><p class='center' style='color: rgb(150, 20, 20);'>Нет комментариев для отображения</p></div>\n"; 
         } else {
             foreach ($comments as $comment) {
                 $comment['content'] = nl2br(clearStr($comment['content']));

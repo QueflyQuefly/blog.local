@@ -12,7 +12,10 @@
                         if (empty($sessionUserId)) {
                             echo "<li><a class='menuLink' href='/login'>Войти</a></li>\n";
                         } else {
-                            echo "<li><a class='menuLink' href='?exit'>Выйти</a></li>\n";
+                            echo "<li><input type='submit' form='exit' value='Выйти' class='menuLink'>
+                            <form id='exit' action='' method='post'>
+                                <input type='hidden' value='' name='exit'>
+                            </form></li>\n";
                             if (!empty($isSuperuser)) {
                                 echo "\t\t\t\t\t\t<li><a class='menuLink' href='/admin'>Админка</a></li>\n";
                             }

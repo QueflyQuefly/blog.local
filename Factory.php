@@ -129,7 +129,7 @@ class Factory {
     }
     public function getView() {
         if (is_null($this->view)) {
-            $this->view= new View($this->getPostController(), $this->getCommentController(), $this->getUserController());
+            $this->view= new View($this->getPostController(), $this->getCommentController(), $this->getUserController(), $this->getSubscribeController());
         }
         return $this->view;
     }

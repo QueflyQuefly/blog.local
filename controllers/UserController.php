@@ -6,6 +6,9 @@ class UserController {
         $this->userService = $userService;
         $this->viewUsers = $viewUsers;
     }
+    public function addUser($email, $fio, $password, $rights = false) {
+        return $this->userService->addUser($email, $fio, $password, $rights);
+    }
     public function getUserId() {
         if (is_null($this->sessionUserId)) {
             if (!empty($_SESSION['user_id'])) {
@@ -36,9 +39,6 @@ class UserController {
     public function getUserIdByEmail($email) {
         return $this->userService->getUserIdByEmail($email);
     }
-    public function addUser($email, $fio, $password, $rights = false) {
-        return $this->userService->addUser($email, $fio, $password, $rights);
-    }
     public function getUserInfoById($getUserInfoById, $whatNeeded = '') {
         return $this->userService->getUserInfoById($getUserInfoById, $whatNeeded);
     }
@@ -54,8 +54,9 @@ class UserController {
         if ($this->getUserId()) {
             $_SESSION['user_id'] = false;
             setcookie('user_id', '0', 1, '/');
-            $uri = stristr($_SERVER['REQUEST_URI'], '?exit', true);
-            header("Location: $uri");
         }
+    }
+    public function deleteUserById($userId) {
+        return $this->userService->deleteUserById($userId);
     }
 }

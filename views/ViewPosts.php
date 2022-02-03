@@ -7,7 +7,7 @@ class ViewPosts {
     }
     public function renderPosts($posts, $isSuperuser = false, $showButton = false) {
         if (empty($posts)) {
-            $this->postsView = "\n<div class='contentsinglepost'><p class='center' style='color: rgb(200, 50, 50);'>Нет постов для отображения</p></div>\n"; 
+            $this->postsView = "\n<div class='contentsinglepost'><p class='center'style='color: rgb(150, 20, 20);'>Нет постов для отображения</p></div>\n"; 
         } else {
             foreach ($posts as $key => $post) {
                 $class = 'viewpost';
@@ -54,11 +54,11 @@ class ViewPosts {
                 $linkToDelete = '';
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
-                    <object>
-                    <a class='link' href='?deletePostById={$post['post_id']}'>
-                        Удалить пост с ID = {$post['post_id']}
-                    </a>
-                    </object>\n";
+                    <input type='submit' form='deletePostById{$post['post_id']}' value='Удалить пост с ID = {$post['post_id']}' class='link'>
+                    <form id='deletePostById{$post['post_id']}' action='' method='post'>
+                        <input type='hidden' value='{$post['post_id']}' name='deletePostById'>
+                    </form>
+                    ";
                 }
                 include $this->pathToLayouts . 'post.layout.php';
             }
@@ -90,14 +90,12 @@ class ViewPosts {
         };
         $linkToDelete = '';
         if (!empty($isSuperuser)) {
-            $linkToDelete =
-            "   <div class='singleposttext'>
-            <object>
-                <a class='list' href='{$post['post_id']}?deletePostById={$post['post_id']}'>
-                    Удалить пост с ID = {$post['post_id']}
-                </a>
-            </object>
-        </div>";
+            $linkToDelete = "
+            <input type='submit' form='deletePostById{$post['post_id']}' value='Удалить этот пост' class='link' id='right'>
+            <form id='deletePostById{$post['post_id']}' action='' method='post'>
+                <input type='hidden' value='{$post['post_id']}' name='deletePostById'>
+            </form>
+            ";
         }
         include $this->pathToLayouts . 'viewpost.layout.php';
         $this->renderTags($tags);

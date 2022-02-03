@@ -56,7 +56,6 @@ class PostController {
     public function deletePostById($postId) {
         $deletePostId = clearInt($postId);
         if ($deletePostId !== '') {
-            header("Refresh:0");
             return $this->postService->deletePostById($deletePostId);
         }
     }
