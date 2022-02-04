@@ -33,22 +33,22 @@ class View extends ViewNested{
         $this->commentController->showCommentsByPostId($postId, $isSuperuser);
         parent::viewFooterLayout($startTime);
     }
-    public function viewLogin($sessionUserId, $isSuperuser, $startTime) {
+    public function viewLogin($sessionUserId, $isSuperuser, $startTime, $msg) {
         $pageTitle = 'Вход - Просто Блог';          
         parent::viewHeadAndMenuLayouts($sessionUserId, $isSuperuser, $pageTitle);
-        parent::viewLoginLayout();
+        parent::viewLoginLayout($msg);
         parent::viewFooterLayout($startTime);
     }
-    public function viewReg($sessionUserId, $isSuperuser, $startTime) {
+    public function viewReg($sessionUserId, $isSuperuser, $startTime, $msg) {
         $pageTitle = 'Регистрация - Просто Блог';          
         parent::viewHeadAndMenuLayouts($sessionUserId, $isSuperuser, $pageTitle);
-        parent::viewRegLayout($isSuperuser);
+        parent::viewRegLayout($isSuperuser, $msg);
         parent::viewFooterLayout($startTime);
     }
-    public function viewAddpost($sessionUserId, $isSuperuser, $startTime, $maxSizeOfUploadImage) {
+    public function viewAddpost($sessionUserId, $isSuperuser, $startTime, $maxSizeOfUploadImage, $msg) {
         $pageTitle = 'Добавление поста - Просто Блог';
         parent::viewHeadAndMenuLayouts($sessionUserId, $isSuperuser, $pageTitle);
-        parent::viewAddpostLayout($maxSizeOfUploadImage);
+        parent::viewAddpostLayout($maxSizeOfUploadImage, $msg);
         parent::viewFooterLayout($startTime);
     }
     public function viewStab($sessionUserId, $isSuperuser, $numberOfLoopIterations, $errors, $startTime) {
@@ -56,7 +56,7 @@ class View extends ViewNested{
         $pageDescription = '';
         if (empty($errors)) {
             $pageDescription = "Подключение к БД: успешно</p><p>Создано $numberOfLoopIterations новый(-ых) пользователь(-ей, -я), 
-            $numberOfLoopIterations новый(-ых) пост(-ов, -а) и несколько(до 12) комментариев к каждому.<br>
+            $numberOfLoopIterations новый(-ых) пост(-ов, -а) и несколько (до 12) комментариев к каждому.<br>
             Создание 100 постов занимает примерно 10 секунд.";
         } else {
             foreach ($errors as $error) {
@@ -67,7 +67,7 @@ class View extends ViewNested{
         parent::viewStabLayout();
         parent::viewFooterLayout($startTime);
     }
-    public function viewCabinet($user, $showEmailAndLinksToDelete, $linkToChangeUserInfo, $sessionUserId, $isSuperuser, $startTime) {
+    public function viewCabinet($user, $showEmailAndLinksToDelete, $linkToChangeUserInfo, $sessionUserId, $isSuperuser, $startTime, $msg) {
         $pageTitle = $user['fio'] . " - Просто блог";
         $pageDescription = $user['fio'];
         if ($showEmailAndLinksToDelete) {
@@ -103,10 +103,10 @@ class View extends ViewNested{
         }
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
         if (!empty($linkToChangeUserInfo) && isset($_GET['changeinfo'])) {
-            parent::viewChangeUserInfo($user);
+            parent::viewChangeUserInfo($user, $msg);
         }
-        if (!empty($_GET['msg'])) {
-            echo "<p class='ok' style='margin-left: -70vmin; font-size: 12pt;'>" . clearStr($_GET['msg']) . "</p>";
+        if (!empty($msg)) {
+            echo "<p class='ok' style='margin: -5vmin 0 0 -75vmin; font-size: 12pt;'>" . clearStr($msg) . "</p>";
         }
         echo "<br><div class='contentsinglepost'><p class='posttitle'>Посты от автора &copy; {$user['fio']}:</p></div>";
         $this->postController->showPostsByUserId($user['user_id'], $showEmailAndLinksToDelete);

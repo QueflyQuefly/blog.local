@@ -1,4 +1,4 @@
-<?php // needed $forAdmin:string ?>
+<?php // needed $forAdmin:string, $msg:string ?>
     <div class='formentry'>
         <p class='formname'>Регистрация</p>
         <form action='/reg' method='post'>
@@ -17,13 +17,7 @@
             </label><br>
             <?= $forAdmin ?>
             <div class='formmsg'>
-                <p class='error'>
-                    <?php
-                        if (!empty($_GET['msg'])) {
-                            echo clearStr($_GET['msg']);
-                        }
-                    ?>
-                </p>
+                <p class='error'><?= $msg ?></p>
             </div>
             <div id='right'>
                 <input type='submit' value='Создать аккаунт' class='formsubmit'>

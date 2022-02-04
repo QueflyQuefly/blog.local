@@ -1,4 +1,4 @@
-
+<?php // needed $msg:string ?>
     <div class='formentry'>
         <p class='formname'>Вход</p>
         <form action='/login' method='post'>
@@ -7,13 +7,7 @@
             <img class='captcha' src="/images/captcha.php"><br>
             <label class='formlabel'>Введите код с картинки выше: <input type='login' name='variable_of_captcha' required minlength="1" maxlength='20' autocomplete="off" placeholder='Код с captcha' class='formtext'></label>
             <div class='formmsg'>
-                <p class='error'>
-                    <?php
-                        if (!empty($_GET['msg'])) {
-                            echo clearStr($_GET['msg']);
-                        }
-                    ?>
-                </p>
+                <p class='error'><?= $msg ?></p>
             </div>
             <div id='left'><a class='formbutton' href='/reg'>Создать аккаунт</a></div>
             <div id='right'><input type='submit' value='Войти' class='formsubmit'></div>

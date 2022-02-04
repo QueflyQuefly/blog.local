@@ -31,7 +31,7 @@ class PostController {
     public function showPost($postId, $tags, $isSuperuser, $isUserChangedRating = false) {
         $post = $this->postService->getPostForViewById($postId);
         if (!$post) {
-            header ("Location: /404");
+            header ("Location: /error404");
             exit;
         }
         $_SESSION['referrer'] = "/viewpost/$postId";

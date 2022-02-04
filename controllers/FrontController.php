@@ -2,26 +2,196 @@
 session_start();
 
 class FrontController {
-    public $msg, $error, $maxSizeOfUploadImage = 4 * 1024 * 1024; //4 megabytes
-    private $stabService, $view;
-    private $userController, $postController, $commentController, $ratingController, $subscribeController;
+    public $msg, $_request, $maxSizeOfUploadImage = 4 * 1024 * 1024; //4 megabytes
+    private $userController, $postController, $commentController, $ratingController, 
+            $subscribeController, $stabService, $view;
 
-    public function __construct($requestUri, $_request, $startTime, Factory $factory) {
+    public function __construct(Factory $factory, $startTime) {
         ob_start();
         $this->startTime = $startTime;
-        $this->stabService = $factory->getStabService();
+        $this->_request = $_REQUEST;
         $this->userController = $factory->getUserController();
         $this->postController = $factory->getPostController();
         $this->commentController = $factory->getCommentController();
         $this->ratingController = $factory->getRatingController();
         $this->subscribeController = $factory->getSubscribeController();
-        $this->viewNested= $factory->getViewNested();
+        $this->stabService = $factory->getStabService();
         $this->view= $factory->getView();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
         header("Cache-Control: must-revalidate");
-        $this->requestUriArray = explode('/', $requestUri);
+        if (!empty($this->_request)) {
+            if (isset($this->_request['deletePostById'])) {
+                if ($this->isSuperuser()) {
+                    $this->deletePostById($this->_request['deletePostById']);
+                } else {
+                    header ("Location: /login");
+                }
+            }
+            if (isset($this->_request['deleteCommentById'])) {
+                if ($this->isSuperuser()) {
+                    $this->deleteCommentById($this->_request['deleteCommentById']);
+                } else {
+                    header ("Location: /login");
+                }
+            }
+            if (isset($this->_request['deleteUserById'])) {
+                if ($this->isSuperuser()) {
+                    $this->deleteUserById($this->_request['deleteUserById']);
+                } else {
+                    header ("Location: /login");
+                }
+            }
+            if (isset($this->_request['post_id']) && isset($this->_request['addCommentContent'])) {
+                if ($this->getUserId()) {
+                    $this->addComment($this->_request['post_id'], $this->_request['addCommentContent']);
+                } else {
+                    header ("Location: /login");
+                }
+            }
+            if (isset($this->_request['post_id']) && isset($this->_request['star'])) {
+                if ($this->getUserId()) {
+                    $this->changePostRating($this->_request['post_id'], $this->_request['star']);
+                } else {
+                    header ("Location: /login");
+                }
+            }
+            if (isset($this->_request['comment_id_like']) && isset($this->_request['post_id'])) {
+                if ($this->getUserId()) {
+                    $this->changeCommentRating($this->_request['comment_id_like'], $this->_request['post_id']);
+                } else {
+                    header ("Location: /login");
+                }
+            }
+            if (isset($this->_request['exit'])) {
+                if ($this->getUserId()) {
+                    $this->exitUser();
+                }
+            }
+            if (isset($this->_request['email'])) {
+                $variableOfCaptcha = clearInt($this->_request['variable_of_captcha']);
+                $email = clearStr($this->_request['email']);
+                $password = $this->_request['password'];
+                if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
+                    if ($this->userController->isUser($email, $password)) {
+                        setcookie('user_id', $this->userController->getUserIdByEmail($email), strtotime('+2 days'));
+                        header("Location: {$_SESSION['referrer']}");
+                    } else {
+                        $this->msg = "Неверный email или пароль";
+                    }
+                } else {
+                    $this->msg = "Неверно введен код с Captcha";
+                }
+            }
+            if (isset($this->_request['regemail']) && isset($this->_request['regfio']) && isset($this->_request['regpassword']) && isset($this->_request['variable_of_captcha'])) {
+                $variableOfCaptcha = clearInt($this->_request['variable_of_captcha']);
+                $regemail = clearStr($this->_request['regemail']);
+                $regfio = clearStr($this->_request['regfio']);
+                $regpassword = $this->_request['regpassword'];
+                $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
+                if (!preg_match($regex, $regemail)) {
+                    $this->msg = "Неверный формат regemail";
+                }   
+                if ($regemail !== '' && $regfio !== '' && $regpassword !== '') {
+                    $regpassword = password_hash($regpassword, PASSWORD_BCRYPT);
+                    if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
+                        $addSuperuser = false;
+                        if (isset($this->_request['add_admin']) && $this->isSuperuser()) {
+                            $addSuperuser = true;
+                        }
+                        if (!$this->userController->addUser($regemail, $regfio, $regpassword, $addSuperuser)) {
+                            $this->msg = "Пользователь с таким email уже зарегистрирован";
+                        } else {
+                            if (!$addSuperuser) {
+                                setcookie('user_id', $this->userController->getUserIdByEmail($regemail), strtotime('+2 days'));
+                            }
+                            header("Location: {$_SESSION['referrer']}");
+                        } 
+                    } else {
+                        $this->msg = "Неверно введен код с Captcha";
+                    }
+                } else { 
+                    $this->msg = "Заполните все поля";
+                }
+            }
+            if (isset($this->_request['addPostZag'])) {
+                $title = clearStr($this->_request['addPostZag']);
+                $content = clearStr($this->_request['addPostContent']);
+                if ($title !== '' && $content !== '') {
+                    /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
+                        switch ($_FILES['addPostImg']["error"]) {
+                            case UPLOAD_ERR_INI_SIZE:
+                                $this->msg = "Превышен максимально допустимый размер";
+                                break;
+                            case UPLOAD_ERR_FORM_SIZE:
+                                $this->msg = "Превышено значение $this->maxSizeOfUploadImage байт";
+                                break;
+                            case UPLOAD_ERR_PARTIAL:
+                                $this->msg = "Файл загружен частично";
+                                break;
+                            case UPLOAD_ERR_NO_FILE:
+                                $this->msg = "Файл не был загружен";
+                                break;
+                            case UPLOAD_ERR_NO_TMP_DIR:
+                                $this->msg = "Отсутствует временная папка";
+                                break;
+                            case UPLOAD_ERR_CANT_WRITE:
+                                $this->msg = "Не удалось записать файл на диск";
+                        }
+                    } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
+                        if (!$this->postController->addPost($title, $this->getUserId(), $content)) {
+                            $this->msg =  "Произошла ошибка при добавлении поста";
+                        } else {
+                            /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
+                            header("Location: /");
+                        }
+                    /* } else {
+                        $this->msg = "Изображение имеет недопустимое расширение (не jpg)";
+                    }  */         
+                } else {
+                    $this->msg = "Заполните все поля";
+                }
+            }
+            if (isset($this->_request['change_email']) && isset($this->_request['change_fio']) && isset($this->_request['change_password'])) {
+                $email = clearStr($this->_request['change_email']);
+                $fio = clearStr($this->_request['change_fio']);
+                $password = $this->_request['change_password'];
+                $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
+                if (!preg_match($regex, $email)) {
+                    $this->msg = "Неверный формат email";
+                }   
+                if ($email && $fio) {
+                    if ($password != '') {
+                        $password = password_hash($password, PASSWORD_BCRYPT);
+                    } else {
+                        $password = false;
+                    }
+                    if (!$this->userController->updateUser($this->getUserId(), $email, $fio, $password)) {
+                        $this->msg = "Пользователь с таким email уже зарегистрирован";
+                    } else {
+                        $this->msg = "Изменения сохранены";
+                        header("Refresh:1");
+                    }
+                } else { 
+                    $this->msg = "Заполните все поля";
+                }
+            }
+            if (isset($this->_request['user']) && (isset($this->_request['subscribe']) || isset($this->_request['unsubscribe']))) {
+                header("Refresh:0");
+                $this->subscribeController->subscribeUser($this->getUserId(), $this->_request['user']);
+            }
+            if (isset($this->_request['view']) && $this->isSuperuser()) {
+                switch($this->_request['view']) {
+                    case 'viewPosts': header("Location: /posts"); break;
+                    case 'viewUsers': header("Location: /adminusers"); break;
+                    case 'addAdmin': header("Location: /reg"); break;
+                    case 'viewStab': header("Location: /stab"); break;
+                    default: header("Location: /");
+                }
+            }
+        }
+        $this->requestUriArray = explode('/', $_SERVER['REQUEST_URI']);
         array_shift($this->requestUriArray);
         switch (array_shift($this->requestUriArray)) {
             case '': $this->showGeneral(); break;
@@ -37,199 +207,6 @@ class FrontController {
             case 'adminusers': $this->showAdminUsers(); break;
             default : $this->show404();
         }
-        if (!empty($_request)) {
-            if (isset($_request['deletePostById'])) {
-                if ($this->isSuperuser()) {
-                    $this->deletePostById($_request['deletePostById']);
-                } else {
-                    header ("Location: /login");
-                }
-            }
-            if (isset($_request['deleteCommentById'])) {
-                if ($this->isSuperuser()) {
-                    $this->deleteCommentById($_request['deleteCommentById']);
-                } else {
-                    header ("Location: /login");
-                }
-            }
-            if (isset($_request['deleteUserById'])) {
-                if ($this->isSuperuser()) {
-                    $this->deleteUserById($_request['deleteUserById']);
-                } else {
-                    header ("Location: /login");
-                }
-            }
-            if (isset($_request['post_id']) && isset($_request['addCommentContent'])) {
-                if ($this->getUserId()) {
-                    $this->addComment($_request['post_id'], $_request['addCommentContent']);
-                } else {
-                    header ("Location: /login");
-                }
-            }
-            if (isset($_request['post_id']) && isset($_request['star'])) {
-                if ($this->getUserId()) {
-                    $this->changePostRating($_request['post_id'], $_request['star']);
-                } else {
-                    header ("Location: /login");
-                }
-            }
-            if (isset($_request['comment_id_like']) && isset($_request['post_id'])) {
-                if ($this->getUserId()) {
-                    $this->changeCommentRating($_request['comment_id_like'], $_request['post_id']);
-                } else {
-                    header ("Location: /login");
-                }
-            }
-            if (isset($_request['exit'])) {
-                if ($this->getUserId()) {
-                    $this->exitUser();
-                }
-            }
-            if (isset($_request['email'])) {
-                $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
-                $email = clearStr($_POST['email']);
-                $password = $_POST['password'];
-                if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
-                    if ($this->userController->isUser($email, $password)) {
-                        setcookie('user_id', $this->userController->getUserIdByEmail($email), strtotime('+2 days'));
-                        if (!empty($_SESSION['referrer'])) {
-                            header("Location: {$_SESSION['referrer']}");
-                        } else {
-                            header("Location: /");
-                        }
-                    } else {
-                        $this->error = "Неверный логин или пароль";
-                        header("Location: login/?msg=$this->error");
-                    }
-                } else {
-                    $this->error = "Неверно введен код с Captcha";
-                    header("Location: login/?msg=$this->error");
-                }
-            }
-            if (isset($_request['regemail'])) {
-                $variableOfCaptcha = clearInt($_POST['variable_of_captcha']);
-                $regemail = clearStr($_POST['regemail']);
-                $regfio = clearStr($_POST['regfio']);
-                $regpassword = $_POST['regpassword'];
-                $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
-                if (!preg_match($regex, $regemail)) {
-                    $error = "Неверный формат regemail";
-                    header("Location: /reg/?msg=$error");
-                }   
-                if ($regemail !== '' && $regfio !== '' && $regpassword !== '') {
-                    $regpassword = password_hash($regpassword, PASSWORD_BCRYPT);
-                    if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
-                        $addSuperuser = false;
-                        if (isset($_POST['add_admin']) && $this->isSuperuser()) {
-                            $addSuperuser = true;
-                        }
-                        if (!$this->userController->addUser($regemail, $regfio, $regpassword, $addSuperuser)) {
-                            $this->error = "Пользователь с таким email уже зарегистрирован";
-                            header("Location: /reg/?msg=$this->error");
-                        } else {
-                            if (!$addSuperuser) {
-                                setcookie('user_id', $this->userController->getUserIdByEmail($regemail), strtotime('+2 days'));
-                            }
-                            header("Location: /");
-                        } 
-                    } else {
-                        $this->error = "Неверно введен код с Captcha";
-                        header("Location: /reg/?msg=$this->error");
-                    }
-                } else { 
-                    $this->error = "Заполните все поля";
-                    header("Location: /reg/?msg=$this->error");
-                }
-            }
-            if (isset($_request['addPostZag'])) {
-                $title = clearStr($_POST['addPostZag']);
-                $content = clearStr($_POST['addPostContent']);
-                if ($title !== '' && $content !== '') {
-                    /* if ( $_FILES['addPostImg']["error"] != UPLOAD_ERR_OK ) {
-                        switch($_FILES['addPostImg']["error"]){
-                            case UPLOAD_ERR_INI_SIZE:
-                                $error = "Превышен максимально допустимый размер";
-                                header("Location: /addpost/?msg=$error");
-                                break;
-                            case UPLOAD_ERR_FORM_SIZE:
-                                $error = "Превышено значение $maxSizeOfUploadImage байт";
-                                header("Location: /addpost/?msg=$error");
-                                break;
-                            case UPLOAD_ERR_PARTIAL:
-                                $error = "Файл загружен частично";
-                                header("Location: /addpost/?msg=$error");
-                                break;
-                            case UPLOAD_ERR_NO_FILE:
-                                $error = "Файл не был загружен";
-                                header("Location: /addpost/?msg=$error");
-                                break;
-                            case UPLOAD_ERR_NO_TMP_DIR:
-                                $error = "Отсутствует временная папка";
-                                header("Location: /addpost/?msg=$error");
-                                break;
-                            case UPLOAD_ERR_CANT_WRITE:
-                                $error = "Не удалось записать файл на диск";
-                                header("Location: /addpost/?msg=$error");
-                        }
-                    } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-                        if (!$this->postController->addPost($title, $this->getUserId(), $content)) {
-                            $msg =  "Произошла ошибка при добавлении поста";
-                            header("Location: /addpost/?msg=$msg");
-                        } else {
-                            /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
-                            $msg =  "Пост добавлен";
-                            header("Location: /addpost/?msg=$msg");
-                        }
-                    /* } else {
-                        $error = "Изображение имеет недопустимое расширение (не jpg)";
-                        header("Location: /addpost/?msg=$error");
-                    }  */         
-                } else {
-                    $error = "Заполните все поля";
-                    header("Location: /addpost/?msg=$error");
-                }
-            }
-            if (isset($_request['change_email']) && isset($_request['change_fio']) && isset($_request['change_password'])) {
-                $email = clearStr($_POST['change_email']);
-                $fio = clearStr($_POST['change_fio']);
-                $password = $_POST['change_password'];
-                $regex = '/\A[^@]+@([^@\.]+\.)+[^@\.]+\z/u';
-                if (!preg_match($regex, $email)) {
-                    $msg = "Неверный формат email";
-                    header("Location: /cabinet/?changeinfo&msg=$msg");
-                }   
-                if ($email && $fio) {
-                    if ($password != '') {
-                        $password = password_hash($password, PASSWORD_BCRYPT);
-                    } else {
-                        $password = false;
-                    }
-                    if (!$this->userController->updateUser($this->getUserId(), $email, $fio, $password)) {
-                        $msg = "Пользователь с таким email уже зарегистрирован";
-                        header("Location: /cabinet/?changeinfo&msg=$msg"); 
-                    } else {
-                        $msg = "Изменения сохранены";
-                        header("Location: /cabinet/?msg=$msg");
-                    }
-                } else { 
-                    $msg = "Заполните все поля";
-                    header("Location: /cabinet/?changeinfo&msg=$msg");
-                }
-            }
-            if (isset($_GET['user']) && (isset($_request['subscribe']) || isset($_request['unsubscribe']))) {
-                header("Refresh:0");
-                $this->subscribeController->subscribeUser($this->getUserId(), $_GET['user']);
-            }
-            if (isset($_request['view']) && $this->isSuperuser()) {
-                switch($_request['view']) {
-                    case 'viewPosts': header("Location: /posts"); break;
-                    case 'viewUsers': header("Location: /adminusers"); break;
-                    case 'addAdmin': header("Location: /reg"); break;
-                    case 'viewStab': header("Location: /stab"); break;
-                    default: header("Location: /");
-                }
-            }
-        }
     }
     public function __destruct() {
         ob_end_flush();
@@ -241,52 +218,59 @@ class FrontController {
     public function showPost() {
         $postId = array_shift($this->requestUriArray);
         if ($postId < 1) {
-          header ("Location: /404");
+          header ("Location: /error404");
         } else {
             $postId = clearInt($postId);
-            $this->view->viewPost($postId, $this->getUserId(), $this->isSuperuser(), $this->startTime, $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId));
+            $this->view->viewPost(
+                $postId, 
+                $this->getUserId(), 
+                $this->isSuperuser(), 
+                $this->startTime, 
+                $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId)
+            );
         }
     }
     public function show404() {
         $this->view->view404($this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showLogin() {
-        $this->view->viewLogin($this->getUserId(), $this->isSuperuser(), $this->startTime);
+        $this->view->viewLogin($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->msg);
 
     }
     public function showReg() {
-        $this->view->viewReg($this->getUserId(), $this->isSuperuser(), $this->startTime);
+        $this->view->viewReg($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->msg);
     }
     public function showAddpost() {
         $_SESSION['referrer'] = '/addpost';
         if (!$this->getUserId()) {
             header ("Location: /login");
         }
-        $this->view->viewAddpost($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->maxSizeOfUploadImage);
+        $this->view->viewAddpost($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->maxSizeOfUploadImage, $this->msg);
     }
     public function showStab() {
         @set_time_limit(6000);
-        $_SESSION['referrer'] = '/stab';
         if (!$this->isSuperuser()) {
-            header ("Location: /login");
+            header("Location: /error404");
+        } else {
+            $_SESSION['referrer'] = '/stab';
+            $numberOfLoopIterations = $this->_request['number'] ?? 10;
+            $numberOfLoopIterations = clearInt($numberOfLoopIterations);
+            $this->stabService->stabDb($numberOfLoopIterations);
+            $errors = $this->stabService->getErrors();
+            $this->view->viewStab($this->getUserId(), $this->isSuperuser(), $numberOfLoopIterations, $errors, $this->startTime);
         }
-        $numberOfLoopIterations = $_GET['number'] ?? 10;
-        $numberOfLoopIterations = clearInt($numberOfLoopIterations);
-        $this->stabService->stabDb($numberOfLoopIterations);
-        $errors = $this->stabService->getErrors();
-        $this->view->viewStab($this->getUserId(), $this->isSuperuser(), $numberOfLoopIterations, $errors, $this->startTime);
     }
     public function showPosts() {
         $_SESSION['referrer'] = "/posts";
-        $numberOfPosts = $_GET['number'] ?? 25;
+        $numberOfPosts = $this->_request['number'] ?? 25;
         $numberOfPosts = clearInt($numberOfPosts);
-        $pageOfPosts = $_GET['page'] ?? 1;
+        $pageOfPosts = $this->_request['page'] ?? 1;
         $pageOfPosts = clearInt($pageOfPosts);
         $this->view->viewPosts($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfPosts, $pageOfPosts);
     }
     public function showCabinet() {
         $_SESSION['referrer'] = "/cabinet";
-        $userId = $_GET['user'] ?? $this->getUserId();
+        $userId = $this->_request['user'] ?? $this->getUserId();
         if ($userId == false) {
             header("Location: /login");
         } else {
@@ -305,39 +289,32 @@ class FrontController {
                 $linkToChangeUserInfo, 
                 $this->getUserId(), 
                 $this->isSuperuser(), 
-                $this->startTime
+                $this->startTime,
+                $this->msg
             );
         }
     }
     public function showSearch() {
-        $search = $_GET['search'] ?? '';
+        $search = $this->_request['search'] ?? '';
         $_SESSION['referrer'] = "/search/?search=$search";
         $this->view->viewSearch($this->getUserId(), $this->isSuperuser(), $this->startTime, $search);
     }
     public function showAdmin() {
-        $_SESSION['referrer'] = "/admin";
         if (empty($this->isSuperuser())) {
-            if(!empty($this->getUserId())) {
-                header("Location: /");
-            } else {
-                header("Location: /login");
-            }
+            header("Location: /error404");
         } else {
+            $_SESSION['referrer'] = "/admin";
             $this->view->viewAdmin($this->getUserId(), $this->isSuperuser(), $this->startTime);
         }
     }
     public function showAdminUsers() {
-        $_SESSION['referrer'] = "/adminusers";
         if (empty($this->isSuperuser())) {
-            if(!empty($this->getUserId())) {
-                header("Location: /");
-            } else {
-                header("Location: /login");
-            }
+            header("Location: /error404");
         } else {
-            $numberOfUsers = $_GET['number'] ?? 50;
+            $_SESSION['referrer'] = "/adminusers";
+            $numberOfUsers = $this->_request['number'] ?? 50;
             $numberOfUsers = clearInt($numberOfUsers);
-            $pageOfUsers = $_GET['page'] ?? 1;
+            $pageOfUsers = $this->_request['page'] ?? 1;
             $pageOfUsers = clearInt($pageOfUsers);
             $this->view->viewAdminUsers($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfUsers, $pageOfUsers);
         }

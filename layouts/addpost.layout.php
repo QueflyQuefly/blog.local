@@ -1,16 +1,7 @@
-<?php // needed $maxSizeOfUploadImage:int ?>
+<?php // needed $maxSizeOfUploadImage:int, $msg:string ?>
     <div class='addpostcontainer'>
         <div class='addpostmsg'>
-            <?php
-                if (isset($_GET['msg'])) {
-                    $msg = clearStr($_GET['msg']);
-                    if ($msg == "Пост добавлен") {
-                        echo "<p class='ok'>$msg</p>";
-                    } else {
-                        echo "<p class='error'>$msg</p>";
-                    }
-                }
-            ?>
+            <p><?= $msg ?></p>
         </div>
         <p class='addpostlabel'>Форма добавления поста:</p>
         <div class='addpostform'>

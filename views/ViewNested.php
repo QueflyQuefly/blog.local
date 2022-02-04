@@ -13,16 +13,16 @@ class ViewNested{
     public function viewFooterLayout($startTime) {
         require "layouts/endbody.layout.php";
     }
-    public function viewLoginLayout() {
+    public function viewLoginLayout($msg) {
         require "layouts/login.layout.php";
     }
-    public function viewRegLayout($isSuperuser) {
+    public function viewRegLayout($isSuperuser, $msg) {
         if ($isSuperuser) {
             $forAdmin = "<label><input type='checkbox' name='add_admin'>Зарегистрировать как админа</label>";
         }
         require "layouts/reg.layout.php";
     }
-    public function viewAddpostLayout($maxSizeOfUploadImage) {
+    public function viewAddpostLayout($maxSizeOfUploadImage, $msg) {
         require "layouts/addpost.layout.php";
     }
     public function viewStabLayout() {
@@ -40,7 +40,7 @@ class ViewNested{
     public function viewAdminLayout() {
         require "layouts/admin.layout.php";
     }
-    public function viewChangeUserInfo($user) {
+    public function viewChangeUserInfo($user, $msg) {
         require "layouts/changeuserinfo.layout.php";
     }
 }

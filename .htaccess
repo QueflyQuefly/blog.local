@@ -1,5 +1,5 @@
 #404 Страница не найдена
-ErrorDocument 404 http://blog.local/404
+ErrorDocument 404 http://blog.local/error404
 #500 Внутренняя ошибка сервера
 #ErrorDocument 500 http://blog.local/index.php
 <FilesMatch "\.(jpg|css|jpeg|png|gif|swf)$">

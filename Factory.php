@@ -1,29 +1,10 @@
 <?php
-spl_autoload_register(function ($class) {
-    if (strpos($class, 'Controller') !== false) {
-        $pathToClass = 'controllers' . DIRECTORY_SEPARATOR;
-    }
-    if (strpos($class, 'Service') !== false) {
-        $pathToClass = 'services' . DIRECTORY_SEPARATOR;
-    }
-    if (strpos($class, 'View') !== false) {
-        $pathToClass = 'views' . DIRECTORY_SEPARATOR;
-    }
-    require_once $pathToClass . $class . '.php';
-});
-
-function clearInt($int) {
-    return abs((int) $int);
-}
-function clearStr($str) {
-    return trim(strip_tags($str));
-}
 
 class Factory {
-    private $commentService, $postService, $ratingPostService, $stabService;
-    private $ratingCommentService, $sendMailService, $subscribeService, $userService;
-    private $postController, $commentController, $ratingController, $userController, $subscribeController;
-    private $viewComments, $viewPosts, $viewNested, $viewUsers, $view;
+    private $commentService, $postService, $ratingPostService, $stabService,
+            $ratingCommentService, $sendMailService, $subscribeService, $userService,
+            $postController, $commentController, $ratingController, $userController, $subscribeController,
+            $viewComments, $viewPosts, $viewUsers, $view;
 
     public function getCommentService() {
         if (is_null($this->commentService)) {
@@ -115,12 +96,6 @@ class Factory {
         }
         return $this->viewComments;
     }
-    public function getViewNested() {
-        if (is_null($this->viewNested)) {
-            $this->viewNested= new ViewNested();
-        }
-        return $this->viewNested;
-    }    
     public function getViewUsers() {
         if (is_null($this->viewUsers)) {
             $this->viewUsers= new ViewUsers();
