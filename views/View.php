@@ -55,9 +55,9 @@ class View extends ViewNested{
         $pageTitle = 'Стаб - Просто Блог';
         $pageDescription = '';
         if (empty($errors)) {
-            $pageDescription = "Подключение к БД: успешно</p><p>Создано $numberOfLoopIterations новый(-ых) пользователь(-ей, -я), 
-            $numberOfLoopIterations новый(-ых) пост(-ов, -а) и несколько (до 12) комментариев к каждому.<br>
-            Создание 100 постов занимает примерно 10 секунд.";
+            $pageDescription = "Цикл выполнился столько раз: $numberOfLoopIterations. Нет сообщений об ошибках </p> <p> 
+                    В одной итерации цикла создается новый пользователь, новый пост от этого пользователя и несколько 
+                    (до 14) комментариев к этому посту.<br> Создание 100 постов занимает примерно 10 секунд </p>";
         } else {
             foreach ($errors as $error) {
                 $pageDescription .= $error . "<br>";

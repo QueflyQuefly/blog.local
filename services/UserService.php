@@ -4,7 +4,7 @@ class UserService {
     public $error;
     private $_db;
     public function __construct() {
-        $this->_db = DbService::getInstance();
+        $this->_db = DbService::getConnectionToDb();
     }
     public function addUser($email, $fio, $password, $addSuperuser) {
         try {

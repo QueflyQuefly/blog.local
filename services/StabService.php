@@ -4,7 +4,7 @@ class StabService {
     public $errors = [];
     private $_db, $commentService, $ratingPostService, $ratingCommentService, $userService;
     public function __construct(UserService $userService, CommentService $commentService, RatingPostService $ratingPostService, RatingCommentService $ratingCommentService) {
-        $this->_db = DbService::getInstance();
+        $this->_db = DbService::getConnectionToDb();
         $this->commentService = $commentService;
         $this->ratingPostService = $ratingPostService;
         $this->ratingCommentService =$ratingCommentService;

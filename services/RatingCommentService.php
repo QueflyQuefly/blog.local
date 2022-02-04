@@ -4,7 +4,7 @@ class RatingCommentService {
     public $error;
     private $_db;
     public function __construct() {
-        $this->_db = DbService::getInstance();
+        $this->_db = DbService::getConnectionToDb();
     }
     public function changeCommentRating($rating, $commentId, $postId, $userId){
         try {

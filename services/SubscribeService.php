@@ -4,7 +4,7 @@ class SubscribeService {
     public $error;
     private $_db;
     public function __construct() {
-        $this->_db = DbService::getInstance();
+        $this->_db = DbService::getConnectionToDb();
     }
     public function toSubscribeUser($userIdWantSubscribe, $userId) {
         try {

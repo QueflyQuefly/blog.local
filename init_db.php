@@ -7,7 +7,7 @@ try {
     $password = $db->quote($password);
     
     $date = time();
-    $rights = $db->quote(RIGHTS_SUPERUSER);
+    $rights = $db->quote('superuser');
 
     $sql = "CREATE DATABASE $dbname;
 

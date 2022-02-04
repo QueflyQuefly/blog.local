@@ -4,7 +4,7 @@ class CommentService {
     public $error;
     private $_db;
     public function __construct() {
-        $this->_db = DbService::getInstance();
+        $this->_db = DbService::getConnectionToDb();
     }
     public function addComment($postId, $commentAuthorId, $commentContent, $commentDate = 0, $rating = 0) {
         try {

@@ -4,7 +4,7 @@ class PostService {
     public $error;
     private $_db;
     public function __construct() {
-        $this->_db = DbService::getInstance();
+        $this->_db = DbService::getConnectionToDb();
     }
     public function addPost($title, $userId, $content) {
         try {

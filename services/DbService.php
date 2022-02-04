@@ -4,7 +4,7 @@ class DbService {
     private static $_instance;
     private static $_db;
     public $error;
-    public static function getInstance() {
+    public static function getConnectionToDb() {
         if (is_null(self::$_instance)) {
             self::$_instance = new self;
         }
