@@ -1,13 +1,13 @@
 <?php
 
 class ViewUsers {
-    private $pathToLayouts, $userView;
+    private $_pathToLayouts;
     public function __construct() {
-        $this->pathToLayouts = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR;
+        $this->_pathToLayouts = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR;
     }
     public function renderUsers($users, $nameOfPath, $isSuperuser = false) {
         if (empty($users)) {
-            $this->userView = "\n<div class='contentsinglepost'><p class='center'style='color: rgb(150, 20, 20);'>Нет пользователей для отображения</p></div>\n"; 
+            echo "\n<div class='contentsinglepost'><p class='center'style='color: rgb(150, 20, 20);'>Нет пользователей для отображения</p></div>\n"; 
         } else {
             foreach ($users as $user) {
                 $user['date_time'] = date("d.m.Y в H:i", $user['date_time']);
@@ -27,9 +27,8 @@ class ViewUsers {
                     ";
 
                 }
-                include $this->pathToLayouts . 'user.layout.php';
+                include $this->_pathToLayouts . 'user.layout.php';
             }
         }
-        echo $this->userView;
     }
 }

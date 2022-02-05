@@ -2,13 +2,14 @@
 
 class StabService {
     public $errors = [];
-    private $_db, $commentService, $ratingPostService, $ratingCommentService, $userService;
+    private $_dbService, $_db, $_commentService, $_ratingPostService, $_ratingCommentService, $_userService;
     public function __construct(UserService $userService, CommentService $commentService, RatingPostService $ratingPostService, RatingCommentService $ratingCommentService) {
-        $this->_db = DbService::getConnectionToDb();
-        $this->commentService = $commentService;
-        $this->ratingPostService = $ratingPostService;
-        $this->ratingCommentService =$ratingCommentService;
-        $this->userService =$userService;
+        $this->_dbService = DbService::getInstance();
+        $this->_db = $this->_dbService->getConnectionToDb();
+        $this->_commentService = $commentService;
+        $this->_ratingPostService = $ratingPostService;
+        $this->_ratingCommentService =$ratingCommentService;
+        $this->_userService =$userService;
     }
     public function stabDb($numberOfLoopIterations) {
         $user = [
@@ -132,7 +133,7 @@ class StabService {
                 for ($m = 0; $m <= $random3; $m++) {
                     $random4 = mt_rand($j, $j + $numberOfLoopIterations - 1);
                     $randomUser = $random4 . "@gmail.com";
-                    $randomUser = $this->userService->getUserIdByEmail($randomUser);
+                    $randomUser = $this->_userService->getUserIdByEmail($randomUser);
                     if (is_null($randomUser)) {
                         continue;
                     }
@@ -141,21 +142,21 @@ class StabService {
                     $dateOfComment = mt_rand($date, time());
                     $commentContent = $texts[$random6];
 
-                    if (!$this->ratingPostService->isUserChangedPostRating($randomUser, $postId)) {
-                        if (!$this->ratingPostService->changePostRating($randomUser, $postId, $random5)) {
+                    if (!$this->_ratingPostService->isUserChangedPostRating($randomUser, $postId)) {
+                        if (!$this->_ratingPostService->changePostRating($randomUser, $postId, $random5)) {
                             $this->errors[] = "Рейтинг $random5 к посту № $postId от пользователя с id = $randomUser не поставился";
                             continue;
                         }
                     }
 
                     $randomLike = mt_rand(0, 1000);
-                    if (!$this->commentService->addComment($postId, $randomUser, $commentContent, $dateOfComment, $randomLike)) {
+                    if (!$this->_commentService->addComment($postId, $randomUser, $commentContent, $dateOfComment, $randomLike)) {
                         $this->errors[] = "Комментарий к посту № $postId от пользователя с id = $randomUser не создан";
                         continue;
                     }
                     $like = "like";
-                    if (!$this->ratingCommentService->isUserChangedCommentRating($randomUser, $random4)) {
-                        if (!$this->ratingCommentService->changeCommentRating($like, $random4, $postId, $randomUser)) {
+                    if (!$this->_ratingCommentService->isUserChangedCommentRating($randomUser, $random4)) {
+                        if (!$this->_ratingCommentService->changeCommentRating($like, $random4, $postId, $randomUser)) {
                             $this->errors[] = "Лайк к комментарию № $random4 от пользователя с id = $randomUser не поставился";
                             continue;
                         }

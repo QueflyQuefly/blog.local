@@ -18,5 +18,7 @@ function clearInt($int) {
 function clearStr($str) {
     return trim(strip_tags($str));
 }
+define('RIGHTS_USER', 'user');
+define('RIGHTS_SUPERUSER', 'superuser');
 require 'Factory.php';
 $frontController = new FrontController(new Factory(), $startTime);

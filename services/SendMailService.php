@@ -4,7 +4,7 @@ $pathToPHPMailer = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECT
 require $pathToPHPMailer;
 
 class SendMailService {
-    private $mail;
+    private $_mail;
     private static $_instance;
     public static function getInstance() {
         if (is_null(self::$_instance)) {
@@ -13,31 +13,28 @@ class SendMailService {
         return self::$_instance;
     }
     private function __construct(PHPMailer $phpMailer) {
-        $this->mail = $phpMailer;
-    }
-    public function getConfiguredMail() {
-        $this->mail->isSMTP();
-        $this->mail->SMTPDebug = 0;
-        $this->mail->Host = 'smtp.gmail.com';
-        $this->mail->Port = 587;
-        $this->mail->SMTPSecure = 'tls';
-        $this->mail->SMTPAuth = true;
+        $this->_mail = $phpMailer;
+        $this->_mail->isSMTP();
+        $this->_mail->SMTPDebug = 0;
+        $this->_mail->Host = 'smtp.gmail.com';
+        $this->_mail->Port = 587;
+        $this->_mail->SMTPSecure = 'tls';
+        $this->_mail->SMTPAuth = true;
 
         $data = json_decode(file_get_contents('data.json'), true);
-        $this->mail->Username = $data['email'];
-        $this->mail->Password = $data['password'];
-        $this->mail->setFrom($data['email'], 'Prosto Blog');
-        $this->mail->addReplyTo($data['email'], 'Prosto Blog');
-        return $this->mail;
+        $this->_mail->Username = $data['email'];
+        $this->_mail->Password = $data['password'];
+        $this->_mail->setFrom($data['email'], 'Prosto Blog');
+        $this->_mail->addReplyTo($data['email'], 'Prosto Blog');
+        return $this->_mail;
     }
     public function sendMail($toEmail, $title, $message) {
-        $mail = $this->getConfiguredMail();
-        $mail->addAddress($toEmail, 'Prosto Blog');
-        $mail->Subject = $title;
-        $mail->msgHTML($message);
-        //$mail->AltBody = 'This is a plain-text message body';
-        //$mail->addAttachment('images/phpmailer_mini.png');
-        if (!$mail->send()) {
+        $this->_mail->addAddress($toEmail, 'Prosto Blog');
+        $this->_mail->Subject = $title;
+        $this->_mail->msgHTML($message);
+        //$this->_mail->AltBody = 'This is a plain-text message body';
+        //$this->_mail->addAttachment('images/phpmailer_mini.png');
+        if (!$this->_mail->send()) {
             return false;
         } else {
             return true;

@@ -2,9 +2,10 @@
 
 class RatingPostService {
     public $error;
-    private $_db;
+    private $_dbService, $_db;
     public function __construct() {
-        $this->_db = DbService::getConnectionToDb();
+        $this->_dbService = DbService::getInstance();
+        $this->_db = $this->_dbService->getConnectionToDb();
     }
     public function changePostRating($userId, $postId, $rating){
         try {

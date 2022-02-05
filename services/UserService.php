@@ -2,9 +2,10 @@
 
 class UserService {
     public $error;
-    private $_db;
+    private $_dbService, $_db;
     public function __construct() {
-        $this->_db = DbService::getConnectionToDb();
+        $this->_dbService = DbService::getInstance();
+        $this->_db = $this->_dbService->getConnectionToDb();
     }
     public function addUser($email, $fio, $password, $addSuperuser) {
         try {
@@ -51,7 +52,7 @@ class UserService {
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                if (password_verify($password, $result['pass_word'])) {
+                if (!empty($result) && password_verify($password, $result['pass_word'])) {
                     return true;
                 }
             }
@@ -152,7 +153,7 @@ class UserService {
             $sql = "SELECT $query FROM users WHERE user_id = $userId;";
             $stmt = $this->_db->query($sql);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!empty($whatNeeded)) {
+            if (!empty($whatNeeded) && !empty($result)) {
                 $result = $result[$whatNeeded];
             }
         } catch (PDOException $e) {

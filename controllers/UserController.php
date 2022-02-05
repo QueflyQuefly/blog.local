@@ -1,54 +1,54 @@
 <?php
 
 class UserController {
-    private $sessionUserId, $isSuperuser, $userService, $viewUsers;
+    private $_sessionUserId, $_isSuperuser, $userService, $viewUsers;
     public function __construct(UserService $userService, ViewUsers $viewUsers){
-        $this->userService = $userService;
-        $this->viewUsers = $viewUsers;
+        $this->_userService = $userService;
+        $this->_viewUsers = $viewUsers;
     }
     public function addUser($email, $fio, $password, $rights = false) {
-        return $this->userService->addUser($email, $fio, $password, $rights);
+        return $this->_userService->addUser($email, $fio, $password, $rights);
     }
     public function getUserId() {
-        if (is_null($this->sessionUserId)) {
+        if (is_null($this->_sessionUserId)) {
             if (!empty($_SESSION['user_id'])) {
-                $this->sessionUserId = $_SESSION['user_id'];
+                $this->_sessionUserId = $_SESSION['user_id'];
             } elseif (!empty($_COOKIE['user_id'])) {
-                $this->sessionUserId = $_COOKIE['user_id'];
+                $this->_sessionUserId = $_COOKIE['user_id'];
             }
         }
-        return $this->sessionUserId;
+        return $this->_sessionUserId;
     }
     public function isSuperuser() {
-        if (is_null($this->isSuperuser)) {
+        if (is_null($this->_isSuperuser)) {
             $userId = $this->getUserId();
-            if (!empty($userId) && $this->userService->getUserInfoById($userId, 'rights') === RIGHTS_SUPERUSER) {
-                $this->isSuperuser = true;
+            if (!empty($userId) && $this->_userService->getUserInfoById($userId, 'rights') === RIGHTS_SUPERUSER) {
+                $this->_isSuperuser = true;
             } else {
-                $this->isSuperuser = false;
+                $this->_isSuperuser = false;
             }
         }
-        return $this->isSuperuser;
+        return $this->_isSuperuser;
     }
     public function isUser($login, $password) {
-        return $this->userService->isUser($login, $password);
+        return $this->_userService->isUser($login, $password);
     }
     public function updateUser($sessionUserId, $email, $fio, $password) {
-        return $this->userService->updateUser($sessionUserId, $email, $fio, $password);
+        return $this->_userService->updateUser($sessionUserId, $email, $fio, $password);
     }
     public function getUserIdByEmail($email) {
-        return $this->userService->getUserIdByEmail($email);
+        return $this->_userService->getUserIdByEmail($email);
     }
     public function getUserInfoById($getUserInfoById, $whatNeeded = '') {
-        return $this->userService->getUserInfoById($getUserInfoById, $whatNeeded);
+        return $this->_userService->getUserInfoById($getUserInfoById, $whatNeeded);
     }
     public function showSearchUsers($searchWord, $isSuperuser) {
-        $users = $this->userService->searchUsersByFioAndEmail($searchWord, $isSuperuser);
-        return $this->viewUsers->renderUsers($users, 'search/?search=' . $searchWord, $isSuperuser);
+        $users = $this->_userService->searchUsersByFioAndEmail($searchWord, $isSuperuser);
+        return $this->_viewUsers->renderUsers($users, 'search/?search=' . $searchWord, $isSuperuser);
     }
     public function showAdminUsers($isSuperuser, $numberOfUsers = 50, $pageOfUsers = 1) {
-        $users = $this->userService->getUsersByNumber($numberOfUsers, $numberOfUsers * $pageOfUsers - $numberOfUsers);
-        return $this->viewUsers->renderUsers($users, 'adminusers', $isSuperuser);
+        $users = $this->_userService->getUsersByNumber($numberOfUsers, $numberOfUsers * $pageOfUsers - $numberOfUsers);
+        return $this->_viewUsers->renderUsers($users, 'adminusers', $isSuperuser);
     }
     public function exitUser() {
         if ($this->getUserId()) {
@@ -57,6 +57,6 @@ class UserController {
         }
     }
     public function deleteUserById($userId) {
-        return $this->userService->deleteUserById($userId);
+        return $this->_userService->deleteUserById($userId);
     }
 }

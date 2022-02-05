@@ -1,111 +1,111 @@
 <?php
 
 class Factory {
-    private $commentService, $postService, $ratingPostService, $stabService,
-            $ratingCommentService, $sendMailService, $subscribeService, $userService,
-            $postController, $commentController, $ratingController, $userController, $subscribeController,
-            $viewComments, $viewPosts, $viewUsers, $view;
+    private $_commentService, $_postService, $_ratingPostService, $_stabService,
+            $_ratingCommentService, $_sendMailService, $_subscribeService, $_userService,
+            $_postController, $_commentController, $_ratingController, $_userController, $_subscribeController,
+            $_viewComments, $_viewPosts, $_viewUsers, $_view;
 
     public function getCommentService() {
-        if (is_null($this->commentService)) {
-            $this->commentService = new CommentService();
+        if (is_null($this->_commentService)) {
+            $this->_commentService = new CommentService();
         }
-        return $this->commentService;
+        return $this->_commentService;
     }
     public function getPostService() {
-        if (is_null($this->postService)) {
-            $this->postService = new PostService();
+        if (is_null($this->_postService)) {
+            $this->_postService = new PostService();
         }
-        return $this->postService;
+        return $this->_postService;
     }
     public function getRatingPostService() {
-        if (is_null($this->ratingPostService)) {
-            $this->ratingPostService = new RatingPostService();
+        if (is_null($this->_ratingPostService)) {
+            $this->_ratingPostService = new RatingPostService();
         }
-        return $this->ratingPostService;
+        return $this->_ratingPostService;
     }
     public function getRatingCommentService() {
-        if (is_null($this->ratingCommentService)) {
-            $this->ratingCommentService = new RatingCommentService();
+        if (is_null($this->_ratingCommentService)) {
+            $this->_ratingCommentService = new RatingCommentService();
         }
-        return $this->ratingCommentService;
+        return $this->_ratingCommentService;
     }
     public function getSendMailService() {
-        if (is_null($this->sendMailService)) {
-            $this->sendMailService = SendMailService::getInstance();
+        if (is_null($this->_sendMailService)) {
+            $this->_sendMailService = SendMailService::getInstance();
         }
-        return $this->sendMailService;
+        return $this->_sendMailService;
     }
     public function getSubscribeService() {
-        if (is_null($this->subscribeService)) {
-            $this->subscribeService = new SubscribeService();
+        if (is_null($this->_subscribeService)) {
+            $this->_subscribeService = new SubscribeService();
         }
-        return $this->subscribeService;
+        return $this->_subscribeService;
     }
     public function getUserService() {
-        if (is_null($this->userService)) {
-            $this->userService = new UserService();
+        if (is_null($this->_userService)) {
+            $this->_userService = new UserService();
         }
-        return $this->userService;
+        return $this->_userService;
     }
     public function getStabService() {
-        if (is_null($this->stabService)) {
-            $this->stabService = new StabService($this->getUserService(), $this->getCommentService(), $this->getRatingPostService(), $this->getRatingCommentService());
+        if (is_null($this->_stabService)) {
+            $this->_stabService = new StabService($this->getUserService(), $this->getCommentService(), $this->getRatingPostService(), $this->getRatingCommentService());
         }
-        return $this->stabService;
+        return $this->_stabService;
     }
     public function getPostController() {
-        if (is_null($this->postController)) {
-            $this->postController = new PostController($this->getPostService(), $this->getViewPosts());
+        if (is_null($this->_postController)) {
+            $this->_postController = new PostController($this->getPostService(), $this->getViewPosts());
         }
-        return $this->postController;
+        return $this->_postController;
     }
     public function getCommentController() {
-        if (is_null($this->commentController)) {
-            $this->commentController = new CommentController($this->getCommentService(), $this->getViewComments());
+        if (is_null($this->_commentController)) {
+            $this->_commentController = new CommentController($this->getCommentService(), $this->getViewComments());
         }
-        return $this->commentController;
+        return $this->_commentController;
     }
     public function getRatingController() {
-        if (is_null($this->ratingController)) {
-            $this->ratingController = new RatingController($this->getRatingPostService(), $this->getRatingCommentService());
+        if (is_null($this->_ratingController)) {
+            $this->_ratingController = new RatingController($this->getRatingPostService(), $this->getRatingCommentService());
         }
-        return $this->ratingController;
+        return $this->_ratingController;
     }
     public function getUserController() {
-        if (is_null($this->userController)) {
-            $this->userController = new UserController($this->getUserService(), $this->getViewUsers());
+        if (is_null($this->_userController)) {
+            $this->_userController = new UserController($this->getUserService(), $this->getViewUsers());
         }
-        return $this->userController;
+        return $this->_userController;
     }
     public function getSubscribeController() {
-        if (is_null($this->subscribeController)) {
-            $this->subscribeController = new SubscribeController($this->getSubscribeService());
+        if (is_null($this->_subscribeController)) {
+            $this->_subscribeController = new SubscribeController($this->getSubscribeService());
         }
-        return $this->subscribeController;
+        return $this->_subscribeController;
     }
     public function getViewPosts() {
-        if (is_null($this->viewPosts)) {
-            $this->viewPosts = new ViewPosts();
+        if (is_null($this->_viewPosts)) {
+            $this->_viewPosts = new ViewPosts();
         }
-        return $this->viewPosts;
+        return $this->_viewPosts;
     }
     public function getViewComments() {
-        if (is_null($this->viewComments)) {
-            $this->viewComments = new ViewComments();
+        if (is_null($this->_viewComments)) {
+            $this->_viewComments = new ViewComments();
         }
-        return $this->viewComments;
+        return $this->_viewComments;
     }
     public function getViewUsers() {
-        if (is_null($this->viewUsers)) {
-            $this->viewUsers= new ViewUsers();
+        if (is_null($this->_viewUsers)) {
+            $this->_viewUsers= new ViewUsers();
         }
-        return $this->viewUsers;
+        return $this->_viewUsers;
     }
     public function getView() {
-        if (is_null($this->view)) {
-            $this->view= new View($this->getPostController(), $this->getCommentController(), $this->getUserController(), $this->getSubscribeController());
+        if (is_null($this->_view)) {
+            $this->_view= new View($this->getPostController(), $this->getCommentController(), $this->getUserController(), $this->getSubscribeController());
         }
-        return $this->view;
+        return $this->_view;
     }
 }

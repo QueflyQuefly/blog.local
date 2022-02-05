@@ -535,7 +535,9 @@ hr{
 }
 .formradio .formlabel{
     font-size: 13pt;
-    padding: 1vmin;
+}
+.formradio input{
+    margin: 1.5vmin;
 }
 
 /* addpost */

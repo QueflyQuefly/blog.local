@@ -1,13 +1,13 @@
 <?php
 
 class ViewPosts {
-    private $pathToLayouts, $postsView;
+    private $_pathToLayouts, $_postsView;
     public function __construct() {
-        $this->pathToLayouts = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR ;
+        $this->_pathToLayouts = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR ;
     }
     public function renderPosts($posts, $isSuperuser = false, $showButton = false) {
         if (empty($posts)) {
-            $this->postsView = "\n<div class='contentsinglepost'><p class='center'style='color: rgb(150, 20, 20);'>Нет постов для отображения</p></div>\n"; 
+            echo "\n<div class='contentsinglepost'><p class='center'style='color: rgb(150, 20, 20);'>Нет постов для отображения</p></div>\n"; 
         } else {
             foreach ($posts as $key => $post) {
                 $class = 'viewpost';
@@ -30,13 +30,12 @@ class ViewPosts {
                     </form>
                     ";
                 }
-                include $this->pathToLayouts . 'post.layout.php';
+                include $this->_pathToLayouts . 'post.layout.php';
             }
             if ($showButton) {
                 echo "\n<p class='center'><a class='formsubmit' href='/posts'>Посмотреть посты за всё время</a></p>\n";
             }
         }
-        echo $this->postsView;
     }
     public function renderMoreTalkedPosts($posts, $isSuperuser = false) {
         if (!empty($posts)) {
@@ -60,7 +59,7 @@ class ViewPosts {
                     </form>
                     ";
                 }
-                include $this->pathToLayouts . 'post.layout.php';
+                include $this->_pathToLayouts . 'post.layout.php';
             }
         }
     }
@@ -83,7 +82,7 @@ class ViewPosts {
         $ratingArea = function () {
             if (empty($this->isUserChangedRating)) {
                 $post = $this->post;
-                include $this->pathToLayouts . 'ratingpost.layout.php';
+                include $this->_pathToLayouts . 'ratingpost.layout.php';
             } else {
                 echo "<p class='singlepostdate'>Оценка принята</p>";
             }
@@ -97,9 +96,9 @@ class ViewPosts {
             </form>
             ";
         }
-        include $this->pathToLayouts . 'viewpost.layout.php';
+        include $this->_pathToLayouts . 'viewpost.layout.php';
         $this->renderTags($tags);
-        include $this->pathToLayouts . 'addcomments.layout.php';
+        include $this->_pathToLayouts . 'addcomments.layout.php';
         if ($post['count_comments'] == 0) {
             echo "<p class='center'>Оставьте комментарий первым!</p>";
         } else {

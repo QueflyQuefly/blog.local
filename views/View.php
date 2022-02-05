@@ -1,20 +1,20 @@
 <?php
 
 class View extends ViewNested{
-    private $postController, $commentController, $userController, $subscribeController;
+    private $_postController, $_commentController, $_userController, $_subscribeController;
     public function __construct(PostController $postController, CommentController $commentController, UserController $userController, SubscribeController $subscribeController) {
-        $this->postController = $postController;
-        $this->commentController = $commentController;
-        $this->userController = $userController;
-        $this->subscribeController = $subscribeController;
+        $this->_postController = $postController;
+        $this->_commentController = $commentController;
+        $this->_userController = $userController;
+        $this->_subscribeController = $subscribeController;
     }
     public function viewGeneral($sessionUserId, $isSuperuser, $startTime) {
         $pageTitle = 'Просто Блог - Главная';
         $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
         $showButtonSeeAll = true;
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
-        $this->postController->showLastPosts(10, $isSuperuser, 0, $showButtonSeeAll);
-        $this->postController->showMoreTalkedPosts(3, $isSuperuser);
+        $this->_postController->showLastPosts(10, $isSuperuser, 0, $showButtonSeeAll);
+        $this->_postController->showMoreTalkedPosts(3, $isSuperuser);
         parent::viewFooterLayout($startTime);
     }
     public function view404($sessionUserId, $isSuperuser, $startTime) {
@@ -28,9 +28,9 @@ class View extends ViewNested{
     public function viewPost($postId, $sessionUserId, $isSuperuser, $startTime, $isUserChangedPostRating) {
         $pageTitle = 'Просмотр поста - Просто Блог';
         parent::viewHeadAndMenuLayouts($sessionUserId, $isSuperuser, $pageTitle);
-        $tags = $this->postController->getTagsByPostId($postId);
-        $this->postController->showPost($postId, $tags, $isSuperuser, $isUserChangedPostRating);
-        $this->commentController->showCommentsByPostId($postId, $isSuperuser);
+        $tags = $this->_postController->getTagsByPostId($postId);
+        $this->_postController->showPost($postId, $tags, $isSuperuser, $isUserChangedPostRating);
+        $this->_commentController->showCommentsByPostId($postId, $isSuperuser);
         parent::viewFooterLayout($startTime);
     }
     public function viewLogin($sessionUserId, $isSuperuser, $startTime, $msg) {
@@ -84,8 +84,8 @@ class View extends ViewNested{
                 $pageDescription .= "<a class='link' style='font-size:13pt; margin-left:30vmin' title='Отмена' 
                         href='/cabinet'>Отмена</a>\n";
             }
-        } elseif ($sessionUserId != $user['user_id']) {
-            if (!$this->subscribeController->isSubscribedUser($sessionUserId, $user['user_id'])) {
+        } elseif (!empty($sessionUserId) && $sessionUserId != $user['user_id']) {
+            if (!$this->_subscribeController->isSubscribedUser($sessionUserId, $user['user_id'])) {
                 $pageDescription .= "
                         <input type='submit' style='font-size:13pt;' form='subscribe' value='Подписаться' class='link'>
                         <form id='subscribe' action='' method='post'>
@@ -109,16 +109,16 @@ class View extends ViewNested{
             echo "<p class='ok' style='margin: -5vmin 0 0 -75vmin; font-size: 12pt;'>" . clearStr($msg) . "</p>";
         }
         echo "<br><div class='contentsinglepost'><p class='posttitle'>Посты от автора &copy; {$user['fio']}:</p></div>";
-        $this->postController->showPostsByUserId($user['user_id'], $showEmailAndLinksToDelete);
+        $this->_postController->showPostsByUserId($user['user_id'], $showEmailAndLinksToDelete);
 
         echo "<div class='contentsinglepost'><p class='posttitle'>Комментарии автора &copy; {$user['fio']}:</p></div>";
-        $this->commentController->showCommentsByUserId($user['user_id'], $showEmailAndLinksToDelete);
+        $this->_commentController->showCommentsByUserId($user['user_id'], $showEmailAndLinksToDelete);
 
         echo "<div class='contentsinglepost'><p class='posttitle'>Оценённые посты &copy; ${user['fio']}:</p></div>";
-        $this->postController->showLikedPostsByUserId($user['user_id'], $showEmailAndLinksToDelete);
+        $this->_postController->showLikedPostsByUserId($user['user_id'], $showEmailAndLinksToDelete);
 
         echo "<div class='contentsinglepost'><p class='posttitle'>Понравившиеся комментарии &copy; ${user['fio']}:</p></div>";
-        $this->commentController->showLikedCommentsByUserId($user['user_id'], $showEmailAndLinksToDelete);
+        $this->_commentController->showLikedCommentsByUserId($user['user_id'], $showEmailAndLinksToDelete);
         parent::viewFooterLayout($startTime);
     }
     public function viewPosts($sessionUserId, $isSuperuser, $startTime, $numberOfPosts, $pageOfPosts) {
@@ -126,7 +126,7 @@ class View extends ViewNested{
         $pageDescription = 'Наилучший источник информации по теме "Путешествия"';
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
         parent::viewPaginationLayout('posts', $numberOfPosts, $pageOfPosts);
-        $this->postController->showLastPosts($numberOfPosts,  $isSuperuser, $pageOfPosts * $numberOfPosts - $numberOfPosts);
+        $this->_postController->showLastPosts($numberOfPosts,  $isSuperuser, $pageOfPosts * $numberOfPosts - $numberOfPosts);
         parent::viewFooterLayout($startTime);
     }
     public function viewSearch($sessionUserId, $isSuperuser, $startTime, $searchWords) {
@@ -142,9 +142,9 @@ class View extends ViewNested{
         echo $description;
         if (!empty($searchWords)) {
             echo "<div class='singleposttext'><p class='center' style='font-size: 15pt;'>Результаты поиска (посты): </p>\n</div>"; 
-            $this->postController->showSearchPosts($searchWords, $isSuperuser);
+            $this->_postController->showSearchPosts($searchWords, $isSuperuser);
             echo "<div class='singleposttext'><p class='center' style='font-size: 15pt;'>Результаты поиска (пользователи): </p>\n</div>"; 
-            $this->userController->showSearchUsers($searchWords, $isSuperuser);
+            $this->_userController->showSearchUsers($searchWords, $isSuperuser);
         }
         parent::viewFooterLayout($startTime);
     }
@@ -159,7 +159,7 @@ class View extends ViewNested{
         $pageDescription = 'Управление пользователями';
         parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
         parent::viewPaginationLayout('adminusers', $numberOfUsers, $pageOfUsers);
-        $this->userController->showAdminUsers($isSuperuser, $numberOfUsers, $pageOfUsers);
+        $this->_userController->showAdminUsers($isSuperuser, $numberOfUsers, $pageOfUsers);
         parent::viewFooterLayout($startTime);
     }
 }

@@ -2,19 +2,19 @@
 
 class RatingCommentService {
     public $error;
-    private $_db;
+    private $_dbService, $_db;
     public function __construct() {
-        $this->_db = DbService::getConnectionToDb();
+        $this->_dbService = DbService::getInstance();
+        $this->_db = $this->_dbService->getConnectionToDb();
     }
-    public function changeCommentRating($rating, $commentId, $postId, $userId){
+    public function changeCommentRating($rating, $userId, $commentId){
         try {
             $commentId = clearInt($commentId);
-            $postId = clearInt($postId);
             $this->_db->beginTransaction();
     
             if ($rating === 'like') {
-                $sql = "INSERT INTO rating_comments (user_id, comment_id, post_id) 
-                        VALUES($userId, $commentId, $postId);";
+                $sql = "INSERT INTO rating_comments (user_id, comment_id) 
+                        VALUES($userId, $commentId);";
                 $this->_db->exec($sql);
     
                 $sql = "UPDATE comments SET rating = rating+1 WHERE comment_id = $commentId;";

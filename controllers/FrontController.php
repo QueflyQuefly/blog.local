@@ -2,21 +2,21 @@
 session_start();
 
 class FrontController {
-    public $msg, $_request, $maxSizeOfUploadImage = 4 * 1024 * 1024; //4 megabytes
-    private $userController, $postController, $commentController, $ratingController, 
-            $subscribeController, $stabService, $view;
+    public $msg, $startTime, $maxSizeOfUploadImage = 4 * 1024 * 1024; //4 megabytes
+    private $_request, $_userController, $_postController, $_commentController, $_ratingController, 
+            $_subscribeController, $_stabService, $_view;
 
     public function __construct(Factory $factory, $startTime) {
         ob_start();
         $this->startTime = $startTime;
         $this->_request = $_REQUEST;
-        $this->userController = $factory->getUserController();
-        $this->postController = $factory->getPostController();
-        $this->commentController = $factory->getCommentController();
-        $this->ratingController = $factory->getRatingController();
-        $this->subscribeController = $factory->getSubscribeController();
-        $this->stabService = $factory->getStabService();
-        $this->view= $factory->getView();
+        $this->_userController = $factory->getUserController();
+        $this->_postController = $factory->getPostController();
+        $this->_commentController = $factory->getCommentController();
+        $this->_ratingController = $factory->getRatingController();
+        $this->_subscribeController = $factory->getSubscribeController();
+        $this->_stabService = $factory->getStabService();
+        $this->_view = $factory->getView();
 
         $twoDaysInSeconds = 60*60*24*2;
         header("Cache-Control: max-age=$twoDaysInSeconds");
@@ -57,9 +57,9 @@ class FrontController {
                     header ("Location: /login");
                 }
             }
-            if (isset($this->_request['comment_id_like']) && isset($this->_request['post_id'])) {
+            if (isset($this->_request['comment_id_like'])) {
                 if ($this->getUserId()) {
-                    $this->changeCommentRating($this->_request['comment_id_like'], $this->_request['post_id']);
+                    $this->changeCommentRating($this->_request['comment_id_like']);
                 } else {
                     header ("Location: /login");
                 }
@@ -74,8 +74,8 @@ class FrontController {
                 $email = clearStr($this->_request['email']);
                 $password = $this->_request['password'];
                 if ($variableOfCaptcha == $_SESSION['variable_of_captcha']) {
-                    if ($this->userController->isUser($email, $password)) {
-                        setcookie('user_id', $this->userController->getUserIdByEmail($email), strtotime('+2 days'));
+                    if ($this->_userController->isUser($email, $password)) {
+                        setcookie('user_id', $this->_userController->getUserIdByEmail($email), strtotime('+2 days'));
                         header("Location: {$_SESSION['referrer']}");
                     } else {
                         $this->msg = "Неверный email или пароль";
@@ -100,11 +100,11 @@ class FrontController {
                         if (isset($this->_request['add_admin']) && $this->isSuperuser()) {
                             $addSuperuser = true;
                         }
-                        if (!$this->userController->addUser($regemail, $regfio, $regpassword, $addSuperuser)) {
+                        if (!$this->_userController->addUser($regemail, $regfio, $regpassword, $addSuperuser)) {
                             $this->msg = "Пользователь с таким email уже зарегистрирован";
                         } else {
-                            if (!$addSuperuser) {
-                                setcookie('user_id', $this->userController->getUserIdByEmail($regemail), strtotime('+2 days'));
+                            if (!$addSuperuser && !$this->isSuperuser()) {
+                                setcookie('user_id', $this->_userController->getUserIdByEmail($regemail), strtotime('+2 days'));
                             }
                             header("Location: {$_SESSION['referrer']}");
                         } 
@@ -140,7 +140,7 @@ class FrontController {
                                 $this->msg = "Не удалось записать файл на диск";
                         }
                     } elseif ($_FILES['addPostImg']["type"] == 'image/jpeg') { */
-                        if (!$this->postController->addPost($title, $this->getUserId(), $content)) {
+                        if (!$this->_postController->addPost($title, $this->getUserId(), $content)) {
                             $this->msg =  "Произошла ошибка при добавлении поста";
                         } else {
                             /* move_uploaded_file($_FILES['addPostImg']["tmp_name"], "images\PostImgId" . $lastPostId . ".jpg"); */
@@ -167,7 +167,7 @@ class FrontController {
                     } else {
                         $password = false;
                     }
-                    if (!$this->userController->updateUser($this->getUserId(), $email, $fio, $password)) {
+                    if (!$this->_userController->updateUser($this->getUserId(), $email, $fio, $password)) {
                         $this->msg = "Пользователь с таким email уже зарегистрирован";
                     } else {
                         $this->msg = "Изменения сохранены";
@@ -179,7 +179,7 @@ class FrontController {
             }
             if (isset($this->_request['user']) && (isset($this->_request['subscribe']) || isset($this->_request['unsubscribe']))) {
                 header("Refresh:0");
-                $this->subscribeController->subscribeUser($this->getUserId(), $this->_request['user']);
+                $this->_subscribeController->subscribeUser($this->getUserId(), $this->_request['user']);
             }
             if (isset($this->_request['view']) && $this->isSuperuser()) {
                 switch($this->_request['view']) {
@@ -213,7 +213,7 @@ class FrontController {
     }
     public function showGeneral() {
         $_SESSION['referrer'] = '/';
-        $this->view->viewGeneral($this->getUserId(), $this->isSuperuser(), $this->startTime);
+        $this->_view->viewGeneral($this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showPost() {
         $postId = array_shift($this->requestUriArray);
@@ -221,31 +221,31 @@ class FrontController {
           header ("Location: /error404");
         } else {
             $postId = clearInt($postId);
-            $this->view->viewPost(
+            $this->_view->viewPost(
                 $postId, 
                 $this->getUserId(), 
                 $this->isSuperuser(), 
                 $this->startTime, 
-                $this->ratingController->isUserChangedPostRating($this->getUserId(), $postId)
+                $this->_ratingController->isUserChangedPostRating($this->getUserId(), $postId)
             );
         }
     }
     public function show404() {
-        $this->view->view404($this->getUserId(), $this->isSuperuser(), $this->startTime);
+        $this->_view->view404($this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showLogin() {
-        $this->view->viewLogin($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->msg);
+        $this->_view->viewLogin($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->msg);
 
     }
     public function showReg() {
-        $this->view->viewReg($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->msg);
+        $this->_view->viewReg($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->msg);
     }
     public function showAddpost() {
         $_SESSION['referrer'] = '/addpost';
         if (!$this->getUserId()) {
             header ("Location: /login");
         }
-        $this->view->viewAddpost($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->maxSizeOfUploadImage, $this->msg);
+        $this->_view->viewAddpost($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->maxSizeOfUploadImage, $this->msg);
     }
     public function showStab() {
         @set_time_limit(6000);
@@ -255,9 +255,9 @@ class FrontController {
             $_SESSION['referrer'] = '/stab';
             $numberOfLoopIterations = $this->_request['number'] ?? 10;
             $numberOfLoopIterations = clearInt($numberOfLoopIterations);
-            $this->stabService->stabDb($numberOfLoopIterations);
-            $errors = $this->stabService->getErrors();
-            $this->view->viewStab($this->getUserId(), $this->isSuperuser(), $numberOfLoopIterations, $errors, $this->startTime);
+            $this->_stabService->stabDb($numberOfLoopIterations);
+            $errors = $this->_stabService->getErrors();
+            $this->_view->viewStab($this->getUserId(), $this->isSuperuser(), $numberOfLoopIterations, $errors, $this->startTime);
         }
     }
     public function showPosts() {
@@ -266,7 +266,7 @@ class FrontController {
         $numberOfPosts = clearInt($numberOfPosts);
         $pageOfPosts = $this->_request['page'] ?? 1;
         $pageOfPosts = clearInt($pageOfPosts);
-        $this->view->viewPosts($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfPosts, $pageOfPosts);
+        $this->_view->viewPosts($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfPosts, $pageOfPosts);
     }
     public function showCabinet() {
         $_SESSION['referrer'] = "/cabinet";
@@ -274,7 +274,7 @@ class FrontController {
         if ($userId == false) {
             header("Location: /login");
         } else {
-            $user = $this->userController->getUserInfoById($userId);
+            $user = $this->_userController->getUserInfoById($userId);
             $showEmailAndLinksToDelete = false;
             $linkToChangeUserInfo = false;
             if ($this->getUserId() == $userId || $this->isSuperuser()) {
@@ -283,7 +283,7 @@ class FrontController {
                     $linkToChangeUserInfo = true;
                 }
             }
-            $this->view->viewCabinet(
+            $this->_view->viewCabinet(
                 $user, 
                 $showEmailAndLinksToDelete, 
                 $linkToChangeUserInfo, 
@@ -297,14 +297,14 @@ class FrontController {
     public function showSearch() {
         $search = $this->_request['search'] ?? '';
         $_SESSION['referrer'] = "/search/?search=$search";
-        $this->view->viewSearch($this->getUserId(), $this->isSuperuser(), $this->startTime, $search);
+        $this->_view->viewSearch($this->getUserId(), $this->isSuperuser(), $this->startTime, $search);
     }
     public function showAdmin() {
         if (empty($this->isSuperuser())) {
             header("Location: /error404");
         } else {
             $_SESSION['referrer'] = "/admin";
-            $this->view->viewAdmin($this->getUserId(), $this->isSuperuser(), $this->startTime);
+            $this->_view->viewAdmin($this->getUserId(), $this->isSuperuser(), $this->startTime);
         }
     }
     public function showAdminUsers() {
@@ -316,53 +316,53 @@ class FrontController {
             $numberOfUsers = clearInt($numberOfUsers);
             $pageOfUsers = $this->_request['page'] ?? 1;
             $pageOfUsers = clearInt($pageOfUsers);
-            $this->view->viewAdminUsers($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfUsers, $pageOfUsers);
+            $this->_view->viewAdminUsers($this->getUserId(), $this->isSuperuser(), $this->startTime, $numberOfUsers, $pageOfUsers);
         }
     }
     public function changePostRating($postId, $star) {
         if ($this->getUserId()) {
             header("Refresh:0");
-            return $this->ratingController->changePostRating($this->getUserId(), $postId, $star);
+            return $this->_ratingController->changePostRating($this->getUserId(), $postId, $star);
         }
     }
     public function deletePostById($postId) {
         if ($this->isSuperuser()) {
             header("Refresh:0");
-            return $this->postController->deletePostById($postId);
+            return $this->_postController->deletePostById($postId);
         }
     }
     public function addComment($postId, $commentContent) {
         if ($this->getUserId()) {
             header("Refresh:0");
-            return $this->commentController->addComment($postId, $this->getUserId(), $commentContent);
+            return $this->_commentController->addComment($postId, $this->getUserId(), $commentContent);
         }
     }
-    public function changeCommentRating($commentId, $postId) {
+    public function changeCommentRating($commentId) {
         if ($this->getUserId()) {
             header("Refresh:0");
-            return $this->ratingController->changeCommentRating($commentId, $postId, $this->getUserId());
+            return $this->_ratingController->changeCommentRating($this->getUserId(), $commentId);
         }
     }
     public function deleteCommentById($commentId) {
         if ($this->isSuperuser()) {
             header("Refresh:0");
-            return $this->commentController->deleteCommentById($commentId);
+            return $this->_commentController->deleteCommentById($commentId);
         }
     }
     public function getUserId() {
-        return $this->userController->getUserId();
+        return $this->_userController->getUserId();
     }
     public function isSuperuser() {
-        return $this->userController->isSuperuser();
+        return $this->_userController->isSuperuser();
     }
     public function exitUser() {
         header("Refresh:0");
-        $this->userController->exitUser();
+        $this->_userController->exitUser();
     }
     public function deleteUserById($userId) {
         if ($this->isSuperuser()) {
             header("Refresh:0");
-            return $this->userController->deleteUserById($userId);
+            return $this->_userController->deleteUserById($userId);
         }
     }
 }

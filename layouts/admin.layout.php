@@ -10,7 +10,7 @@
                     <label class='formlabel' for='radio2'>К управлению постами</label>
 
                     <br><input type='radio' id='radio3' name='view' value='addAdmin' class='radio'>
-                    <label class='formlabel' for='radio3'>Добавить администратора</label>
+                    <label class='formlabel' for='radio3'>Создать администратора (пользователя) не выходя из аккаунта</label>
 
                     <br><input type='radio' id='radio4' name='view' value='viewStab' class='radio'>
                     <label class='formlabel' for='radio4'>К стабу базы данных</label>
