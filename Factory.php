@@ -1,11 +1,36 @@
 <?php
+spl_autoload_register(function ($class) {
+    if (strpos($class, 'Controller') !== false) {
+        $pathToClass = 'controllers' . DIRECTORY_SEPARATOR;
+    }
+    if (strpos($class, 'Service') !== false) {
+        $pathToClass = 'services' . DIRECTORY_SEPARATOR;
+    }
+    if (strpos($class, 'View') !== false) {
+        $pathToClass = 'views' . DIRECTORY_SEPARATOR;
+    }
+    require_once $pathToClass . $class . '.php';
+});
+function clearInt($int) {
+    return abs((int) $int);
+}
+function clearStr($str) {
+    return trim(strip_tags($str));
+}
+define('RIGHTS_USER', 'user');
+define('RIGHTS_SUPERUSER', 'superuser');
 
 class Factory {
-    private $_commentService, $_postService, $_ratingPostService, $_stabService,
+    private $_dbService, $_commentService, $_postService, $_ratingPostService, $_stabService,
             $_ratingCommentService, $_sendMailService, $_subscribeService, $_userService,
             $_postController, $_commentController, $_ratingController, $_userController, $_subscribeController,
             $_viewComments, $_viewPosts, $_viewUsers, $_view;
-
+    public function getDbService() {
+        if (is_null($this->_dbService)) {
+            $this->_dbService = DbService::getInstance();
+        }
+        return $this->_dbService;
+    }
     public function getCommentService() {
         if (is_null($this->_commentService)) {
             $this->_commentService = new CommentService();

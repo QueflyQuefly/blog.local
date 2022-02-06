@@ -150,34 +150,15 @@ class PostService {
             $sql = "SELECT DISTINCT c.post_id, p.title, p.date_time, p.content, a.rating, 
                     a.count_comments, a.count_ratings, u.fio as author 
                     FROM comments c 
-                    JOIN posts p ON c.post_id = p.post_id
-                    JOIN additional_info_posts a ON a.post_id = p.post_id
+                    JOIN posts p ON c.post_id = p.post_id 
+                    JOIN additional_info_posts a ON a.post_id = p.post_id 
                     JOIN users u ON p.user_id = u.user_id 
-                    WHERE c.date_time >= $dateWeekAgo ORDER BY a.count_comments DESC LIMIT 10;";
+                    WHERE c.date_time >= $dateWeekAgo 
+                    ORDER BY a.count_comments DESC, a.count_ratings DESC, c.post_id DESC LIMIT 3;";
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $postsNotSorted[] = $row;
-                    $postId = $row['post_id'];
-                    $sql = "SELECT COUNT(*) as count_comments FROM comments 
-                            WHERE date_time >= $dateWeekAgo AND post_id = $postId;";
-                    $st = $this->_db->query($sql);
-                    while ($r = $st->fetch(PDO::FETCH_ASSOC)) {
-                        $rows[$postId] = $r['count_comments'];
-                    }
-                }
-                for ($i = 1; $i <= $numberOfPosts; $i++) {
-                    if (!empty($rows)) {
-                        $maxId = array_search(max($rows), $rows);
-                        if (!empty($maxId)) {
-                            foreach ($postsNotSorted as $post) {
-                                if ($post['post_id'] == $maxId) {
-                                    $posts[$maxId] = $post;
-                                }
-                            }
-                            unset($rows[$maxId]);
-                        }
-                    }
+                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $posts[] = $result;
                 }
             }
         } catch (PDOException $e) {

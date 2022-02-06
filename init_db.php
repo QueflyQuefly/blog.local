@@ -1,5 +1,4 @@
 <?php
-$pathToDbService = 'services' . DIRECTORY_SEPARATOR . 'DbService.php';
-require_once $pathToDbService;
-define('RIGHTS_SUPERUSER', 'superuser');
-DbService::getInstance();
+require_once 'Factory.php';
+$factory = new Factory();
+$factory->getDbService();

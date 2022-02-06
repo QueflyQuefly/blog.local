@@ -47,7 +47,7 @@ class DbService {
                         CREATE TABLE posts
                         (
                         post_id INT UNSIGNED AUTO_INCREMENT,
-                        title TINYTEXT,
+                        title VARCHAR(140),
                         user_id INT UNSIGNED,
                         date_time INT UNSIGNED,
                         content TEXT,
@@ -98,7 +98,7 @@ class DbService {
                         CREATE TABLE tag_posts
                         (
                         post_id INT UNSIGNED,
-                        tag TINYTEXT,
+                        tag VARCHAR(50),
                         FOREIGN KEY (post_id) REFERENCES posts (post_id) ON DELETE CASCADE
                         );
 
@@ -110,11 +110,11 @@ class DbService {
                         FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
                         );
 
-                        CREATE INDEX fio ON users (fio);
-                        CREATE INDEX post_date_time ON posts (date_time, post_id);
-                        CREATE INDEX comment_date_time ON comments (date_time, post_id);
-                        CREATE INDEX comment_id ON rating_comments (comment_id);
-                        CREATE INDEX post_info ON additional_info_posts (post_id, rating, count_comments, count_ratings);
+                        CREATE INDEX user_info ON users (user_id, email, fio, date_time, rights);
+                        CREATE INDEX post_info ON posts (post_id, user_id, title, date_time);
+                        CREATE INDEX comment_info ON comments (comment_id, user_id, post_id, date_time);
+                        CREATE INDEX post_add_info ON additional_info_posts (post_id);
+                        CREATE INDEX tag ON tag_posts (post_id, tag);
                 ";
                 $this->_db->exec($sql);
 

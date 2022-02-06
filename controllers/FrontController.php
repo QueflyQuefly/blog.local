@@ -253,7 +253,7 @@ class FrontController {
             header("Location: /error404");
         } else {
             $_SESSION['referrer'] = '/stab';
-            $numberOfLoopIterations = $this->_request['number'] ?? 10;
+            $numberOfLoopIterations = $this->_request['number'] ?? 0;
             $numberOfLoopIterations = clearInt($numberOfLoopIterations);
             $this->_stabService->stabDb($numberOfLoopIterations);
             $errors = $this->_stabService->getErrors();
