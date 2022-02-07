@@ -44,7 +44,7 @@ class RatingCommentService {
         try {
             $userId = clearInt($userId);
             $commentId = clearInt($commentId);
-            $sql = "SELECT user_id FROM cating_comments 
+            $sql = "SELECT user_id FROM rating_comments 
                     WHERE user_id = $userId AND comment_id = $commentId;";
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {

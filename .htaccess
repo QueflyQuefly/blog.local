@@ -1,3 +1,4 @@
+RewriteEngine on
 #404 Страница не найдена
 ErrorDocument 404 http://blog.local/error404
 #500 Внутренняя ошибка сервера
@@ -5,6 +6,9 @@ ErrorDocument 404 http://blog.local/error404
 <FilesMatch "\.(jpg|css|jpeg|png|gif|swf)$">
     FallbackResource disabled 
     Header set Cache-Control "max-age=604800, public"
+</FilesMatch>
+<FilesMatch "\.(json|log)$">
+    Redirect 301 http://blog.local/
 </FilesMatch>
 Options -Indexes
 Require all granted
