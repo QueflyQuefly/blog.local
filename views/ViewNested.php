@@ -43,4 +43,10 @@ class ViewNested{
     public function viewChangeUserInfo($user, $msg) {
         require "layouts/changeuserinfo.layout.php";
     }
+    public function viewError($sessionUserId, $isSuperuser, $pageTitle, $pageDescription, $startTime) {
+        $this->viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
+        echo "<a class='link' href='{$_SESSION['referrer']}'>Вернуться назад</a><br><br>";
+        echo "<a class='link' href='/'>Вернуться на главную</a>";
+        $this->viewFooterLayout($startTime);
+    }
 }

@@ -205,6 +205,7 @@ class FrontController {
             case 'search': $this->showSearch(); break;
             case 'admin': $this->showAdmin(); break;
             case 'adminusers': $this->showAdminUsers(); break;
+            case 'error500': $this->show500(); break;
             default : $this->show404();
         }
     }
@@ -232,6 +233,9 @@ class FrontController {
     }
     public function show404() {
         $this->_view->view404($this->getUserId(), $this->isSuperuser(), $this->startTime);
+    }
+    public function show500() {
+        $this->_view->view500($this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showLogin() {
         $this->_view->viewLogin($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->msg);

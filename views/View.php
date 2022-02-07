@@ -20,10 +20,12 @@ class View extends ViewNested{
     public function view404($sessionUserId, $isSuperuser, $startTime) {
         $pageTitle = 'Ошибка - Просто Блог';
         $pageDescription = 'Произошла ошибка 404: информация не найдена';            
-        parent::viewHeadAndMenuWithDescLayouts($sessionUserId, $isSuperuser, $pageTitle, $pageDescription);
-        echo "<a class='link' href='{$_SESSION['referrer']}'>Вернуться назад</a><br><br>";
-        echo "<a class='link' href='/'>Вернуться на главную</a>";
-        parent::viewFooterLayout($startTime);
+        parent::viewError($sessionUserId, $isSuperuser, $pageTitle, $pageDescription, $startTime);
+    }
+    public function view500($sessionUserId, $isSuperuser, $startTime) {
+        $pageTitle = 'Ошибка - Просто Блог';
+        $pageDescription = 'Произошла ошибка 500: внутренняя ошибка сервера';            
+        parent::viewError($sessionUserId, $isSuperuser, $pageTitle, $pageDescription, $startTime);
     }
     public function viewPost($postId, $sessionUserId, $isSuperuser, $startTime, $isUserChangedPostRating) {
         $pageTitle = 'Просмотр поста - Просто Блог';
