@@ -1,5 +1,6 @@
 <?php
 spl_autoload_register(function ($class) {
+    $pathToClass = '';
     if (strpos($class, 'Controller') !== false) {
         $pathToClass = 'controllers' . DIRECTORY_SEPARATOR;
     }
@@ -19,6 +20,23 @@ function clearStr($str) {
 }
 define('RIGHTS_USER', 'user');
 define('RIGHTS_SUPERUSER', 'superuser');
+set_error_handler(function ($errorNumber, $errorMsg, $errorFile, $errorLine) {
+    if (error_reporting() === 0) {
+        return false;
+    }
+    $string = "Error $errorNumber : " . date("d-m-Y H:i:s") . " - $errorMsg in $errorFile:$errorLine";
+    error_log("$string\n", 3, "error.log");
+    echo "<p style='text-align:center; font-family:Georgia, sans-serif; font-syze: 20pt; font-weight:700;'>
+        Произошла непредвиденная ошибка сервера: <a href='/'>Вернуться на главную</a> <br> 
+        <a href='mailto:drotov.mihailo@gmail.com'>Сообщить разработчику</a></p>";
+    }, E_ALL
+);
+set_exception_handler(function($exception) {
+    /** @var Exception $exception */
+    $string = "Exception : " . date("d-m-Y H:i:s") . " - " . $exception->getMessage() . " 
+            in " . $exception->getFile() . " : " . $exception->getLine() . " " . $exception->getTraceAsString();
+    error_log("$string\n", 3, "error.log");
+});
 
 class Factory {
     private $_dbService, $_commentService, $_postService, $_ratingPostService, $_stabService,

@@ -134,4 +134,9 @@ class DbService {
             }
         }
     }
+    public function __destruct() {
+        if (!empty($this->error)) {
+            throw new Exception($this->error);
+        }
+    }
 }

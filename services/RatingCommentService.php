@@ -7,6 +7,11 @@ class RatingCommentService {
         $this->_dbService = DbService::getInstance();
         $this->_db = $this->_dbService->getConnectionToDb();
     }
+    public function __destruct() {
+        if (!empty($this->error)) {
+            throw new Exception($this->error);
+        }
+    }
     public function changeCommentRating($rating, $userId, $commentId){
         try {
             $commentId = clearInt($commentId);
@@ -39,7 +44,7 @@ class RatingCommentService {
         try {
             $userId = clearInt($userId);
             $commentId = clearInt($commentId);
-            $sql = "SELECT user_id FROM rating_comments 
+            $sql = "SELECT user_id FROM cating_comments 
                     WHERE user_id = $userId AND comment_id = $commentId;";
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
@@ -47,6 +52,8 @@ class RatingCommentService {
                 if ($result) {
                     return true;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();

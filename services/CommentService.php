@@ -7,6 +7,11 @@ class CommentService {
         $this->_dbService = DbService::getInstance();
         $this->_db = $this->_dbService->getConnectionToDb();
     }
+    public function __destruct() {
+        if (!empty($this->error)) {
+            throw new Exception($this->error);
+        }
+    }
     public function addComment($postId, $commentAuthorId, $commentContent, $commentDate = 0, $rating = 0) {
         try {
             $authorId = clearInt($commentAuthorId);
@@ -21,11 +26,13 @@ class CommentService {
             $sql = "INSERT INTO comments (post_id, user_id, date_time, content, rating) 
                     VALUES($postId, $authorId, $commentDate, $content, $rating);";
             if (!$this->_db->exec($sql)) {
+                throw new Exception("Запрос sql = $sql не был выполнен");
                 return false;
             }
             $sql = "UPDATE additional_info_posts SET count_comments = count_comments+1 
                     WHERE post_id = $postId;";
             if (!$this->_db->exec($sql)) {
+                throw new Exception("Запрос sql = $sql не был выполнен");
                 return false;
             }
         } catch (PDOException $e) {
@@ -48,6 +55,8 @@ class CommentService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $comments[] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -68,6 +77,8 @@ class CommentService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $comments[] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -89,6 +100,8 @@ class CommentService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $comments[] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();

@@ -7,6 +7,11 @@ class UserService {
         $this->_dbService = DbService::getInstance();
         $this->_db = $this->_dbService->getConnectionToDb();
     }
+    public function __destruct() {
+        if (!empty($this->error)) {
+            throw new Exception($this->error);
+        }
+    }
     public function addUser($email, $fio, $password, $addSuperuser) {
         try {
             if (!$this->isEmailUnique($email)) {
@@ -23,6 +28,7 @@ class UserService {
             $sql = "INSERT INTO users (email, fio, pass_word, date_time, rights) 
                     VALUES ($email, $fio, $password, $date, $rights);";
             if (!$this->_db->exec($sql)) {
+                throw new Exception("Запрос sql = $sql не был выполнен");
                 return false;
             }
         } catch (PDOException $e) {
@@ -35,9 +41,13 @@ class UserService {
             $email = $this->_db->quote($email);
             $sql = "SELECT user_id FROM users WHERE email = $email;";
             $stmt = $this->_db->query($sql);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!empty($result['user_id'])){
-                return false; //если есть совпадения, то логин не является уникальным
+            if ($stmt != false) {
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!empty($result['user_id'])){
+                    return false; //если есть совпадения, то логин не является уникальным
+                }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -55,6 +65,8 @@ class UserService {
                 if (!empty($result) && password_verify($password, $result['pass_word'])) {
                     return true;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -71,6 +83,8 @@ class UserService {
             if ($stmt != false) {
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
                 $id = $result['user_id'] ?? null;
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -82,20 +96,16 @@ class UserService {
         try {
             $numberOfUsers  = clearInt($numberOfUsers );
             $lessThanMaxId = clearInt($lessThanMaxId);
-            if (empty($lessThanMaxId)) {
-                $sql = "SELECT user_id, email, fio, pass_word, date_time, rights 
-                        FROM users ORDER BY user_id 
-                        DESC LIMIT $numberOfUsers;";
-            } else {
-                $sql = "SELECT user_id, email, fio, pass_word, date_time, rights 
-                        FROM users ORDER BY user_id 
-                        DESC LIMIT $lessThanMaxId, $numberOfUsers;";
-            }
+            $sql = "SELECT user_id, email, fio, pass_word, date_time, rights 
+                    FROM users ORDER BY user_id 
+                    DESC LIMIT $lessThanMaxId, $numberOfUsers;";
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $users[] = $row;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -114,6 +124,7 @@ class UserService {
                     $sql = "UPDATE users SET email = $email
                             WHERE user_id = $userId;";
                     if (!$this->_db->exec($sql)) {
+                        throw new Exception("Запрос sql = $sql не был выполнен");
                         return false;
                     }
                 }
@@ -123,6 +134,7 @@ class UserService {
                 $sql = "UPDATE users SET fio = $fio 
                         WHERE user_id = $userId;";
                 if (!$this->_db->exec($sql)) {
+                    throw new Exception("Запрос sql = $sql не был выполнен");
                     return false;
                 }
             }
@@ -131,6 +143,7 @@ class UserService {
                 $sql = "UPDATE users SET pass_word = $password 
                         WHERE user_id = $userId;";
                 if (!$this->_db->exec($sql)) {
+                    throw new Exception("Запрос sql = $sql не был выполнен");
                     return false;
                 }
             }
@@ -152,9 +165,13 @@ class UserService {
             }
             $sql = "SELECT $query FROM users WHERE user_id = $userId;";
             $stmt = $this->_db->query($sql);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!empty($whatNeeded) && !empty($result)) {
-                $result = $result[$whatNeeded];
+            if ($stmt != false) {
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!empty($whatNeeded) && !empty($result)) {
+                    $result = $result[$whatNeeded];
+                }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -174,6 +191,8 @@ class UserService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $results[$result['user_id']] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
             if ($isSuperuser) {
                 $sql = "SELECT user_id, fio, email, date_time, rights 
@@ -183,6 +202,8 @@ class UserService {
                     while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                         $results[$result['user_id']] = $result;
                     }
+                } else {
+                    throw new Exception("Запрос sql = $sql не был выполнен");
                 }
             }
         } catch (PDOException $e) {
@@ -194,12 +215,13 @@ class UserService {
         $userId = clearstr($userId);
         try {
             $sql = "DELETE FROM users WHERE user_id = $userId;";
-            if ($this->_db->exec($sql)) {
-                return true;
+            if (!$this->_db->exec($sql)) {
+                throw new Exception("Запрос sql = $sql не был выполнен");
+                return false;
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
         }
-        return false;
+        return true;
     }
 }

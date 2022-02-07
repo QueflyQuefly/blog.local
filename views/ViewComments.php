@@ -16,7 +16,7 @@ class ViewComments {
                 if (!empty($isSuperuser)) {
                     $linkToDelete = "
                     <input type='submit' form='deleteComment{$comment['comment_id']}' value='Удалить комментарий' class='link'>
-                    <form id='deleteComment{$comment['comment_id']}' class='hide' action='' method='post'>
+                    <form id='deleteComment{$comment['comment_id']}' class='hide' action='{$_SERVER['REQUEST_URI']}#comment' method='post'>
                         <input type='hidden' value='{$comment['comment_id']}' name='deleteCommentById'>
                     </form>
                     ";

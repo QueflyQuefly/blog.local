@@ -4,6 +4,7 @@ $pathToPHPMailer = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECT
 require $pathToPHPMailer;
 
 class SendMailService {
+    public $error;
     private $_mail;
     private static $_instance;
     public static function getInstance() {
@@ -28,6 +29,11 @@ class SendMailService {
         $this->_mail->addReplyTo($data['email'], 'Prosto Blog');
         return $this->_mail;
     }
+    public function __destruct() {
+        if (!empty($this->error)) {
+            throw new Exception($this->error);
+        }
+    }
     public function sendMail($toEmail, $title, $message) {
         $this->_mail->addAddress($toEmail, 'Prosto Blog');
         $this->_mail->Subject = $title;
@@ -35,13 +41,14 @@ class SendMailService {
         //$this->_mail->AltBody = 'This is a plain-text message body';
         //$this->_mail->addAttachment('images/phpmailer_mini.png');
         if (!$this->_mail->send()) {
+            $this->error = "Не удалось послать письмо";
             return false;
         } else {
             return true;
         }
     }
     private function __clone(){
-        throw New Exception('It is forbidden');
+        throw New Exception('Cloning singletone SendMail is forbidden');
     }
 }
 

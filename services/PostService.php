@@ -7,6 +7,11 @@ class PostService {
         $this->_dbService = DbService::getInstance();
         $this->_db = $this->_dbService->getConnectionToDb();
     }
+    public function __destruct() {
+        if (!empty($this->error)) {
+            throw new Exception($this->error);
+        }
+    }
     public function addPost($title, $userId, $content) {
         try {
             $date = time();
@@ -59,6 +64,8 @@ class PostService {
                     $mailService = SendMailService::getInstance();
                     $mailService->sendMail($toEmail, $title, $message);
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -93,6 +100,8 @@ class PostService {
                     }
                     $posts[] = $row;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -113,6 +122,8 @@ class PostService {
                 while($post = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $posts[] = $post;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch(PDOException $e) {
             $this->error = $e->getMessage();
@@ -135,6 +146,8 @@ class PostService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $posts[] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -160,6 +173,8 @@ class PostService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $posts[] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -179,6 +194,8 @@ class PostService {
             $stmt = $this->_db->query($sql);
             if ($stmt != false) {
                 $post = $stmt->fetch(PDO::FETCH_ASSOC);
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -196,6 +213,8 @@ class PostService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $tags[] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -220,6 +239,8 @@ class PostService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $results[$result['post_id']] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -243,6 +264,8 @@ class PostService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $results[$result['post_id']] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
             $sql = "SELECT p.post_id, p.title, p.content, p.user_id, p.date_time, 
                     a.rating, a.count_comments, a.count_ratings, u.fio as author
@@ -255,6 +278,8 @@ class PostService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $results[$result['post_id']] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -278,6 +303,8 @@ class PostService {
                 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $results[$result['post_id']] = $result;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -291,6 +318,7 @@ class PostService {
             $sql = "INSERT INTO tag_posts (tag, post_id) 
                     VALUES($tag, $postId);";
             if (!$this->_db->exec($sql)) {
+                throw new Exception("Запрос sql = $sql не был выполнен");
                 return false;
             }
         } catch (PDOException $e) {
@@ -303,13 +331,14 @@ class PostService {
             $id = clearInt($id);
             /* Удаляю пост */
             $sql = "DELETE FROM posts WHERE post_id = $id;";
-            $this->_db->exec($sql);
-    
+            if (!$this->_db->exec($sql)) {
+                throw new Exception("Запрос sql = $sql не был выполнен");
+                return false;
+            }
             /* Удаляю его картинку */
             //unlink("..\images\PostImgId$id.jpg");
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
-            return false;
         }
         return true;
     }

@@ -7,6 +7,11 @@ class SubscribeService {
         $this->_dbService = DbService::getInstance();
         $this->_db = $this->_dbService->getConnectionToDb();
     }
+    public function __destruct() {
+        if (!empty($this->error)) {
+            throw new Exception($this->error);
+        }
+    }
     public function toSubscribeUser($userIdWantSubscribe, $userId) {
         try {
             $userIdWantSubscribe = clearInt($userIdWantSubscribe);
@@ -15,6 +20,7 @@ class SubscribeService {
             $sql = "INSERT INTO subscriptions (user_id_want_subscribe, user_id) 
                     VALUES($userIdWantSubscribe, $userId);";
             if (!$this->_db->exec($sql)) {
+                throw new Exception("Запрос sql = $sql не был выполнен");
                 return false;
             }
         } catch (PDOException $e) {
@@ -32,6 +38,7 @@ class SubscribeService {
                     WHERE user_id_want_subscribe = $userIdWantSubscribe 
                     AND user_id = $userId;";
             if (!$this->_db->exec($sql)) {
+                throw new Exception("Запрос sql = $sql не был выполнен");
                 return false;
             }
         } catch (PDOException $e) {
@@ -53,6 +60,8 @@ class SubscribeService {
                 if ($result) {
                     return true;
                 }
+            } else {
+                throw new Exception("Запрос sql = $sql не был выполнен");
             }
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
