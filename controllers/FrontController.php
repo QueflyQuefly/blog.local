@@ -205,8 +205,10 @@ class FrontController {
             case 'search': $this->showSearch(); break;
             case 'admin': $this->showAdmin(); break;
             case 'adminusers': $this->showAdminUsers(); break;
-            case 'error500': $this->show500(); break;
-            default : $this->show404();
+            case 'error401': $this->showError(401); break;
+            case 'error403': $this->showError(403); break;
+            case 'error500': $this->showError(500); break;
+            default : $this->showError(404);
         }
     }
     public function __destruct() {
@@ -231,11 +233,8 @@ class FrontController {
             );
         }
     }
-    public function show404() {
-        $this->_view->view404($this->getUserId(), $this->isSuperuser(), $this->startTime);
-    }
-    public function show500() {
-        $this->_view->view500($this->getUserId(), $this->isSuperuser(), $this->startTime);
+    public function showError($errorNumber) {
+        $this->_view->viewErrorPage($errorNumber, $this->getUserId(), $this->isSuperuser(), $this->startTime);
     }
     public function showLogin() {
         $this->_view->viewLogin($this->getUserId(), $this->isSuperuser(), $this->startTime, $this->msg);

@@ -1,7 +1,7 @@
 <?php
 
 class UserController {
-    private $_sessionUserId, $_isSuperuser, $userService, $viewUsers;
+    private $_sessionUserId, $_isSuperuser, $_userService, $_viewUsers;
     public function __construct(UserService $userService, ViewUsers $viewUsers){
         $this->_userService = $userService;
         $this->_viewUsers = $viewUsers;

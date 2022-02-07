@@ -1,14 +1,14 @@
 RewriteEngine on
-#404 Страница не найдена
-ErrorDocument 404 http://blog.local/error404
-#500 Внутренняя ошибка сервера
-ErrorDocument 500 http://blog.local/error500
+ErrorDocument 401 /error401
+ErrorDocument 403 /error403
+ErrorDocument 404 /error404
+ErrorDocument 500 /error500
 <FilesMatch "\.(jpg|css|jpeg|png|gif|swf)$">
     FallbackResource disabled 
     Header set Cache-Control "max-age=604800, public"
 </FilesMatch>
 <FilesMatch "\.(json|log)$">
-    Redirect 301 http://blog.local/
+    Redirect /error403
 </FilesMatch>
 Options -Indexes
 Require all granted
@@ -21,6 +21,9 @@ RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
 RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
 #Blocking scripts with _REQUEST:
 RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+#Запрещаем загрузку файлов с внешних сайтов
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http://(www.)?blog.local/error404 [nc]
 #And go to
 RewriteRule ^(.*)$ /error404 [F,L]
 AddDefaultCharset utf-8

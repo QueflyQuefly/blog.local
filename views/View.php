@@ -17,14 +17,14 @@ class View extends ViewNested{
         $this->_postController->showMoreTalkedPosts(3, $isSuperuser);
         parent::viewFooterLayout($startTime);
     }
-    public function view404($sessionUserId, $isSuperuser, $startTime) {
+    public function viewErrorPage($errorNumber, $sessionUserId, $isSuperuser, $startTime) {
         $pageTitle = 'Ошибка - Просто Блог';
-        $pageDescription = 'Произошла ошибка 404: информация не найдена';            
-        parent::viewError($sessionUserId, $isSuperuser, $pageTitle, $pageDescription, $startTime);
-    }
-    public function view500($sessionUserId, $isSuperuser, $startTime) {
-        $pageTitle = 'Ошибка - Просто Блог';
-        $pageDescription = 'Произошла ошибка 500: внутренняя ошибка сервера';            
+        switch ($errorNumber) {
+            case '401': $pageDescription = 'Ошибка 401: вы не авторизованы'; break;
+            case '403': $pageDescription = 'Ошибка 403: доступ запрещён'; break;
+            case '500': $pageDescription = 'Ошибка 500: внутренняя ошибка сервера'; break;
+            default: $pageDescription = 'Ошибка 404: информация не найдена';
+        }
         parent::viewError($sessionUserId, $isSuperuser, $pageTitle, $pageDescription, $startTime);
     }
     public function viewPost($postId, $sessionUserId, $isSuperuser, $startTime, $isUserChangedPostRating) {
