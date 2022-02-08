@@ -1,0 +1,2 @@
+FallbackResource disabled 
+Header set Cache-Control "max-age=604800, public"
